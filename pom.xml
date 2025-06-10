@@ -40,12 +40,12 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
+            <version>2.15.3</version> </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
-            <version>2.17.0</version> </dependency>
+            <version>2.17.0</version>
+        </dependency>
 
         <dependency>
             <groupId>org.controlsfx</groupId>
@@ -95,6 +95,11 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <dependency>
+            <groupId>io.github.palexdev</groupId>
+            <artifactId>materialfx</artifactId>
+            <version>11.13.6</version>
+        </dependency>
 
         <dependency>
             <groupId>com.jfoenix</groupId>
@@ -136,7 +141,6 @@
                 </configuration>
 
             </plugin>
-
             <plugin>
 
                 <groupId>org.openjfx</groupId>
@@ -149,30 +153,26 @@
 
                     <execution>
 
-                        <!-- Default configuration for running with: mvn clean javafx:run -->
-
                         <id>default-cli</id>
 
                         <configuration>
 
-                            <mainClass>com.foodapp.food4ufrontend/com.foodapp.food4ufrontend.HelloApplication
-
+                            <mainClass>com.foodapp.food4ufrontend/com.foodapp.food4ufrontend.Food4uApp
                             </mainClass>
-
                             <launcher>app</launcher>
-
                             <jlinkZipName>app</jlinkZipName>
-
                             <jlinkImageName>app</jlinkImageName>
-
                             <noManPages>true</noManPages>
-
                             <stripDebug>true</stripDebug>
-
                             <noHeaderFiles>true</noHeaderFiles>
-
+                            <vmArgs>
+                                --add-opens javafx.controls/com.sun.javafx.scene.control.skin=com.jfoenix
+                                --add-opens javafx.graphics/com.sun.javafx.css=com.jfoenix
+                                --add-opens javafx.graphics/com.sun.javafx.scene=com.jfoenix
+                                --add-opens javafx.base/com.sun.javafx.util=com.jfoenix
+                                --add-opens java.base/java.lang.reflect=com.jfoenix
+                            </vmArgs>
                         </configuration>
-
                     </execution>
 
                 </executions>

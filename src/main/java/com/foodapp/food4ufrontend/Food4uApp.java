@@ -12,12 +12,12 @@ public class Food4uApp extends Application {
 
     @Override
     public void start(Stage primaryStage) throws IOException {
-        // Load the initial view (e.g., Login or Signup)
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/foodapp/view/login/LoginView.fxml"));
+        // مسیر صحیح فایل FXML
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/foodapp/food4ufrontend/view/login.fxml"));
         Parent root = loader.load();
 
         Scene scene = new Scene(root);
-        scene.getStylesheets().add(getClass().getResource("/com/foodapp/css/application.css").toExternalForm());
+        scene.getStylesheets().add(getClass().getResource("/com/foodapp/food4ufrontend/css/application.css").toExternalForm());
 
         primaryStage.setTitle("Food4u");
         primaryStage.setScene(scene);
