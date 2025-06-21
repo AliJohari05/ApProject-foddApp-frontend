@@ -1,14 +1,76 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import io.github.palexdev.materialfx.controls.MFXButton?>
+<?import javafx.scene.control.ComboBox?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.foodapp.food4ufrontend.controller.dashbord.SellerDashboard"
-            prefHeight="400.0" prefWidth="600.0">
+            stylesheets="@/com/foodapp/food4ufrontend/css/application.css">
 
-</AnchorPane>
+    <left>
+        <VBox spacing="15" alignment="TOP_CENTER" styleClass="sidebar">
+            <padding>
+                <Insets top="30" right="20" bottom="20" left="20"/>
+            </padding>
+            <Label text="Seller Dashboard" styleClass="title-text"/>
+            <ListView fx:id="actionList" VBox.vgrow="ALWAYS" prefWidth="220" styleClass="action-list"/>
+            <Label fx:id="errorMessageLabel" textFill="red" wrapText="true"/>
+            <MFXButton text="Logout" onAction="#logout" styleClass="login-button"/>
+        </VBox>
+    </left>
+
+    <center>
+        <VBox spacing="20" alignment="TOP_LEFT" style="-fx-background-color: white; -fx-padding: 30;">
+            <Label text="My Restaurants" styleClass="section-title"/>
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <MFXButton text="Add New Restaurant" onAction="#addNewRestaurant" styleClass="login-button"/>
+                <MFXButton text="Refresh Restaurants" onAction="#viewMyRestaurants" styleClass="login-button"/>
+            </HBox>
+            <TableView fx:id="myRestaurantsTable" VBox.vgrow="ALWAYS" prefHeight="200" prefWidth="600" styleClass="data-table">
+                <columns>
+                    <TableColumn fx:id="myRestaurantIdColumn" text="ID" prefWidth="50"/>
+                    <TableColumn fx:id="myRestaurantNameColumn" text="Name" prefWidth="150"/>
+                    <TableColumn fx:id="myRestaurantAddressColumn" text="Address" prefWidth="200"/>
+                    <TableColumn fx:id="myRestaurantPhoneColumn" text="Phone" prefWidth="100"/>
+                    <TableColumn fx:id="myRestaurantTaxFeeColumn" text="Tax Fee" prefWidth="80"/>
+                    <TableColumn fx:id="myRestaurantAdditionalFeeColumn" text="Add. Fee" prefWidth="80"/>
+                </columns>
+                <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
+            </TableView>
+
+            <Label text="Restaurant Orders" styleClass="section-title"/>
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label text="Select Restaurant:"/>
+                <ComboBox fx:id="selectRestaurantForOrders" promptText="Choose Restaurant" />
+                <Label text="Filter Status:"/>
+                <ComboBox fx:id="filterOrderStatus" promptText="All Statuses" />
+                <MFXButton text="Refresh Orders" onAction="#viewRestaurantOrders" styleClass="login-button"/>
+            </HBox>
+            <TableView fx:id="restaurantOrdersTable" VBox.vgrow="ALWAYS" prefHeight="300" prefWidth="600" styleClass="data-table">
+                <columns>
+                    <TableColumn fx:id="sellerOrderIdColumn" text="Order ID" prefWidth="70"/>
+                    <TableColumn fx:id="sellerOrderCustomerColumn" text="Customer ID" prefWidth="100"/>
+                    <TableColumn fx:id="sellerOrderAddressColumn" text="Delivery Address" prefWidth="200"/>
+                    <TableColumn fx:id="sellerOrderStatusColumn" text="Status" prefWidth="120"/>
+                    <TableColumn fx:id="sellerOrderPriceColumn" text="Price" prefWidth="80"/>
+                    <TableColumn fx:id="sellerOrderCreatedAtColumn" text="Created At" prefWidth="150"/>
+                </columns>
+                <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
+            </TableView>
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <MFXButton text="Mark Accepted" onAction="#markOrderAccepted" styleClass="login-button"/>
+                <MFXButton text="Mark Rejected" onAction="#markOrderRejected" styleClass="login-button"/>
+                <MFXButton text="Mark Served" onAction="#markOrderServed" styleClass="login-button"/>
+            </HBox>
+        </VBox>
+    </center>
+</BorderPane>

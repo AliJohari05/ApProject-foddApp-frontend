@@ -12,7 +12,6 @@ public class Food4uApp extends Application {
 
     @Override
     public void start(Stage primaryStage) throws IOException {
-        // مسیر صحیح فایل FXML
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/foodapp/food4ufrontend/view/login.fxml"));
         Parent root = loader.load();
 

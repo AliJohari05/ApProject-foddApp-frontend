@@ -1,14 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.VBox?>
+<?import io.github.palexdev.materialfx.controls.MFXButton?>
+<?import javafx.scene.control.ComboBox?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.foodapp.food4ufrontend.controller.dashbord.AdminDashboard"
-            prefHeight="400.0" prefWidth="600.0">
+> <left>
+    <VBox spacing="15" alignment="TOP_CENTER" styleClass="sidebar">
+        <padding>
+            <Insets top="30" right="20" bottom="20" left="20"/>
+        </padding>
+        <Label text="Admin Dashboard" styleClass="title-text"/>
+        <ListView fx:id="actionList" VBox.vgrow="ALWAYS" prefWidth="220" styleClass="action-list"/>
+        <Label fx:id="errorMessageLabel" textFill="red" wrapText="true" />
+        <MFXButton text="Logout" onAction="#logout" styleClass="login-button"/>
+    </VBox>
+</left>
 
-</AnchorPane>
+    <center>
+        <VBox spacing="20" alignment="TOP_LEFT" style="-fx-background-color: white; -fx-padding: 30;">
+            <Label text="Users Management" styleClass="section-title"/>
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label text="Filter by Role:"/>
+                <ComboBox fx:id="filterRoleComboBox" promptText="All Roles" />
+                <MFXButton text="Refresh Users" onAction="#viewUsers" styleClass="login-button"/>
+                <MFXButton text="Approve Selected" onAction="#approveSelectedUsers" styleClass="login-button"/>
+                <MFXButton text="Reject Selected" onAction="#rejectSelectedUsers" styleClass="login-button"/>
+            </HBox>
+            <TableView fx:id="usersTable" VBox.vgrow="ALWAYS" prefHeight="400" prefWidth="600" styleClass="data-table">
+                <columns>
+                    <TableColumn fx:id="userIdColumn" text="ID" prefWidth="50"/>
+                    <TableColumn fx:id="userNameColumn" text="Full Name" prefWidth="150"/>
+                    <TableColumn fx:id="userPhoneColumn" text="Phone" prefWidth="100"/>
+                    <TableColumn fx:id="userEmailColumn" text="Email" prefWidth="150"/>
+                    <TableColumn fx:id="userRoleColumn" text="Role" prefWidth="80"/>
+                    <TableColumn fx:id="userAddressColumn" text="Address" prefWidth="200"/>
+                    <TableColumn fx:id="userStatusColumn" text="Status" prefWidth="80"/>
+                </columns>
+                <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
+            </TableView>
+        </VBox>
+    </center>
+
+</BorderPane>

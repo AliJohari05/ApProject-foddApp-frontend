@@ -1,14 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
+<?import io.github.palexdev.materialfx.controls.*?>
+<?import java.net.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.foodapp.food4ufrontend.controller.signup.signup"
-            prefHeight="400.0" prefWidth="600.0">
-
+<AnchorPane prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: linear-gradient(to bottom right, #ffffff, #f5f5f5);" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.foodapp.food4ufrontend.controller.signup.Signup">
+    <stylesheets>
+        <URL value="@../css/application.css" />
+    </stylesheets>
+    <children>
+        <VBox alignment="CENTER" layoutX="50.0" layoutY="16.0" prefHeight="446.0" prefWidth="518.0" spacing="20.0" style="-fx-background-color: white; -fx-background-radius: 20; -fx-padding: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 5);">
+            <children>
+                <Label style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #8319ad;" text="Food4U" />
+                <HBox spacing="30.0">
+                    <VBox prefHeight="294.0" prefWidth="218.0" spacing="15.0">
+                        <MFXTextField fx:id="nameField" floatingText="First Name and Last Name" prefHeight="50.0" promptText="Name" styleClass="login-field" />
+                        <MFXTextField fx:id="phoneField" floatingText="Phone Number" prefHeight="50.0" promptText="Phone Number" styleClass="login-field" />
+                        <MFXTextField fx:id="emailField" floatingText="Email" prefHeight="50.0" promptText="Email" styleClass="login-field" />
+                        <MFXPasswordField fx:id="passwordField" floatingText="Password" prefHeight="50.0" promptText="Password" styleClass="login-field" />
+                    </VBox>
+                    <VBox prefHeight="294.0" prefWidth="237.0" spacing="15.0">
+                        <MFXTextField fx:id="addressField" floatingText="Address" prefHeight="50.0" promptText="Address" styleClass="login-field" />
+                        <ComboBox fx:id="roleComboBox" prefWidth="150.0" promptText="Select Role" styleClass="login-field" />
+                        <MFXTextField floatingText="Profile Image (Base64)" prefHeight="50.0" promptText="Profile Image" styleClass="login-field" />
+                        <MFXTextField fx:id="bankNameField" floatingText="Bank Name" prefHeight="50.0" promptText="Bank Name" styleClass="login-field" />
+                        <MFXTextField fx:id="accountField" floatingText="Account Number" prefHeight="50.0" promptText="Account Number" styleClass="login-field" />
+                    </VBox>
+                </HBox>
+                <MFXButton fx:id="signupButton" onAction="#handleSignup" styleClass="login-button" text="Sign Up" />
+                <HBox alignment="CENTER" spacing="5.0">
+                    <Label text="I have an account?" />
+                    <Hyperlink onAction="#login" text="Login" />
+                </HBox>
+                <Label fx:id="errorMessageLabel" style="-fx-text-fill: red;" />
+            </children>
+        </VBox>
+    </children>
 </AnchorPane>
