@@ -47,7 +47,6 @@ public class AdminDashboard {
     @FXML private Label errorMessageLabel;
     @FXML private ListView<String> actionList;
 
-    // New FXML elements for displaying users and filtering (from updated FXML)
     @FXML private TableView<User> usersTable;
     @FXML private TableColumn<User, String> userIdColumn;
     @FXML private TableColumn<User, String> userNameColumn;
