@@ -9,8 +9,6 @@ import com.foodapp.food4ufrontend.util.AuthManager;
 import com.foodapp.food4ufrontend.util.JsonUtil;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXPasswordField;
-import com.jfoenix.controls.JFXTextField;
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -25,6 +23,7 @@ import java.net.http.HttpResponse;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import javafx.application.Platform;
 
 public class Login {
 
@@ -44,6 +43,21 @@ public class Login {
     public void initialize() {
         // Initialization logic if needed
     }
+
+    public void setErrorMessageText(String message) {
+        System.out.println("Login Controller: setErrorMessageText called with: " + message);
+        if (errorMessageLabel != null) {
+            Platform.runLater(() -> {
+                errorMessageLabel.setText(message);
+                errorMessageLabel.setVisible(true);
+                errorMessageLabel.setManaged(true);
+                System.out.println("Login Controller: errorMessageLabel text set to: '" + errorMessageLabel.getText() + "' visibility: " + errorMessageLabel.isVisible());
+            });
+        } else {
+            System.err.println("ERROR: errorMessageLabel is null in Login controller. Message: " + message);
+        }
+    }
+
 
     @FXML
     private void handleLogin(ActionEvent event) {
@@ -77,12 +91,13 @@ public class Login {
                     AuthManager.setCurrentUserId(user.getId());
                     System.out.println("login 1");
 
-                    navigateToDashboard(event, user.getRole());
+                    handleUserNavigation(event, user);
 
                     System.out.println("login 2");
 
 
                 } else {
+                    // FIX: Ensure errorMessage is read from "error" key if present
                     String errorMessage = rootNode.has("error") ? rootNode.get("error").asText() : "An unknown error occurred.";
                     errorMessageLabel.setText(errorMessage);
                 }
@@ -110,12 +125,59 @@ public class Login {
         window.show();
     }
 
+    private void handleUserNavigation(ActionEvent event, User user) throws IOException {
+        String userRole = user.getRole();
+        String userStatus = user.getStatus();
+
+        if ("SELLER".equals(userRole.toUpperCase()) || "COURIER".equals(userRole.toUpperCase())) {
+            if ("PENDING_APPROVAL".equals(userStatus) || "REJECTED".equals(userStatus)) {
+                errorMessageLabel.setText("");
+                String messageToDisplay = "Your account was successfully registered, but you must wait for the admin to approve it. If you are approved, you can log in.";
+                AuthManager.logout();
+
+                System.out.println("Navigating to Login with propagated message: " + messageToDisplay);
+                navigateToLoginScreenWithPropagatedMessage(event, messageToDisplay);
+                return;
+            }
+            else{
+                navigateToDashboard(event, userRole);
+
+            }
+        }
+        navigateToDashboard(event, userRole);
+    }
+
+    private void navigateToLoginScreen(ActionEvent event) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/foodapp/food4ufrontend/view/login.fxml"));
+        Parent loginView = loader.load();
+        Scene loginScene = new Scene(loginView);
+        loginScene.getStylesheets().add(getClass().getResource("/com/foodapp/food4ufrontend/css/application.css").toExternalForm());
+        Stage window = (Stage)((Node)event.getSource()).getScene().getWindow();
+        window.setScene(loginScene);
+        window.setTitle("Food4u - Login");
+        window.show();
+    }
+
+    private void navigateToLoginScreenWithPropagatedMessage(ActionEvent event, String message) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/foodapp/food4ufrontend/view/login.fxml"));
+        Parent loginView = loader.load();
+
+        Login loginController = loader.getController();
+        loginController.setErrorMessageText(message);
+
+        Scene loginScene = new Scene(loginView);
+        loginScene.getStylesheets().add(getClass().getResource("/com/foodapp/food4ufrontend/css/application.css").toExternalForm());
+        Stage window = (Stage)((Node)event.getSource()).getScene().getWindow();
+        window.setScene(loginScene);
+        window.setTitle("Food4u - Login");
+        window.show();
+        System.out.println("Navigation to Login screen completed.");
+    }
     private void navigateToDashboard(ActionEvent event, String role) throws IOException {
         String fxmlPath;
         String title;
-
         switch (role.toUpperCase()) {
-            case "CUSTOMER":
+            case "BUYER":
                 fxmlPath = "/com/foodapp/food4ufrontend/view/dashbord/BuyerDashboardView.fxml";
                 title = "Food4u - Buyer Dashboard";
                 break;
@@ -123,7 +185,7 @@ public class Login {
                 fxmlPath = "/com/foodapp/food4ufrontend/view/dashbord/SellerDashboardView.fxml";
                 title = "Food4u - Seller Dashboard";
                 break;
-            case "DELIVERY":
+            case "COURIER":
                 fxmlPath = "/com/foodapp/food4ufrontend/view/dashbord/CourierDashboardView.fxml";
                 title = "Food4u - Courier Dashboard";
                 break;
@@ -134,21 +196,11 @@ public class Login {
                 System.out.println("ادرس درست بود");
                 break;
             default:
-                if (errorMessageLabel != null) { // Safeguard
-                    errorMessageLabel.setText("Unknown user role. Cannot navigate.");
-                } else {
-                    System.err.println("ERROR: errorMessageLabel is null. Unknown user role.");
-                }
+                errorMessageLabel.setText("Unknown user role. Cannot navigate.");
                 return;
         }
 
-        // FIX ATTEMPT 1: Try ContextClassLoader
-        java.net.URL resourceUrl = Thread.currentThread().getContextClassLoader().getResource(fxmlPath);
-        // If that still returns null, fallback to getClass().getResource()
-        if (resourceUrl == null) {
-            resourceUrl = getClass().getResource(fxmlPath);
-        }
-
+        java.net.URL resourceUrl = getClass().getResource(fxmlPath);
         System.out.println("Attempting to load FXML: " + fxmlPath);
         System.out.println("Resource URL found: " + resourceUrl);
         if (resourceUrl == null) {
@@ -175,5 +227,4 @@ public class Login {
         window.setTitle(title);
         window.show();
     }
-
 }

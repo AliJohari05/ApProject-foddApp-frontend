@@ -11,44 +11,139 @@
 <?import javafx.scene.layout.VBox?>
 <?import io.github.palexdev.materialfx.controls.MFXButton?>
 <?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
 
 <BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.foodapp.food4ufrontend.controller.dashbord.AdminDashboard"
-> <left>
-    <VBox spacing="15" alignment="TOP_CENTER" styleClass="sidebar">
-        <padding>
-            <Insets top="30" right="20" bottom="20" left="20"/>
-        </padding>
-        <Label text="Admin Dashboard" styleClass="title-text"/>
-        <ListView fx:id="actionList" VBox.vgrow="ALWAYS" prefWidth="220" styleClass="action-list"/>
-        <Label fx:id="errorMessageLabel" textFill="red" wrapText="true" />
-        <MFXButton text="Logout" onAction="#logout" styleClass="login-button"/>
-    </VBox>
-</left>
+            fx:controller="com.foodapp.food4ufrontend.controller.dashbord.AdminDashboard">
+
+    <left>
+        <VBox spacing="15" alignment="TOP_CENTER" styleClass="sidebar">
+            <padding>
+                <Insets top="30" right="20" bottom="20" left="20"/>
+            </padding>
+            <Label text="Admin Dashboard" styleClass="title-text"/>
+            <ListView fx:id="actionList" VBox.vgrow="ALWAYS" prefWidth="220" styleClass="action-list"/>
+            <Label fx:id="errorMessageLabel" textFill="red" wrapText="true" />
+            <MFXButton text="Logout" onAction="#logout" styleClass="login-button"/>
+        </VBox>
+    </left>
 
     <center>
-        <VBox spacing="20" alignment="TOP_LEFT" style="-fx-background-color: white; -fx-padding: 30;">
-            <Label text="Users Management" styleClass="section-title"/>
-            <HBox spacing="10" alignment="CENTER_LEFT">
-                <Label text="Filter by Role:"/>
-                <ComboBox fx:id="filterRoleComboBox" promptText="All Roles" />
-                <MFXButton text="Refresh Users" onAction="#viewUsers" styleClass="login-button"/>
-                <MFXButton text="Approve Selected" onAction="#approveSelectedUsers" styleClass="login-button"/>
-                <MFXButton text="Reject Selected" onAction="#rejectSelectedUsers" styleClass="login-button"/>
-            </HBox>
-            <TableView fx:id="usersTable" VBox.vgrow="ALWAYS" prefHeight="400" prefWidth="600" styleClass="data-table">
-                <columns>
-                    <TableColumn fx:id="userIdColumn" text="ID" prefWidth="50"/>
-                    <TableColumn fx:id="userNameColumn" text="Full Name" prefWidth="150"/>
-                    <TableColumn fx:id="userPhoneColumn" text="Phone" prefWidth="100"/>
-                    <TableColumn fx:id="userEmailColumn" text="Email" prefWidth="150"/>
-                    <TableColumn fx:id="userRoleColumn" text="Role" prefWidth="80"/>
-                    <TableColumn fx:id="userAddressColumn" text="Address" prefWidth="200"/>
-                    <TableColumn fx:id="userStatusColumn" text="Status" prefWidth="80"/>
-                </columns>
-                <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
-            </TableView>
-        </VBox>
-    </center>
+        <TabPane fx:id="mainTabPane" BorderPane.alignment="CENTER" tabClosingPolicy="UNAVAILABLE">
+            <tabs>
+                <Tab text="Users Management">
+                    <content>
+                        <VBox spacing="20" alignment="TOP_LEFT" style="-fx-background-color: white; -fx-padding: 30;">
+                            <Label text="System Users" styleClass="section-title"/>
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Label text="Filter by Role:"/>
+                                <ComboBox fx:id="filterRoleComboBox" promptText="All Roles" />
+                                <MFXButton text="Refresh Users" onAction="#viewUsers" styleClass="login-button"/>
+                                <MFXButton text="Approve Selected" onAction="#approveSelectedUsers" styleClass="login-button"/>
+                                <MFXButton text="Reject Selected" onAction="#rejectSelectedUsers" styleClass="login-button"/>
+                            </HBox>
+                            <TableView fx:id="usersTable" VBox.vgrow="ALWAYS" prefHeight="400" prefWidth="600" styleClass="data-table">
+                                <columns>
+                                    <TableColumn fx:id="userIdColumn" text="ID" prefWidth="50"/>
+                                    <TableColumn fx:id="userNameColumn" text="Full Name" prefWidth="150"/>
+                                    <TableColumn fx:id="userPhoneColumn" text="Phone" prefWidth="100"/>
+                                    <TableColumn fx:id="userEmailColumn" text="Email" prefWidth="150"/>
+                                    <TableColumn fx:id="userRoleColumn" text="Role" prefWidth="80"/>
+                                    <TableColumn fx:id="userAddressColumn" text="Address" prefWidth="200"/>
+                                    <TableColumn fx:id="userStatusColumn" text="Status" prefWidth="80"/>
+                                    <TableColumn fx:id="userWalletBalanceColumn" text="Wallet Balance" prefWidth="120"/>
+                                </columns>
+                                <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
+                            </TableView>
+                        </VBox>
+                    </content>
+                </Tab>
 
+                <Tab text="Orders Management">
+                    <content>
+                        <VBox spacing="20" alignment="TOP_LEFT" style="-fx-background-color: white; -fx-padding: 30;">
+                            <Label text="System Orders" styleClass="section-title"/>
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <TextField fx:id="orderSearchField" promptText="Search orders..." />
+                                <ComboBox fx:id="orderVendorFilter" promptText="Filter by Vendor" />
+                                <ComboBox fx:id="orderCustomerFilter" promptText="Filter by Customer" />
+                                <ComboBox fx:id="orderCourierFilter" promptText="Filter by Courier" />
+                                <ComboBox fx:id="orderStatusFilter" promptText="Filter by Status" />
+                                <MFXButton text="Refresh Orders" onAction="#viewOrders" styleClass="login-button"/>
+                            </HBox>
+                            <TableView fx:id="ordersTable" VBox.vgrow="ALWAYS" prefHeight="400" prefWidth="600" styleClass="data-table">
+                                <columns>
+                                    <TableColumn fx:id="orderIdColumn" text="ID" prefWidth="50"/>
+                                    <TableColumn fx:id="orderCustomerIdColumn" text="Customer ID" prefWidth="100"/>
+                                    <TableColumn fx:id="orderVendorIdColumn" text="Vendor ID" prefWidth="100"/>
+                                    <TableColumn fx:id="orderCourierIdColumn" text="Courier ID" prefWidth="100"/>
+                                    <TableColumn fx:id="orderStatusColumn" text="Status" prefWidth="100"/>
+                                    <TableColumn fx:id="orderPriceColumn" text="Price" prefWidth="80"/>
+                                    <TableColumn fx:id="orderAddressColumn" text="Delivery Address" prefWidth="200"/>
+                                    <TableColumn fx:id="orderCreatedAtColumn" text="Created At" prefWidth="150"/>
+                                </columns>
+                                <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
+                            </TableView>
+                        </VBox>
+                    </content>
+                </Tab>
+
+                <Tab text="Transactions Management">
+                    <content>
+                        <VBox spacing="20" alignment="TOP_LEFT" style="-fx-background-color: white; -fx-padding: 30;">
+                            <Label text="System Transactions" styleClass="section-title"/>
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <TextField fx:id="transactionSearchField" promptText="Search transactions..." />
+                                <ComboBox fx:id="transactionUserFilter" promptText="Filter by User" />
+                                <ComboBox fx:id="transactionMethodFilter" promptText="Filter by Method" />
+                                <ComboBox fx:id="transactionStatusFilter" promptText="Filter by Status" />
+                                <MFXButton text="Refresh Transactions" onAction="#viewTransactions" styleClass="login-button"/>
+                            </HBox>
+                            <TableView fx:id="transactionsTable" VBox.vgrow="ALWAYS" prefHeight="400" prefWidth="600" styleClass="data-table">
+                                <columns>
+                                    <TableColumn fx:id="transactionIdColumn" text="ID" prefWidth="50"/>
+                                    <TableColumn fx:id="transactionOrderIdColumn" text="Order ID" prefWidth="80"/>
+                                    <TableColumn fx:id="transactionUserIdColumn" text="User ID" prefWidth="80"/>
+                                    <TableColumn fx:id="transactionMethodColumn" text="Method" prefWidth="100"/>
+                                    <TableColumn fx:id="transactionStatusColumn" text="Status" prefWidth="100"/>
+                                </columns>
+                                <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
+                            </TableView>
+                        </VBox>
+                    </content>
+                </Tab>
+
+                <Tab text="Coupons Management">
+                    <content>
+                        <VBox spacing="20" alignment="TOP_LEFT" style="-fx-background-color: white; -fx-padding: 30;">
+                            <Label text="System Coupons" styleClass="section-title"/>
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <MFXButton text="Add New Coupon" onAction="#addCoupon" styleClass="login-button"/>
+                                <MFXButton text="Refresh Coupons" onAction="#viewCoupons" styleClass="login-button"/>
+                                <MFXButton text="Edit Selected" onAction="#editCoupon" styleClass="login-button"/>
+                                <MFXButton text="Delete Selected" onAction="#deleteCoupon" styleClass="login-button"/>
+                            </HBox>
+                            <TableView fx:id="couponsTable" VBox.vgrow="ALWAYS" prefHeight="400" prefWidth="600" styleClass="data-table">
+                                <columns>
+                                    <TableColumn fx:id="couponIdColumn" text="ID" prefWidth="50"/>
+                                    <TableColumn fx:id="couponCodeColumn" text="Code" prefWidth="100"/>
+                                    <TableColumn fx:id="couponTypeColumn" text="Type" prefWidth="80"/>
+                                    <TableColumn fx:id="couponValueColumn" text="Value" prefWidth="80"/>
+                                    <TableColumn fx:id="couponMinPriceColumn" text="Min Price" prefWidth="100"/>
+                                    <TableColumn fx:id="couponUserCountColumn" text="User Count" prefWidth="100"/>
+                                    <TableColumn fx:id="couponStartDateColumn" text="Start Date" prefWidth="120"/>
+                                    <TableColumn fx:id="couponEndDateColumn" text="End Date" prefWidth="120"/>
+                                </columns>
+                                <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
+                            </TableView>
+                        </VBox>
+                    </content>
+                </Tab>
+            </tabs>
+        </TabPane>
+    </center>
 </BorderPane>

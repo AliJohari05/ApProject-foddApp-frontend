@@ -1,18 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
 <?import io.github.palexdev.materialfx.controls.MFXButton?>
 
 <BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.foodapp.food4ufrontend.controller.dashbord.CourierDashboard"
-            stylesheets="@/com/foodapp/food4ufrontend/css/application.css">
+            fx:controller="com.foodapp.food4ufrontend.controller.dashbord.CourierDashboard">
 
     <left>
         <VBox spacing="15" alignment="TOP_CENTER" styleClass="sidebar">
@@ -27,38 +28,59 @@
     </left>
 
     <center>
-        <VBox spacing="20" alignment="TOP_LEFT" style="-fx-background-color: white; -fx-padding: 30;">
-            <Label text="Available Deliveries" styleClass="section-title"/>
-            <HBox spacing="10" alignment="CENTER_LEFT">
-                <MFXButton text="Refresh Available" onAction="#viewAvailableDeliveries" styleClass="login-button"/>
-            </HBox>
-            <TableView fx:id="availableDeliveriesTable" VBox.vgrow="ALWAYS" prefHeight="250" prefWidth="600" styleClass="data-table">
-                <columns>
-                    <TableColumn fx:id="availableOrderIdColumn" text="Order ID" prefWidth="70"/>
-                    <TableColumn fx:id="availableVendorIdColumn" text="Vendor ID" prefWidth="100"/>
-                    <TableColumn fx:id="availableDeliveryAddressColumn" text="Delivery Address" prefWidth="250"/>
-                    <TableColumn fx:id="availableStatusColumn" text="Status" prefWidth="100"/>
-                </columns>
-                <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
-            </TableView>
-            <HBox spacing="10" alignment="CENTER_LEFT">
-                <MFXButton text="Accept Delivery" onAction="#acceptDelivery" styleClass="login-button"/>
-                <MFXButton text="Mark Received" onAction="#markDeliveryReceived" styleClass="login-button"/>
-                <MFXButton text="Mark Delivered" onAction="#markDeliveryDelivered" styleClass="login-button"/>
-            </HBox>
+        <TabPane fx:id="mainTabPane" BorderPane.alignment="CENTER" tabClosingPolicy="UNAVAILABLE">
+            <tabs>
+                <Tab text="Available Deliveries">
+                    <content>
+                        <VBox spacing="20" alignment="TOP_LEFT" style="-fx-background-color: white; -fx-padding: 30;">
+                            <Label text="Available Deliveries" styleClass="section-title"/>
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <MFXButton text="Refresh Available" onAction="#viewAvailableDeliveries" styleClass="login-button"/>
+                            </HBox>
+                            <TableView fx:id="availableDeliveriesTable" VBox.vgrow="ALWAYS" prefHeight="250" prefWidth="600" styleClass="data-table">
+                                <columns>
+                                    <TableColumn fx:id="availableOrderIdColumn" text="Order ID" prefWidth="70"/>
+                                    <TableColumn fx:id="availableVendorIdColumn" text="Vendor ID" prefWidth="100"/>
+                                    <TableColumn fx:id="availableDeliveryAddressColumn" text="Delivery Address" prefWidth="250"/>
+                                    <TableColumn fx:id="availableStatusColumn" text="Status" prefWidth="100"/>
+                                </columns>
+                                <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
+                            </TableView>
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <MFXButton text="Accept Delivery" onAction="#acceptDelivery" styleClass="login-button"/>
+                                <MFXButton text="Mark Received" onAction="#markDeliveryReceived" styleClass="login-button"/>
+                                <MFXButton text="Mark Delivered" onAction="#markDeliveryDelivered" styleClass="login-button"/>
+                            </HBox>
+                        </VBox>
+                    </content>
+                </Tab>
 
-            <Label text="Delivery History" styleClass="section-title"/>
-            <MFXButton text="Refresh History" onAction="#viewDeliveryHistory" styleClass="login-button"/>
-            <TableView fx:id="deliveryHistoryTable" VBox.vgrow="ALWAYS" prefHeight="250" prefWidth="600" styleClass="data-table">
-                <columns>
-                    <TableColumn fx:id="historyOrderIdColumn" text="Order ID" prefWidth="70"/>
-                    <TableColumn fx:id="historyVendorIdColumn" text="Vendor ID" prefWidth="100"/>
-                    <TableColumn fx:id="historyDeliveryAddressColumn" text="Delivery Address" prefWidth="250"/>
-                    <TableColumn fx:id="historyStatusColumn" text="Status" prefWidth="100"/>
-                    <TableColumn fx:id="historyUpdatedAtColumn" text="Updated At" prefWidth="150"/>
-                </columns>
-                <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
-            </TableView>
-        </VBox>
+                <Tab text="Delivery History">
+                    <content>
+                        <VBox spacing="20" alignment="TOP_LEFT" style="-fx-background-color: white; -fx-padding: 30;">
+                            <Label text="Delivery History" styleClass="section-title"/>
+                            <MFXButton text="Refresh History" onAction="#viewDeliveryHistory" styleClass="login-button"/>
+                            <TableView fx:id="deliveryHistoryTable" VBox.vgrow="ALWAYS" prefHeight="250" prefWidth="600" styleClass="data-table">
+                                <columns>
+                                    <TableColumn fx:id="historyOrderIdColumn" text="Order ID" prefWidth="70"/>
+                                    <TableColumn fx:id="historyVendorIdColumn" text="Vendor ID" prefWidth="100"/>
+                                    <TableColumn fx:id="historyDeliveryAddressColumn" text="Delivery Address" prefWidth="250"/>
+                                    <TableColumn fx:id="historyStatusColumn" text="Status" prefWidth="100"/>
+                                    <TableColumn fx:id="historyUpdatedAtColumn" text="Updated At" prefWidth="150"/>
+                                </columns>
+                                <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
+                            </TableView>
+                        </VBox>
+                    </content>
+                </Tab>
+
+                <Tab text="My Profile">
+                    <content>
+                        <fx:include fx:id="userProfileView" source="/com/foodapp/food4ufrontend/view/dashbord/UserProfileView.fxml" />
+                    </content>
+                </Tab>
+
+            </tabs>
+        </TabPane>
     </center>
 </BorderPane>

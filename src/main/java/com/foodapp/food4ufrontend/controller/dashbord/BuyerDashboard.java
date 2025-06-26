@@ -2,7 +2,7 @@ package com.foodapp.food4ufrontend.controller.dashbord;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.foodapp.food4ufrontend.model.Restaurant;
-import com.foodapp.food4ufrontend.model.Order; // Assuming you created this model
+import com.foodapp.food4ufrontend.model.Order;
 import com.foodapp.food4ufrontend.util.ApiClient;
 import com.foodapp.food4ufrontend.util.AuthManager;
 import com.foodapp.food4ufrontend.util.JsonUtil;
@@ -21,6 +21,8 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
+import javafx.scene.control.TabPane;
+import javafx.scene.control.Tab;
 
 import java.io.IOException;
 import java.net.http.HttpResponse;
@@ -35,6 +37,8 @@ public class BuyerDashboard {
 
     @FXML private ListView<String> actionList;
     @FXML private Label errorMessageLabel;
+    @FXML private TabPane mainTabPane;
+
     @FXML private TextField searchRestaurantField;
     @FXML private TableView<Restaurant> restaurantsTable;
     @FXML private TableColumn<Restaurant, String> restaurantIdColumn;
@@ -47,7 +51,9 @@ public class BuyerDashboard {
     @FXML private TableColumn<Order, Integer> orderVendorColumn;
     @FXML private TableColumn<Order, String> orderStatusColumn;
     @FXML private TableColumn<Order, Integer> orderPriceColumn;
-    @FXML private TableColumn<Order, String> orderDateColumn; // Assuming String for now, can be LocalDateTime
+    @FXML private TableColumn<Order, String> orderDateColumn;
+
+    @FXML private UserProfileController userProfileViewController;
 
     private final ExecutorService executorService = Executors.newCachedThreadPool();
 
@@ -56,8 +62,9 @@ public class BuyerDashboard {
         ObservableList<String> actions = FXCollections.observableArrayList(
                 "View Restaurants",
                 "Order History",
-                "Manage Favorites", // From PDF
-                "Wallet & Payments", // From PDF
+                "My Profile",
+                "Manage Favorites",
+                "Wallet & Payments",
                 "Logout"
         );
         actionList.setItems(actions);
@@ -78,7 +85,7 @@ public class BuyerDashboard {
         if (orderIdColumn != null) orderIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         if (orderVendorColumn != null) orderVendorColumn.setCellValueFactory(new PropertyValueFactory<>("vendorId"));
         if (orderStatusColumn != null) orderStatusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
-        if (orderPriceColumn != null) orderPriceColumn.setCellValueFactory(new PropertyValueFactory<>("payPrice")); // Total price
+        if (orderPriceColumn != null) orderPriceColumn.setCellValueFactory(new PropertyValueFactory<>("payPrice"));
         if (orderDateColumn != null) orderDateColumn.setCellValueFactory(new PropertyValueFactory<>("createdAt"));
 
         // Load initial data
@@ -89,10 +96,15 @@ public class BuyerDashboard {
     private void handleActionSelection(String action) {
         switch (action) {
             case "View Restaurants":
+                if (mainTabPane != null) mainTabPane.getSelectionModel().select(0);
                 viewRestaurants();
                 break;
             case "Order History":
+                if (mainTabPane != null) mainTabPane.getSelectionModel().select(1);
                 viewOrderHistory();
+                break;
+            case "My Profile":
+                if (mainTabPane != null) mainTabPane.getSelectionModel().select(2);
                 break;
             case "Manage Favorites":
                 errorMessageLabel.setText("Manage Favorites functionality not yet implemented.");
@@ -119,10 +131,7 @@ public class BuyerDashboard {
                     return;
                 }
 
-                // API call to get all restaurants for a buyer
-                // aut_food.yaml: POST /vendors for listing vendors with filters
-                // For simplicity, let's assume an empty body gets all.
-                Map<String, String> requestBody = new HashMap<>(); // Empty map for no filters initially
+                Map<String, String> requestBody = new HashMap<>();
                 String jsonBody = JsonUtil.getObjectMapper().writeValueAsString(requestBody);
 
                 Optional<HttpResponse<String>> responseOpt = ApiClient.post("/vendors", jsonBody, token);
@@ -173,7 +182,7 @@ public class BuyerDashboard {
 
                 Map<String, String> requestBody = new HashMap<>();
                 if (!searchTerm.isEmpty()) {
-                    requestBody.put("search", searchTerm); // As per aut_food.yaml for /vendors POST
+                    requestBody.put("search", searchTerm);
                 }
                 String jsonBody = JsonUtil.getObjectMapper().writeValueAsString(requestBody);
 

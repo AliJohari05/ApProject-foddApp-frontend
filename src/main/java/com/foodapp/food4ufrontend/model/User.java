@@ -1,6 +1,5 @@
 package com.foodapp.food4ufrontend.model;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -16,12 +15,15 @@ public class User {
     private String role;
     private String address;
     @JsonProperty("profileImageBase64")
-    private String profileImageBase64;
+    private String profileImageBase64; // Used for sending image data on signup
     @JsonProperty("bank_info")
     private BankInfo bankInfo;
     @JsonProperty("wallet_balance")
     private BigDecimal walletBalance;
     private String status;
+    @JsonProperty("profile_image_url") // ADDED: Field for displaying profile image URL from backend
+    private String profileImageUrl;
+
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class BankInfo {
@@ -58,4 +60,8 @@ public class User {
     public void setWalletBalance(BigDecimal walletBalance) { this.walletBalance = walletBalance; }
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+
+    // NEW: Getter and Setter for profileImageUrl
+    public String getProfileImageUrl() { return profileImageUrl; }
+    public void setProfileImageUrl(String profileImageUrl) { this.profileImageUrl = profileImageUrl; }
 }

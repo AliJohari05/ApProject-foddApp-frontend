@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import io.github.palexdev.materialfx.controls.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox alignment="CENTER" prefHeight="571.0" prefWidth="480.0" spacing="15" style="-fx-padding: 20; -fx-background-color: white; -fx-border-color: #ddd; -fx-border-radius: 8;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.foodapp.food4ufrontend.controller.dashbord.CouponFormController">
+
+    <Label style="-fx-font-size: 18px; -fx-font-weight: bold;" text="Coupon Details" />
+
+    <GridPane hgap="10" prefHeight="411.0" prefWidth="438.0" vgap="10">
+        <columnConstraints>
+            <ColumnConstraints hgrow="NEVER" minWidth="10.0" prefWidth="120.0" />
+            <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="250.0" />
+        </columnConstraints>
+        <rowConstraints>
+            <javafx.scene.layout.RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <javafx.scene.layout.RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <javafx.scene.layout.RowConstraints maxHeight="50.0" minHeight="10.0" prefHeight="50.0" vgrow="SOMETIMES" />
+            <javafx.scene.layout.RowConstraints maxHeight="53.0" minHeight="10.0" prefHeight="53.0" vgrow="SOMETIMES" />
+            <javafx.scene.layout.RowConstraints maxHeight="57.0" minHeight="10.0" prefHeight="50.0" vgrow="SOMETIMES" />
+            <javafx.scene.layout.RowConstraints maxHeight="51.0" minHeight="10.0" prefHeight="45.0" vgrow="SOMETIMES" />
+            <javafx.scene.layout.RowConstraints maxHeight="47.0" minHeight="10.0" prefHeight="47.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+
+        <Label text="Coupon Code:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+        <MFXTextField fx:id="couponCodeField" prefHeight="49.0" prefWidth="138.0" promptText="e.g., BLACKFRIDAY" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="0" />
+
+        <Label text="Type:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+        <ComboBox fx:id="couponTypeComboBox" maxWidth="1.7976931348623157E308" promptText="fixed / percent" GridPane.columnIndex="1" GridPane.rowIndex="1" /> <Label text="Value:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+        <MFXTextField fx:id="couponValueField" prefHeight="49.0" prefWidth="137.0" promptText="e.g., 10.0 or 0.15" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" />
+
+        <Label text="Min. Price:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+        <MFXTextField fx:id="couponMinPriceField" prefHeight="23.0" prefWidth="139.0" promptText="e.g., 500" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" />
+
+        <Label text="User Count:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+        <MFXTextField fx:id="couponUserCountField" prefHeight="49.0" prefWidth="141.0" promptText="e.g., 100" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="4" />
+
+        <Label text="Start Date:" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+        <DatePicker fx:id="couponStartDatePicker" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.rowIndex="5" /> <Label text="End Date:" GridPane.columnIndex="0" GridPane.rowIndex="6" />
+        <DatePicker fx:id="couponEndDatePicker" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.rowIndex="6" /> </GridPane>
+
+    <Label fx:id="formErrorMessageLabel" textFill="red" wrapText="true" />
+
+    <HBox alignment="CENTER_RIGHT" prefWidth="380.0" spacing="10">
+        <MFXButton onAction="#handleSaveCoupon" styleClass="login-button" text="Save" />
+        <MFXButton onAction="#handleCancel" styleClass="login-button" text="Cancel" />
+    </HBox>
+</VBox>

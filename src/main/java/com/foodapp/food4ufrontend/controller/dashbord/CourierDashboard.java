@@ -1,7 +1,7 @@
 package com.foodapp.food4ufrontend.controller.dashbord;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.foodapp.food4ufrontend.model.Order; // Assuming you created this model
+import com.foodapp.food4ufrontend.model.Order;
 import com.foodapp.food4ufrontend.util.ApiClient;
 import com.foodapp.food4ufrontend.util.AuthManager;
 import com.foodapp.food4ufrontend.util.JsonUtil;
@@ -19,6 +19,8 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
+import javafx.scene.control.TabPane;
+import javafx.scene.control.Tab;
 
 import java.io.IOException;
 import java.net.http.HttpResponse;
@@ -33,6 +35,7 @@ public class CourierDashboard {
 
     @FXML private ListView<String> actionList;
     @FXML private Label errorMessageLabel;
+    @FXML private TabPane mainTabPane;
 
     @FXML private TableView<Order> availableDeliveriesTable;
     @FXML private TableColumn<Order, Integer> availableOrderIdColumn;
@@ -45,7 +48,10 @@ public class CourierDashboard {
     @FXML private TableColumn<Order, Integer> historyVendorIdColumn;
     @FXML private TableColumn<Order, String> historyDeliveryAddressColumn;
     @FXML private TableColumn<Order, String> historyStatusColumn;
-    @FXML private TableColumn<Order, String> historyUpdatedAtColumn; // Assuming String for now, can be LocalDateTime
+    @FXML private TableColumn<Order, String> historyUpdatedAtColumn;
+
+    // FXML for included UserProfileView
+    @FXML private UserProfileController userProfileViewController;
 
     private final ExecutorService executorService = Executors.newCachedThreadPool();
 
@@ -54,6 +60,7 @@ public class CourierDashboard {
         ObservableList<String> actions = FXCollections.observableArrayList(
                 "Available Deliveries",
                 "Delivery History",
+                "My Profile",
                 "Logout"
         );
         actionList.setItems(actions);
@@ -85,10 +92,15 @@ public class CourierDashboard {
     private void handleActionSelection(String action) {
         switch (action) {
             case "Available Deliveries":
+                if (mainTabPane != null) mainTabPane.getSelectionModel().select(0);
                 viewAvailableDeliveries();
                 break;
             case "Delivery History":
+                if (mainTabPane != null) mainTabPane.getSelectionModel().select(1);
                 viewDeliveryHistory();
+                break;
+            case "My Profile":
+                if (mainTabPane != null) mainTabPane.getSelectionModel().select(2);
                 break;
             case "Logout":
                 logout();
@@ -179,7 +191,6 @@ public class CourierDashboard {
                 statusData.put("status", status);
                 String jsonBody = JsonUtil.getObjectMapper().writeValueAsString(statusData);
 
-                // aut_food.yaml: PATCH /deliveries/{order_id}
                 Optional<HttpResponse<String>> responseOpt = ApiClient.patch("/deliveries/" + selectedOrder.getId(), jsonBody, token);
 
                 if (responseOpt.isPresent()) {
@@ -201,7 +212,7 @@ public class CourierDashboard {
                 }
             } catch (IOException | InterruptedException e) {
                 Platform.runLater(() -> {
-                    errorMessageLabel.setText("An unexpected error occurred during delivery status update: " + e.getMessage());
+                    errorMessageLabel.setText("An unexpected error occurred while saving delivery: " + e.getMessage());
                     e.printStackTrace();
                 });
             }

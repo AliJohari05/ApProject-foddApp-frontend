@@ -13,7 +13,7 @@ import java.net.http.HttpResponse;
 import java.util.Optional;
 
 public class ApiClient {
-    private static final String BASE_URL = "http://localhost:8080";
+    public static final String BASE_URL = "http://localhost:8080";
     private static final HttpClient httpClient = HttpClient.newHttpClient();
     private static final ObjectMapper objectMapper = new ObjectMapper();
 

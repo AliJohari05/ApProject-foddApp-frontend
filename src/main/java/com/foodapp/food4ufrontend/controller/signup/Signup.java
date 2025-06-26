@@ -8,6 +8,7 @@ import com.foodapp.food4ufrontend.util.JsonUtil;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXPasswordField;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -19,7 +20,15 @@ import javafx.scene.Scene;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
-import com.foodapp.food4ufrontend.controller.login.Login;
+import com.foodapp.food4ufrontend.controller.login.Login; // Ensure this is imported
+import javafx.stage.FileChooser; // For file upload
+import java.io.File; // For file upload
+import java.io.InputStream;
+import java.nio.file.Files; // For file to byte[]
+import java.util.Base64; // For Base64 encoding
+import javafx.scene.image.Image; // For ImageView
+import javafx.scene.image.ImageView; // For ImageView
+
 import java.io.IOException;
 import java.net.http.HttpResponse;
 import java.util.HashMap;
@@ -48,14 +57,61 @@ public class Signup {
     private MFXButton signupButton;
     @FXML
     private Label errorMessageLabel;
+    @FXML
+    private ImageView profileImageView; // FXML for ImageView
+
+    private String base64ImageString; // To store the Base64 image string
 
     @FXML
     public void initialize() {
         roleComboBox.setItems(getRoles());
+        // Set default profile image programmatically
+        try {
+            // Use getResourceAsStream to load image from classpath
+            InputStream imageStream = getClass().getResourceAsStream("/com/foodapp/food4ufrontend/images/default_profile.jpg");
+            if (imageStream != null) {
+                Image defaultImage = new Image(imageStream);
+                if (!defaultImage.isError()) {
+                    profileImageView.setImage(defaultImage);
+                } else {
+                    System.err.println("Error loading default image from stream: " + defaultImage.getException().getMessage());
+                }
+            } else {
+                System.err.println("Default image resource stream is null. Path might be incorrect or file missing.");
+            }
+        } catch (Exception e) {
+            System.err.println("Exception loading default profile image programmatically: " + e.getMessage());
+        }
     }
 
     public ObservableList<String> getRoles() {
         return FXCollections.observableArrayList("Buyer", "Seller","Courier");
+    }
+
+    @FXML
+    private void handleImageUpload(ActionEvent event) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select Profile Picture");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif")
+        );
+        File selectedFile = fileChooser.showOpenDialog(((Node)event.getSource()).getScene().getWindow());
+
+        if (selectedFile != null) {
+            try {
+                byte[] fileContent = Files.readAllBytes(selectedFile.toPath());
+                base64ImageString = Base64.getEncoder().encodeToString(fileContent);
+                // Display selected image in ImageView
+                Image image = new Image(selectedFile.toURI().toString());
+                profileImageView.setImage(image);
+                errorMessageLabel.setText("Image selected: " + selectedFile.getName());
+            } catch (IOException e) {
+                errorMessageLabel.setText("Error reading image file: " + e.getMessage());
+                e.printStackTrace();
+            }
+        } else {
+            errorMessageLabel.setText("No image selected.");
+        }
     }
 
     @FXML
@@ -81,15 +137,25 @@ public class Signup {
         }
 
         try {
-            Map<String, String> signupData = new HashMap<>();
-            signupData.put("name", name);
+            Map<String, Object> signupData = new HashMap<>();
+            signupData.put("full_name", name);
             signupData.put("phone", phone);
             signupData.put("email", email);
             signupData.put("password", password);
             signupData.put("address", address);
-            signupData.put("bankName", bankName);
-            signupData.put("accountNumber", accountNumber);
-            signupData.put("role", role);
+
+            if ("Seller".equals(role) || "Courier".equals(role)) {
+                Map<String, String> bankInfo = new HashMap<>();
+                bankInfo.put("bank_name", bankName);
+                bankInfo.put("account_number", accountNumber);
+                signupData.put("bank_info", bankInfo);
+            }
+            signupData.put("role", role.toUpperCase());
+
+            if (base64ImageString != null && !base64ImageString.isEmpty()) {
+                signupData.put("profileImageBase64", base64ImageString); // Add Base64 image string
+            }
+
             String signupJson = JsonUtil.getObjectMapper().writeValueAsString(signupData);
 
             Optional<HttpResponse<String>> responseOpt = ApiClient.post("/auth/register", signupJson, null);
@@ -102,13 +168,14 @@ public class Signup {
                     String message = rootNode.has("message") ? rootNode.get("message").asText() : "Sign Up successful!";
                     String token = rootNode.get("token").asText();
                     User user = JsonUtil.getObjectMapper().treeToValue(rootNode.get("user"), User.class);
+
                     AuthManager.setJwtToken(token);
                     AuthManager.setCurrentUserRole(user.getRole());
                     AuthManager.setCurrentUserId(user.getId());
 
                     errorMessageLabel.setText(message);
 
-                    navigateToDashboard(event, user.getRole());
+                    handleUserNavigation(event, user);
                 } else {
                     String errorMessage = rootNode.has("error") ? rootNode.get("error").asText() : "An unknown error occurred.";
                     errorMessageLabel.setText(errorMessage);
@@ -136,34 +203,97 @@ public class Signup {
         window.setTitle("Food4u - Login");
         window.show();
     }
+
+    private void handleUserNavigation(ActionEvent event, User user) throws IOException {
+        String userRole = user.getRole();
+        String userStatus = user.getStatus();
+
+        if ("SELLER".equals(userRole.toUpperCase()) || "COURIER".equals(userRole.toUpperCase())) {
+            if ("PENDING_APPROVAL".equals(userStatus) || "REJECTED".equals(userStatus)) {
+                errorMessageLabel.setText(""); // Clear message on current screen
+                String messageToDisplay = "Your account was successfully registered, but you must wait for the admin to approve it. If you are approved, you can log in.";
+                AuthManager.logout();
+
+                System.out.println("Signup Controller: Navigating to Login with propagated message: " + messageToDisplay);
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/foodapp/food4ufrontend/view/login.fxml"));
+                Parent loginView = loader.load();
+                Login loginController = loader.getController();
+                loginController.setErrorMessageText(messageToDisplay); // Set message on new Login controller
+
+                Scene loginScene = new Scene(loginView);
+                loginScene.getStylesheets().add(getClass().getResource("/com/foodapp/food4ufrontend/css/application.css").toExternalForm());
+                Stage window = (Stage)((Node)event.getSource()).getScene().getWindow();
+                window.setScene(loginScene);
+                window.setTitle("Food4u - Login");
+                window.show();
+                System.out.println("Signup Controller: Navigation to Login screen completed.");
+                return;
+            }
+            else { // This handles cases where Seller/Courier is APPROVED
+                navigateToDashboard(event, userRole);
+            }
+        }
+        navigateToDashboard(event, userRole); // For Buyer/Admin or approved Seller/Courier
+    }
+
+    // This method is no longer used directly for navigation, but might be called elsewhere
+    private void navigateToLoginScreen(ActionEvent event) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/foodapp/food4ufrontend/view/login.fxml"));
+        Parent loginView = loader.load();
+        Scene loginScene = new Scene(loginView);
+        loginScene.getStylesheets().add(getClass().getResource("/com/foodapp/food4ufrontend/css/application.css").toExternalForm());
+        Stage window = (Stage)((Node)event.getSource()).getScene().getWindow();
+        window.setScene(loginScene);
+        window.setTitle("Food4u - Login");
+        window.show();
+    }
+
     private void navigateToDashboard(ActionEvent event, String role) throws IOException {
         String fxmlPath;
         String title;
-        // نقش‌ها را از بک‌اند Role enum بگیرید
-        // Role enum در بک‌اند شامل ADMIN, CUSTOMER, SELLER, DELIVERY است.
+        // Map roles to FXML paths
         switch (role.toUpperCase()) {
-            case "CUSTOMER":
-                fxmlPath = "/com/foodapp/food4ufrontend/view/dashboard/BuyerDashboardView.fxml";
+            case "BUYER":
+                fxmlPath = "/com/foodapp/food4ufrontend/view/dashbord/BuyerDashboardView.fxml";
                 title = "Food4u - Buyer Dashboard";
                 break;
             case "SELLER":
-                fxmlPath = "/com/foodapp/food4ufrontend/view/dashboard/SellerDashboardView.fxml";
+                fxmlPath = "/com/foodapp/food4ufrontend/view/dashbord/SellerDashboardView.fxml";
                 title = "Food4u - Seller Dashboard";
                 break;
-            case "DELIVERY":
-                fxmlPath = "/com/foodapp/food4ufrontend/view/dashboard/CourierDashboardView.fxml";
+            case "COURIER":
+                fxmlPath = "/com/foodapp/food4ufrontend/view/dashbord/CourierDashboardView.fxml";
                 title = "Food4u - Courier Dashboard";
                 break;
             case "ADMIN":
-                fxmlPath = "/com/foodapp/food4ufrontend/view/dashboard/AdminDashboardView.fxml";
+                System.out.println("وارد بخش ادمین شد");
+                fxmlPath = "/com/foodapp/food4ufrontend/view/dashbord/AdminDashboardView.fxml";
                 title = "Food4u - Admin Dashboard";
+                System.out.println("ادرس درست بود");
                 break;
             default:
                 errorMessageLabel.setText("Unknown user role. Cannot navigate.");
                 return;
         }
 
-        FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+        java.net.URL resourceUrl = getClass().getResource(fxmlPath);
+        System.out.println("Attempting to load FXML: " + fxmlPath);
+        System.out.println("Resource URL found: " + resourceUrl);
+        if (resourceUrl == null) {
+            System.err.println("ERROR: FXML resource was NOT found at path: " + fxmlPath + ". navigateToDashboard will fail.");
+            Platform.runLater(() -> {
+                if (errorMessageLabel != null) {
+                    errorMessageLabel.setText("CRITICAL ERROR: Dashboard FXML not found at " + fxmlPath + ". Check console for details.");
+                } else {
+                    System.err.println("ERROR: errorMessageLabel is null. Cannot display error on UI. Is fx:id='errorMessageLabel' correct in login.fxml?");
+                }
+            });
+            return;
+        } else {
+            System.out.println("SUCCESS: FXML resource URL: " + resourceUrl.toExternalForm());
+        }
+
+        FXMLLoader loader = new FXMLLoader(resourceUrl);
         Parent dashboardView = loader.load();
         Scene dashboardScene = new Scene(dashboardView);
         dashboardScene.getStylesheets().add(getClass().getResource("/com/foodapp/food4ufrontend/css/application.css").toExternalForm());

@@ -2,7 +2,7 @@ package com.foodapp.food4ufrontend.controller.dashbord;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.foodapp.food4ufrontend.model.Restaurant;
-import com.foodapp.food4ufrontend.model.Order; // Assuming you created this model
+import com.foodapp.food4ufrontend.model.Order;
 import com.foodapp.food4ufrontend.util.ApiClient;
 import com.foodapp.food4ufrontend.util.AuthManager;
 import com.foodapp.food4ufrontend.util.JsonUtil;
@@ -22,6 +22,9 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
+import javafx.scene.control.TabPane;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TextField;
 import javafx.util.Callback;
 
 import java.io.IOException;
@@ -37,7 +40,9 @@ public class SellerDashboard {
 
     @FXML private ListView<String> actionList;
     @FXML private Label errorMessageLabel;
+    @FXML private TabPane mainTabPane;
 
+    @FXML private TextField searchRestaurantField; // Not directly used in SellerDashboardView.fxml, consider removing
     @FXML private TableView<Restaurant> myRestaurantsTable;
     @FXML private TableColumn<Restaurant, String> myRestaurantIdColumn;
     @FXML private TableColumn<Restaurant, String> myRestaurantNameColumn;
@@ -56,9 +61,12 @@ public class SellerDashboard {
     @FXML private TableColumn<Order, Integer> sellerOrderPriceColumn;
     @FXML private TableColumn<Order, String> sellerOrderCreatedAtColumn;
 
+    // FXML for included UserProfileView
+    @FXML private UserProfileController userProfileViewController;
+
     private final ExecutorService executorService = Executors.newCachedThreadPool();
-    // Fix for the initial declaration's potential ambiguity (though the primary issue was later)
-    private ObservableList<Restaurant> sellerRestaurants = FXCollections.<Restaurant>observableArrayList(); // To store seller's restaurants
+    // FIX: Explicitly specify generic type to resolve ambiguity
+    private ObservableList<Restaurant> sellerRestaurants = FXCollections.<Restaurant>observableArrayList();
 
     @FXML
     public void initialize() {
@@ -66,7 +74,8 @@ public class SellerDashboard {
                 "My Restaurants",
                 "Manage Menu",
                 "Restaurant Orders",
-                "Manage Fees", // From PDF
+                "My Profile",
+                "Manage Fees",
                 "Logout"
         );
         actionList.setItems(actions);
@@ -96,7 +105,7 @@ public class SellerDashboard {
         // Setup filterOrderStatus ComboBox
         ObservableList<String> orderStatuses = FXCollections.observableArrayList(
                 "All Statuses", "submitted", "unpaid and cancelled", "waiting vendor",
-                "cancelled", "finding courier", "on the way", "completed", "accepted", "rejected", "served" // statuses from aut_food.yaml
+                "cancelled", "finding courier", "on the way", "completed", "accepted", "rejected", "served"
         );
         if (filterOrderStatus != null) {
             filterOrderStatus.setItems(orderStatuses);
@@ -104,20 +113,26 @@ public class SellerDashboard {
             filterOrderStatus.valueProperty().addListener((obs, oldVal, newVal) -> viewRestaurantOrders());
         }
 
-        // Initially load seller's restaurants
+        // Initial data loading when dashboard is opened
         viewMyRestaurants();
+        viewRestaurantOrders();
     }
 
     private void handleActionSelection(String action) {
         switch (action) {
             case "My Restaurants":
+                if (mainTabPane != null) mainTabPane.getSelectionModel().select(0);
                 viewMyRestaurants();
                 break;
             case "Manage Menu":
                 errorMessageLabel.setText("Manage Menu functionality not yet implemented.");
                 break;
             case "Restaurant Orders":
+                if (mainTabPane != null) mainTabPane.getSelectionModel().select(1);
                 viewRestaurantOrders();
+                break;
+            case "My Profile":
+                if (mainTabPane != null) mainTabPane.getSelectionModel().select(2);
                 break;
             case "Manage Fees":
                 errorMessageLabel.setText("Manage Fees functionality not yet implemented.");
@@ -150,19 +165,17 @@ public class SellerDashboard {
                     Platform.runLater(() -> {
                         if (response.statusCode() == 200) {
                             try {
-                                // Fix: Explicitly specify the generic type for observableArrayList here as well
+                                // FIX: Explicitly specify generic type to resolve ambiguity
                                 sellerRestaurants = FXCollections.<Restaurant>observableArrayList(
                                         (Callback<Restaurant, Observable[]>) JsonUtil.getObjectMapper().readerForListOf(Restaurant.class).readValue(rootNode)
                                 );
                                 myRestaurantsTable.setItems(sellerRestaurants);
 
-                                // Populate selectRestaurantForOrders ComboBox
                                 ObservableList<String> restaurantNames = FXCollections.observableArrayList();
                                 sellerRestaurants.forEach(r -> restaurantNames.add(r.getName() + " (ID: " + r.getId() + ")"));
                                 selectRestaurantForOrders.setItems(restaurantNames);
                                 if (!restaurantNames.isEmpty()) {
                                     selectRestaurantForOrders.getSelectionModel().selectFirst();
-                                    // Add listener to load orders when a restaurant is selected
                                     selectRestaurantForOrders.valueProperty().addListener((obs, oldVal, newVal) -> viewRestaurantOrders());
                                 }
                                 errorMessageLabel.setText("Your restaurants loaded successfully.");
@@ -190,8 +203,6 @@ public class SellerDashboard {
     @FXML
     private void addNewRestaurant() {
         errorMessageLabel.setText("Add New Restaurant functionality not yet implemented.");
-        // This would involve opening a new dialog/view for adding restaurant details
-        // and then making a POST request to /restaurants
     }
 
     @FXML
@@ -208,14 +219,11 @@ public class SellerDashboard {
                 Restaurant selectedRestaurant = null;
                 if (selectRestaurantForOrders.getSelectionModel().getSelectedItem() != null) {
                     String selectedRestaurantNameId = selectRestaurantForOrders.getSelectionModel().getSelectedItem();
-                    // Extract ID from string like "Restaurant Name (ID: 123)"
-                    // It's important that getId() for Restaurant returns String or Integer as expected by the backend
                     String idStr = selectedRestaurantNameId.substring(selectedRestaurantNameId.lastIndexOf("ID: ") + 4, selectedRestaurantNameId.lastIndexOf(")"));
-                    String restaurantId = idStr; // Use String as per aut_food.yaml path parameter
+                    String restaurantId = idStr;
 
-                    // Find the actual Restaurant object by ID
                     selectedRestaurant = sellerRestaurants.stream()
-                            .filter(r -> r.getId() != null && r.getId().equals(restaurantId)) // Added null check for r.getId()
+                            .filter(r -> r.getId() != null && r.getId().equals(restaurantId))
                             .findFirst()
                             .orElse(null);
                 }
@@ -228,7 +236,7 @@ public class SellerDashboard {
                 String path = "/restaurants/" + selectedRestaurant.getId() + "/orders";
                 String selectedStatus = filterOrderStatus.getSelectionModel().getSelectedItem();
                 if (selectedStatus != null && !selectedStatus.equals("All Statuses")) {
-                    path += "?status=" + selectedStatus; // aut_food.yaml supports status query param
+                    path += "?status=" + selectedStatus;
                 }
 
                 Optional<HttpResponse<String>> responseOpt = ApiClient.get(path, token);
