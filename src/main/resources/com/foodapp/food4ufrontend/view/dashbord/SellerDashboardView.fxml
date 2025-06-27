@@ -14,6 +14,7 @@
 <?import io.github.palexdev.materialfx.controls.MFXButton?>
 <?import javafx.scene.control.ComboBox?>
 
+<?import javafx.scene.layout.AnchorPane?>
 <BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.foodapp.food4ufrontend.controller.dashbord.SellerDashboard">
 
@@ -88,8 +89,7 @@
 
                 <Tab text="My Profile">
                     <content>
-                        <fx:include fx:id="userProfileView" source="/com/foodapp/food4ufrontend/view/dashbord/UserProfileView.fxml" />
-                    </content>
+                        <AnchorPane fx:id="myProfileContainer" /> </content>
                 </Tab>
 
             </tabs>

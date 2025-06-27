@@ -1,56 +1,72 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import io.github.palexdev.materialfx.controls.MFXButton?>
+<?import io.github.palexdev.materialfx.controls.MFXTextField?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<?import io.github.palexdev.materialfx.controls.MFXButton?>
-<?import io.github.palexdev.materialfx.controls.MFXTextField?>
-<?import javafx.scene.image.ImageView?>
 
-<VBox alignment="TOP_CENTER" spacing="15" style="-fx-padding: 30; -fx-background-color: white;"
-      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.foodapp.food4ufrontend.controller.dashbord.UserProfileController">
+<AnchorPane prefHeight="550.0" prefWidth="600.0" style="-fx-background-color: white; -fx-padding: 30;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.foodapp.food4ufrontend.controller.dashbord.UserProfileController">
+    <VBox alignment="TOP_CENTER" layoutX="150.0" layoutY="50.0" spacing="20.0" AnchorPane.leftAnchor="50.0" AnchorPane.rightAnchor="50.0" AnchorPane.topAnchor="30.0">
+        <children>
+            <Label styleClass="section-title" text="My Profile" /> <StackPane alignment="CENTER" prefHeight="120.0" prefWidth="120.0">
+            <children>
+                <ImageView fx:id="profileImageView" fitHeight="100.0" fitWidth="100.0" pickOnBounds="true" preserveRatio="true" style="-fx-border-color: #8319ad; -fx-border-width: 2; -fx-border-radius: 50%; -fx-background-radius: 50%;" />
+                <MFXButton onAction="#handleChangePicture" style="-fx-background-color: rgba(0,0,0,0.5); -fx-text-fill: white; -fx-font-size: 10px; -fx-background-radius: 10;" text="Change" StackPane.alignment="BOTTOM_RIGHT">
+                    <padding>
+                        <Insets bottom="5.0" left="8.0" right="8.0" top="5.0" />
+                    </padding>
+                </MFXButton>
+            </children>
+        </StackPane>
 
-    <Label text="My Profile" styleClass="section-title"/>
-
-    <ImageView fx:id="profileImageView" fitHeight="120.0" fitWidth="120.0" pickOnBounds="true" preserveRatio="true"
-               style="-fx-border-color: #ddd; -fx-border-width: 2; -fx-border-radius: 60; -fx-background-color: #f0f0f0;">
-    </ImageView>
-    <MFXButton text="Change Picture" onAction="#handleChangePicture" styleClass="login-button"/>
-
-    <GridPane hgap="10" vgap="10" alignment="CENTER">
-        <columnConstraints>
-            <ColumnConstraints hgrow="NEVER" minWidth="10.0" prefWidth="100.0" />
-            <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="250.0" />
-        </columnConstraints>
-
-        <Label text="Full Name:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-        <MFXTextField fx:id="fullNameField" promptText="Your Full Name" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="0" GridPane.hgrow="ALWAYS"/>
-
-        <Label text="Phone:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
-        <MFXTextField fx:id="phoneField" promptText="Your Phone Number" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.hgrow="ALWAYS"/>
-
-        <Label text="Email:" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
-        <MFXTextField fx:id="emailField" promptText="Your Email" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="2" GridPane.hgrow="ALWAYS"/>
-
-        <Label text="Address:" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
-        <MFXTextField fx:id="addressField" promptText="Your Address" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="3" GridPane.hgrow="ALWAYS"/>
-
-        <Label text="Role:" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
-        <MFXTextField fx:id="roleField" promptText="Your Role" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="4" GridPane.hgrow="ALWAYS"/>
-
-        <Label text="Wallet Balance:" GridPane.columnIndex="0" GridPane.rowIndex="5"/>
-        <MFXTextField fx:id="walletBalanceField" promptText="Your Wallet Balance" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="5" GridPane.hgrow="ALWAYS"/>
-    </GridPane>
-
-    <Label fx:id="profileErrorMessageLabel" textFill="red" wrapText="true"/>
-
-    <HBox spacing="10" alignment="CENTER">
-        <MFXButton text="Edit Profile" onAction="#handleEditProfile" styleClass="login-button"/>
-        <MFXButton fx:id="saveButton" text="Save Changes" onAction="#handleSaveChanges" styleClass="login-button" visible="false"/>
-        <MFXButton fx:id="cancelButton" text="Cancel" onAction="#handleCancelEdit" styleClass="login-button" visible="false"/>
-    </HBox>
-</VBox>
+            <GridPane hgap="15.0" prefWidth="500.0" vgap="15.0">
+                <columnConstraints>
+                    <ColumnConstraints hgrow="SOMETIMES" maxWidth="150.0" minWidth="10.0" prefWidth="120.0" />
+                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="300.0" />
+                </columnConstraints>
+                <rowConstraints>
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                </rowConstraints>
+                <children>
+                    <Label text="Full Name:" />
+                    <MFXTextField fx:id="fullNameField" promptText="Full Name" styleClass="login-field" GridPane.columnIndex="1" /> <Label text="Phone:" GridPane.rowIndex="1" />
+                    <MFXTextField fx:id="phoneField" promptText="Phone" styleClass="login-field" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                    <Label text="Email:" GridPane.rowIndex="2" />
+                    <MFXTextField fx:id="emailField" promptText="Email" styleClass="login-field" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                    <Label text="Address:" GridPane.rowIndex="3" />
+                    <MFXTextField fx:id="addressField" promptText="Address" styleClass="login-field" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                    <Label text="Role:" GridPane.rowIndex="4" />
+                    <MFXTextField fx:id="roleField" editable="false" promptText="Role" styleClass="login-field" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                    <Label text="Wallet Balance:" GridPane.rowIndex="5" />
+                    <MFXTextField fx:id="walletBalanceField" editable="false" promptText="Wallet Balance" styleClass="login-field" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                </children>
+                <padding>
+                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                </padding>
+            </GridPane>
+            <Label fx:id="profileErrorMessageLabel" style="-fx-text-fill: red; -fx-font-weight: bold;" text="" wrapText="true" VBox.vgrow="ALWAYS" />
+            <HBox alignment="CENTER" spacing="15.0">
+                <children>
+                    <MFXButton fx:id="editProfileButton" onAction="#handleEditProfile" styleClass="login-button" text="Edit Profile" /> <MFXButton fx:id="saveButton" onAction="#handleSaveChanges" styleClass="login-button" text="Save Changes" />
+                    <MFXButton fx:id="cancelButton" onAction="#handleCancelEdit" styleClass="login-button" text="Cancel" />
+                </children>
+            </HBox>
+        </children>
+        <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+        </padding>
+    </VBox>
+</AnchorPane>

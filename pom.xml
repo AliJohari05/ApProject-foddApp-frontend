@@ -184,6 +184,7 @@
                 <resource>
                     <directory>src/main/resources</directory>
                     <includes>
+                        <include>**/*</include>
                         <include>**/*.fxml</include>
                         <include>**/*.css</include>
                         <include>**/*.ttf</include> <include>**/*.png</include>
