@@ -40,6 +40,7 @@
                                 <TextField fx:id="searchRestaurantField" promptText="Search Restaurants..." HBox.hgrow="ALWAYS"/>
                                 <MFXButton text="Search" onAction="#searchRestaurants" styleClass="login-button"/>
                                 <MFXButton text="Refresh" onAction="#viewRestaurants" styleClass="login-button"/>
+                                <MFXButton text="Add to favorite" onAction="#handleAddFavorite" styleClass="login-button"/>
                             </HBox>
                             <TableView fx:id="restaurantsTable" VBox.vgrow="ALWAYS" prefHeight="400" prefWidth="600" styleClass="data-table">
                                 <columns>
@@ -74,6 +75,23 @@
                 <Tab text="My Profile">
                     <content>
                         <AnchorPane fx:id="myProfileContainer" /> </content>
+                </Tab>
+                <Tab text="Manage Favorites">
+                    <content>
+                        <VBox spacing="20" alignment="TOP_LEFT" style="-fx-background-color: white;-fx-padding: 30; ">
+                           <Label text="Favorite Restaurants" styleClass="section-title"/>
+                            <TableView fx:id="favoriteRestaurantTable" VBox.vgrow="ALWAYS" prefHeight="400" prefWidth="600" styleClass="data-table">
+                                <columns>
+                                    <TableColumn fx:id="favRestaurantIdColumn" prefWidth="75.0" text="ID" />
+                                    <TableColumn fx:id="favRestaurantNameColumn" prefWidth="150.0" text="Name" />
+                                    <TableColumn fx:id="favRestaurantAddressColumn" prefWidth="200.0" text="Address" />
+                                    <TableColumn fx:id="favRestaurantPhoneColumn" prefWidth="120.0" text="Phone" />
+                                </columns>
+                                <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/> </columnResizePolicy>
+                            </TableView>
+                            <MFXButton text="Delete from favorite" onAction="#handleRemoveFavorite" styleClass="login-button" />
+                        </VBox>
+                    </content>
                 </Tab>
             </tabs>
         </TabPane>

@@ -55,6 +55,12 @@ public class BuyerDashboard {
     @FXML private TableColumn<Order, Integer> orderPriceColumn;
     @FXML private TableColumn<Order, String> orderDateColumn;
 
+    @FXML private TableView<Restaurant> favoriteRestaurantsTable;
+    @FXML private TableColumn<Restaurant, String> favRestaurantIdColumn;
+    @FXML private TableColumn<Restaurant, String> favRestaurantNameColumn;
+    @FXML private TableColumn<Restaurant, String> favRestaurantAddressColumn;
+    @FXML private TableColumn<Restaurant, String> favRestaurantPhoneColumn;
+
     @FXML private UserProfileController userProfileViewController; // این فیلد ممکن است دیگر ضروری نباشد اگر به صورت دستی کنترلر را فراخوانی می‌کنید
 
     @FXML private AnchorPane myProfileContainer; // اضافه شده: کانتینر برای بارگذاری پروفایل کاربر
@@ -92,9 +98,17 @@ public class BuyerDashboard {
         if (orderPriceColumn != null) orderPriceColumn.setCellValueFactory(new PropertyValueFactory<>("payPrice"));
         if (orderDateColumn != null) orderDateColumn.setCellValueFactory(new PropertyValueFactory<>("createdAt"));
 
+        if (favoriteRestaurantsTable != null) {
+            favRestaurantIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+            favRestaurantNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+            favRestaurantAddressColumn.setCellValueFactory(new PropertyValueFactory<>("address"));
+            favRestaurantPhoneColumn.setCellValueFactory(new PropertyValueFactory<>("phone"));
+        }
+
         // Load initial data
         viewRestaurants();
         viewOrderHistory();
+        viewFavoriteRestaurants();
     }
 
     private void handleActionSelection(String action) {
@@ -112,7 +126,8 @@ public class BuyerDashboard {
                 loadUserProfileView(); // فراخوانی متد جدید برای بارگذاری پروفایل
                 break;
             case "Manage Favorites":
-                errorMessageLabel.setText("Manage Favorites functionality not yet implemented.");
+                if (mainTabPane != null) mainTabPane.getSelectionModel().select(3);
+                viewFavoriteRestaurants();
                 break;
             case "Wallet & Payments":
                 errorMessageLabel.setText("Wallet & Payments functionality not yet implemented.");
@@ -303,7 +318,144 @@ public class BuyerDashboard {
             }
         });
     }
+    @FXML
+    private void viewFavoriteRestaurants() {
+        errorMessageLabel.setText("Loading favorite restaurant ...");
+        executorService.submit(() -> {
+            try {
+                String token = AuthManager.getJwtToken();
+                if (token == null || token.isEmpty()) {
+                    Platform.runLater(() -> errorMessageLabel.setText("Authentication token missing. Please log in again."));
+                    return;
+                }
 
+                Optional<HttpResponse<String>> responseOpt = ApiClient.get("/favorites", token);
+
+                if (responseOpt.isPresent()) {
+                    HttpResponse<String> response = responseOpt.get();
+                    JsonNode rootNode = JsonUtil.getObjectMapper().readTree(response.body());
+
+                    Platform.runLater(() -> {
+                        if (response.statusCode() == 200) {
+                            try {
+                                // تبدیل JSON به لیست آبجکت‌های Restaurant
+                                List<Restaurant> favorites = JsonUtil.getObjectMapper().readerForListOf(Restaurant.class).readValue(rootNode);
+                                ObservableList<Restaurant> favoriteObservableList = FXCollections.observableArrayList(favorites);
+                                favoriteRestaurantsTable.setItems(favoriteObservableList);
+                                errorMessageLabel.setText("Favorite restaurants successfully loaded.");
+                            } catch (IOException e) {
+                                errorMessageLabel.setText("Error parsing favorite restaurants data:" + e.getMessage());
+                                e.printStackTrace();
+                            }
+                        } else {
+                            String errorMessage = rootNode.has("error") ? rootNode.get("error").asText() : "An unknown error occurred.";
+                            errorMessageLabel.setText("Error viewing favorite restaurants:" + errorMessage);
+                        }
+                    });
+                } else {
+                    Platform.runLater(() -> errorMessageLabel.setText("Could not connect to server for favorite restaurants."));
+                }
+            } catch (IOException | InterruptedException e) {
+                Platform.runLater(() -> {
+                    errorMessageLabel.setText("Unexpected error fetching favorite restaurants: " + e.getMessage());
+                    e.printStackTrace();
+                });
+            }
+        });
+    }
+
+    @FXML
+    private void handleAddFavorite(javafx.event.ActionEvent event) {
+        Restaurant selectedRestaurant = restaurantsTable.getSelectionModel().getSelectedItem();
+        if (selectedRestaurant == null) {
+            errorMessageLabel.setText("Please select a restaurant to add to favorites.");
+            return;
+        }
+
+        errorMessageLabel.setText("Adding " + selectedRestaurant.getName() + " to favorite...");
+        executorService.submit(() -> {
+            try {
+                String token = AuthManager.getJwtToken();
+                if (token == null || token.isEmpty()) {
+                    Platform.runLater(() -> errorMessageLabel.setText("Authentication token does not exist. Please log in again."));
+                    return;
+                }
+
+                String restaurantId = selectedRestaurant.getId();
+                // API برای افزودن به علاقه‌مندی‌ها یک PUT request با restaurantId در مسیر نیاز دارد.
+                // بدنه درخواست (request body) خالی است، اما متد ApiClient.put نیاز به یک jsonBody دارد (می‌تواند رشته خالی باشد).
+                Optional<HttpResponse<String>> responseOpt = ApiClient.put("/favorites/" + restaurantId, "", token);
+
+                if (responseOpt.isPresent()) {
+                    HttpResponse<String> response = responseOpt.get();
+                    JsonNode rootNode = JsonUtil.getObjectMapper().readTree(response.body()); // تجزیه پاسخ JSON
+
+                    Platform.runLater(() -> {
+                        if (response.statusCode() == 200) {
+                            errorMessageLabel.setText(rootNode.has("message") ? rootNode.get("message").asText() : "Restaurant successfully added to favorites!");
+                            viewFavoriteRestaurants(); // رفرش لیست علاقه‌مندی‌ها
+                        } else {
+                            String errorMessage = rootNode.has("error") ? rootNode.get("error").asText() : "An unknown error occurred.";
+                            errorMessageLabel.setText("خطا در افزودن به علاقه‌مندی‌ها: " + errorMessage);
+                        }
+                    });
+                } else {
+                    Platform.runLater(() -> errorMessageLabel.setText("Could not connect to server to add to favorites."));
+                }
+            } catch (IOException | InterruptedException e) {
+                Platform.runLater(() -> {
+                    errorMessageLabel.setText("Unexpected error adding to favorites:" + e.getMessage());
+                    e.printStackTrace();
+                });
+            }
+        });
+    }
+
+    @FXML
+    private void handleRemoveFavorite(javafx.event.ActionEvent event) { // از javafx.event.ActionEvent استفاده شود
+        Restaurant selectedFavorite = favoriteRestaurantsTable.getSelectionModel().getSelectedItem(); // رستوران انتخاب شده از جدول علاقه‌مندی‌ها
+        if (selectedFavorite == null) {
+            errorMessageLabel.setText("Please select a restaurant to remove from favorites.");
+            return;
+        }
+
+        errorMessageLabel.setText("Removing" + selectedFavorite.getName() + " from favorites...");
+        executorService.submit(() -> {
+            try {
+                String token = AuthManager.getJwtToken(); // دریافت توکن احراز هویت
+                if (token == null || token.isEmpty()) {
+                    Platform.runLater(() -> errorMessageLabel.setText("Authentication token does not exist. Please log in again."));
+                    return;
+                }
+
+                String restaurantId = selectedFavorite.getId();
+                // API برای حذف از علاقه‌مندی‌ها یک DELETE request با restaurantId در مسیر نیاز دارد.
+                Optional<HttpResponse<String>> responseOpt = ApiClient.delete("/favorites/" + restaurantId, token);
+
+                if (responseOpt.isPresent()) {
+                    HttpResponse<String> response = responseOpt.get();
+                    JsonNode rootNode = JsonUtil.getObjectMapper().readTree(response.body()); // تجزیه پاسخ JSON
+
+                    Platform.runLater(() -> {
+                        if (response.statusCode() == 200) {
+                            errorMessageLabel.setText(rootNode.has("message") ? rootNode.get("message").asText() : "The restaurant was successfully removed from favorites.");
+                            viewFavoriteRestaurants(); // رفرش لیست علاقه‌مندی‌ها
+                        } else {
+                            String errorMessage = rootNode.has("error") ? rootNode.get("error").asText() : "An unknown error occurred.";
+                            errorMessageLabel.setText("خطا در حذف از علاقه‌مندی‌ها: " + errorMessage);
+                        }
+                    });
+                } else {
+                    Platform.runLater(() -> errorMessageLabel.setText("Could not connect to server to remove from favorites."));
+                }
+            } catch (IOException | InterruptedException e) {
+                Platform.runLater(() -> {
+                    errorMessageLabel.setText("Unexpected error while removing from favorites:" + e.getMessage());
+                    e.printStackTrace();
+                });
+            }
+        });
+    }
     @FXML
     private void logout() {
         AuthManager.logout();
