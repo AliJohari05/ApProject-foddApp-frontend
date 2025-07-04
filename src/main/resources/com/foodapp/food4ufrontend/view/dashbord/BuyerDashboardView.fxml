@@ -93,6 +93,33 @@
                         </VBox>
                     </content>
                 </Tab>
+                <Tab text="Wallet and Payments">
+                    <content>
+                        <VBox spacing="20" alignment="TOP_LEFT" style="-fx-background-color: white;-fx-padding: 30; ">
+                            <Label text="Wallet and Payments" styleClass="section-title"/>
+                            <HBox spacing="10" alignment="CENTER_LEFT" >
+                                <Label text="Current Balance :" styleClass="label-bold" />
+                                <Label fx:id="currentWalletBalanceLabel" text="0.00" styleClass="label-bold"/>
+                            </HBox>
+                            <Label text="Top-up Wallet" styleClass="section-subtitle"/>
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <TextField fx:id="topUpAmountField" promptText="Enter amount" HBox.hgrow="ALWAYS" />
+                                <MFXButton text="Top-up" onAction="#handleTopUp" styleClass="login-button"/>
+                            </HBox>
+                            <Label text="Transaction History" styleClass="section-title"/>
+                            <TableView fx:id="transactionsTable" VBox.vgrow="ALWAYS" prefHeight="300" prefWidth="600" styleClass="data-table">
+                                <columns>
+                                    <TableColumn fx:id="transactionIdColumn" text="Transaction ID" prefWidth="100"/>
+                                    <TableColumn fx:id="transactionOrderIdColumn" text="Order ID" prefWidth="100"/>
+                                    <TableColumn fx:id="transactionUserIdColumn" text="User ID" prefWidth="100"/>
+                                    <TableColumn fx:id="transactionMethodColumn" text="Method" prefWidth="120"/>
+                                    <TableColumn fx:id="transactionStatusColumn" text="Status" prefWidth="120"/>
+                                </columns>
+                                <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
+                            </TableView>
+                        </VBox>
+                    </content>
+                </Tab>
             </tabs>
         </TabPane>
     </center>
