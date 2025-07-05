@@ -26,8 +26,12 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.Tab;
-import javafx.scene.layout.AnchorPane; // اضافه شده
-import javafx.scene.Node; // اضافه شده
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.Node;
+
+import javafx.scene.control.RadioButton;
+
+import javafx.scene.control.ToggleGroup;
 
 import java.io.IOException;
 import java.net.http.HttpResponse;
@@ -40,6 +44,7 @@ import java.util.concurrent.Executors;
 
 import javafx.scene.control.TextField; // if not already imported
 
+import javax.swing.*;
 import java.math.BigDecimal; // Import for walletBalance
 
 public class BuyerDashboard {
@@ -76,6 +81,12 @@ public class BuyerDashboard {
     private TableColumn<Order, Integer> orderPriceColumn;
     @FXML
     private TableColumn<Order, String> orderDateColumn;
+    @FXML
+    private ToggleGroup paymentMethodGroup;
+    @FXML
+    private RadioButton walletRadioButton;
+    @FXML
+    private RadioButton onlineRadioButton;
 
     @FXML
     private TableView<Restaurant> favoriteRestaurantsTable;
@@ -146,6 +157,8 @@ public class BuyerDashboard {
         if (orderPriceColumn != null) orderPriceColumn.setCellValueFactory(new PropertyValueFactory<>("payPrice"));
         if (orderDateColumn != null) orderDateColumn.setCellValueFactory(new PropertyValueFactory<>("createdAt"));
 
+        if (paymentMethodGroup != null) {walletRadioButton.setSelected(true);}
+
         if (favoriteRestaurantsTable != null) {
             favRestaurantIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
             favRestaurantNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
@@ -197,7 +210,6 @@ public class BuyerDashboard {
         }
     }
 
-    // متد جدید برای بارگذاری پویا UserProfileView.fxml
     private void loadUserProfileView() {
         errorMessageLabel.setText("Loading profile view...");
         executorService.submit(() -> {
@@ -331,7 +343,6 @@ public class BuyerDashboard {
         });
     }
 
-
     private void viewOrderHistory() {
         errorMessageLabel.setText("Loading order history...");
         executorService.submit(() -> {
@@ -370,6 +381,63 @@ public class BuyerDashboard {
             } catch (IOException | InterruptedException e) {
                 Platform.runLater(() -> {
                     errorMessageLabel.setText("An unexpected error occurred while fetching order history: " + e.getMessage());
+                    e.printStackTrace();
+                });
+            }
+        });
+    }
+
+    @FXML
+    private void handleMakePayment(ActionEvent event){
+        Order selectedOrder = orderHistoryTable.getSelectionModel().getSelectedItem();
+        if(selectedOrder == null){
+            errorMessageLabel.setText("Please select an order to pay");
+            return;
+        }
+        String paymentMethod;
+        if (paymentMethodGroup.getSelectedToggle() != null){
+            paymentMethod = (String) paymentMethodGroup.getSelectedToggle().getUserData();
+        } else {
+            paymentMethod = null;
+        }
+        if(paymentMethod == null || paymentMethod.isEmpty()){
+            errorMessageLabel.setText("Please select a payment method");
+            return;
+        }
+        errorMessageLabel.setText("Paying price with order id : " + selectedOrder.getId() );
+        executorService.submit(() -> {
+            try {
+                String token = AuthManager.getJwtToken();
+                if (token == null || token.isEmpty()){
+                    Platform.runLater(() -> {errorMessageLabel.setText("Authentication token is missing. Please login again.");});
+                    return;
+                }
+                Integer orderId = selectedOrder.getId();
+                Map<String,Object> paymentData = new HashMap<>();
+                paymentData.put("order_id",orderId);
+                paymentData.put("method",paymentMethod);
+                String jsonBody = JsonUtil.getObjectMapper().writeValueAsString(paymentData);
+                Optional<HttpResponse<String>> responseOptional= ApiClient.post("/payment/online",jsonBody,token);
+                if(responseOptional.isPresent()){
+                    HttpResponse<String> response = responseOptional.get();
+                    JsonNode rootNode = JsonUtil.getObjectMapper().readTree(response.body());
+                    Platform.runLater(() -> {
+                    if (response.statusCode() == 200){
+
+                        errorMessageLabel.setText(rootNode.has("message") ? rootNode.get("message").asText() : "Payment was successful");
+                        viewOrderHistory();
+                        viewWalletAndPaymants();
+                    }else {
+                        errorMessageLabel.setText("Error in payment :" + (rootNode.has("error") ? rootNode.get("error").asText() : "An unknown error occurred"));
+                    }
+                    });
+                }else {
+                    Platform.runLater(() ->{errorMessageLabel.setText("Could not connect to server to Payment");});
+                }
+
+            } catch (IOException | InterruptedException e) {
+                Platform.runLater(() -> {
+                    errorMessageLabel.setText("An unexpected error occurred during payment: " + e.getMessage());
                     e.printStackTrace();
                 });
             }
@@ -440,21 +508,19 @@ public class BuyerDashboard {
                 }
 
                 String restaurantId = selectedRestaurant.getId();
-                // API برای افزودن به علاقه‌مندی‌ها یک PUT request با restaurantId در مسیر نیاز دارد.
-                // بدنه درخواست (request body) خالی است، اما متد ApiClient.put نیاز به یک jsonBody دارد (می‌تواند رشته خالی باشد).
                 Optional<HttpResponse<String>> responseOpt = ApiClient.put("/favorites/" + restaurantId, "", token);
 
                 if (responseOpt.isPresent()) {
                     HttpResponse<String> response = responseOpt.get();
-                    JsonNode rootNode = JsonUtil.getObjectMapper().readTree(response.body()); // تجزیه پاسخ JSON
+                    JsonNode rootNode = JsonUtil.getObjectMapper().readTree(response.body());
 
                     Platform.runLater(() -> {
                         if (response.statusCode() == 200) {
                             errorMessageLabel.setText(rootNode.has("message") ? rootNode.get("message").asText() : "Restaurant successfully added to favorites!");
-                            viewFavoriteRestaurants(); // رفرش لیست علاقه‌مندی‌ها
+                            viewFavoriteRestaurants();
                         } else {
                             String errorMessage = rootNode.has("error") ? rootNode.get("error").asText() : "An unknown error occurred.";
-                            errorMessageLabel.setText("خطا در افزودن به علاقه‌مندی‌ها: " + errorMessage);
+                            errorMessageLabel.setText("Error in adding to favorite: " + errorMessage);
                         }
                     });
                 } else {
