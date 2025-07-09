@@ -1,6 +1,7 @@
 package com.foodapp.food4ufrontend.controller.dashbord;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.foodapp.food4ufrontend.model.FoodItem;
 import com.foodapp.food4ufrontend.model.Restaurant;
 import com.foodapp.food4ufrontend.model.Order;
 import com.foodapp.food4ufrontend.util.ApiClient;
@@ -11,6 +12,7 @@ import javafx.application.Platform;
 import javafx.beans.Observable;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -40,33 +42,76 @@ import java.util.concurrent.Executors;
 
 public class SellerDashboard {
 
-    @FXML private ListView<String> actionList;
-    @FXML private Label errorMessageLabel;
-    @FXML private TabPane mainTabPane;
+    @FXML
+    private ListView<String> actionList;
+    @FXML
+    private Label errorMessageLabel;
+    @FXML
+    private TabPane mainTabPane;
 
-    @FXML private TextField searchRestaurantField; // Not directly used in SellerDashboardView.fxml, consider removing
-    @FXML private TableView<Restaurant> myRestaurantsTable;
-    @FXML private TableColumn<Restaurant, String> myRestaurantIdColumn;
-    @FXML private TableColumn<Restaurant, String> myRestaurantNameColumn;
-    @FXML private TableColumn<Restaurant, String> myRestaurantAddressColumn;
-    @FXML private TableColumn<Restaurant, String> myRestaurantPhoneColumn;
-    @FXML private TableColumn<Restaurant, Integer> myRestaurantTaxFeeColumn;
-    @FXML private TableColumn<Restaurant, Integer> myRestaurantAdditionalFeeColumn;
+    @FXML
+    private TextField searchRestaurantField; // Not directly used in SellerDashboardView.fxml, consider removing
+    @FXML
+    private TableView<Restaurant> myRestaurantsTable;
+    @FXML
+    private TableColumn<Restaurant, String> myRestaurantIdColumn;
+    @FXML
+    private TableColumn<Restaurant, String> myRestaurantNameColumn;
+    @FXML
+    private TableColumn<Restaurant, String> myRestaurantAddressColumn;
+    @FXML
+    private TableColumn<Restaurant, String> myRestaurantPhoneColumn;
+    @FXML
+    private TableColumn<Restaurant, Integer> myRestaurantTaxFeeColumn;
+    @FXML
+    private TableColumn<Restaurant, Integer> myRestaurantAdditionalFeeColumn;
 
-    @FXML private ComboBox<String> selectRestaurantForOrders;
-    @FXML private ComboBox<String> filterOrderStatus;
-    @FXML private TableView<Order> restaurantOrdersTable;
-    @FXML private TableColumn<Order, Integer> sellerOrderIdColumn;
-    @FXML private TableColumn<Order, Integer> sellerOrderCustomerColumn;
-    @FXML private TableColumn<Order, String> sellerOrderAddressColumn;
-    @FXML private TableColumn<Order, String> sellerOrderStatusColumn;
-    @FXML private TableColumn<Order, Integer> sellerOrderPriceColumn;
-    @FXML private TableColumn<Order, String> sellerOrderCreatedAtColumn;
+    @FXML
+    private ComboBox<String> selectRestaurantForOrders;
+    @FXML
+    private ComboBox<String> filterOrderStatus;
+    @FXML
+    private TableView<Order> restaurantOrdersTable;
+    @FXML
+    private TableColumn<Order, Integer> sellerOrderIdColumn;
+    @FXML
+    private TableColumn<Order, Integer> sellerOrderCustomerColumn;
+    @FXML
+    private TableColumn<Order, String> sellerOrderAddressColumn;
+    @FXML
+    private TableColumn<Order, String> sellerOrderStatusColumn;
+    @FXML
+    private TableColumn<Order, Integer> sellerOrderPriceColumn;
+    @FXML
+    private TableColumn<Order, String> sellerOrderCreatedAtColumn;
+
+    @FXML
+    private TableView<FoodItem> foodItemTable;
+    @FXML
+    private TableColumn<FoodItem, Integer> foodItemIdColumn;
+    @FXML
+    private TableColumn<FoodItem, String> foodItemNameColumn;
+    @FXML
+    private TableColumn<FoodItem, String> foodItemDescription;
+    @FXML
+    private TableColumn<FoodItem, Integer> foodItemVendorId;
+    @FXML
+    private TableColumn<FoodItem, Integer> foodItemPrice;
+    @FXML
+    private TableColumn<FoodItem, Integer> foodItemSupply;
+    @FXML
+    private TableColumn<FoodItem, String[]> foodItemKeywords;
+    @FXML
+    private ComboBox<String> selectRestaurantForMenu;
+
+    private String selectedRestaurantForMenuId;
 
     // FXML for included UserProfileView (این فیلد ممکن است دیگر ضروری نباشد اگر به صورت دستی کنترلر را فراخوانی می‌کنید)
-    @FXML private UserProfileController userProfileViewController;
+    @FXML
+    private UserProfileController userProfileViewController;
 
-    @FXML private AnchorPane myProfileContainer; // اضافه شده: کانتینر برای بارگذاری پروفایل کاربر
+    @FXML
+    private AnchorPane myProfileContainer; // اضافه شده: کانتینر برای بارگذاری پروفایل کاربر
 
     private final ExecutorService executorService = Executors.newCachedThreadPool();
     // FIX: Explicitly specify generic type to resolve ambiguity
@@ -76,7 +121,7 @@ public class SellerDashboard {
     public void initialize() {
         ObservableList<String> actions = FXCollections.observableArrayList(
                 "My Restaurants",
-                "Manage Menu",
+                "Manage menu",
                 "Restaurant Orders",
                 "My Profile",
                 "Manage Fees",
@@ -92,19 +137,38 @@ public class SellerDashboard {
 
         // Initialize My Restaurants Table Columns
         if (myRestaurantIdColumn != null) myRestaurantIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
-        if (myRestaurantNameColumn != null) myRestaurantNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
-        if (myRestaurantAddressColumn != null) myRestaurantAddressColumn.setCellValueFactory(new PropertyValueFactory<>("address"));
-        if (myRestaurantPhoneColumn != null) myRestaurantPhoneColumn.setCellValueFactory(new PropertyValueFactory<>("phone"));
-        if (myRestaurantTaxFeeColumn != null) myRestaurantTaxFeeColumn.setCellValueFactory(new PropertyValueFactory<>("taxFee"));
-        if (myRestaurantAdditionalFeeColumn != null) myRestaurantAdditionalFeeColumn.setCellValueFactory(new PropertyValueFactory<>("additionalFee"));
+        if (myRestaurantNameColumn != null)
+            myRestaurantNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+        if (myRestaurantAddressColumn != null)
+            myRestaurantAddressColumn.setCellValueFactory(new PropertyValueFactory<>("address"));
+        if (myRestaurantPhoneColumn != null)
+            myRestaurantPhoneColumn.setCellValueFactory(new PropertyValueFactory<>("phone"));
+        if (myRestaurantTaxFeeColumn != null)
+            myRestaurantTaxFeeColumn.setCellValueFactory(new PropertyValueFactory<>("taxFee"));
+        if (myRestaurantAdditionalFeeColumn != null)
+            myRestaurantAdditionalFeeColumn.setCellValueFactory(new PropertyValueFactory<>("additionalFee"));
 
         // Initialize Restaurant Orders Table Columns
         if (sellerOrderIdColumn != null) sellerOrderIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
-        if (sellerOrderCustomerColumn != null) sellerOrderCustomerColumn.setCellValueFactory(new PropertyValueFactory<>("customerId"));
-        if (sellerOrderAddressColumn != null) sellerOrderAddressColumn.setCellValueFactory(new PropertyValueFactory<>("deliveryAddress"));
-        if (sellerOrderStatusColumn != null) sellerOrderStatusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
-        if (sellerOrderPriceColumn != null) sellerOrderPriceColumn.setCellValueFactory(new PropertyValueFactory<>("payPrice"));
-        if (sellerOrderCreatedAtColumn != null) sellerOrderCreatedAtColumn.setCellValueFactory(new PropertyValueFactory<>("createdAt"));
+        if (sellerOrderCustomerColumn != null)
+            sellerOrderCustomerColumn.setCellValueFactory(new PropertyValueFactory<>("customerId"));
+        if (sellerOrderAddressColumn != null)
+            sellerOrderAddressColumn.setCellValueFactory(new PropertyValueFactory<>("deliveryAddress"));
+        if (sellerOrderStatusColumn != null)
+            sellerOrderStatusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
+        if (sellerOrderPriceColumn != null)
+            sellerOrderPriceColumn.setCellValueFactory(new PropertyValueFactory<>("payPrice"));
+        if (sellerOrderCreatedAtColumn != null)
+            sellerOrderCreatedAtColumn.setCellValueFactory(new PropertyValueFactory<>("createdAt"));
+
+        if (foodItemIdColumn != null) foodItemIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+        if (foodItemNameColumn != null) foodItemNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+        if (foodItemDescription != null)
+            foodItemDescription.setCellValueFactory(new PropertyValueFactory<>("description"));
+        if (foodItemPrice != null) foodItemPrice.setCellValueFactory(new PropertyValueFactory<>("price"));
+        if (foodItemVendorId != null) foodItemVendorId.setCellValueFactory(new PropertyValueFactory<>("vendorId"));
+        if (foodItemSupply != null) foodItemSupply.setCellValueFactory(new PropertyValueFactory<>("supply"));
+        if (foodItemKeywords != null) foodItemKeywords.setCellValueFactory(new PropertyValueFactory<>("keywords"));
 
         // Setup filterOrderStatus ComboBox
         ObservableList<String> orderStatuses = FXCollections.observableArrayList(
@@ -116,10 +180,32 @@ public class SellerDashboard {
             filterOrderStatus.getSelectionModel().selectFirst();
             filterOrderStatus.valueProperty().addListener((obs, oldVal, newVal) -> viewRestaurantOrders());
         }
+        if (selectRestaurantForMenu != null) {
+            selectRestaurantForMenu.valueProperty().addListener((obs, oldVal, newVal) -> {
+                if (newVal != null && newVal.contains("(ID: ")) {
+                    int idStartIndex = newVal.lastIndexOf("(ID: ") + 5;
+                    int idEndIndex = newVal.lastIndexOf(")");
+                    selectedRestaurantForMenuId = newVal.substring(idStartIndex, idEndIndex);
+                    errorMessageLabel.setText("Selected restaurant for menu: " + selectedRestaurantForMenuId);
+                    viewManageMenu();
+                } else {
+                    selectedRestaurantForMenuId = null;
+                    foodItemTable.setItems(FXCollections.emptyObservableList());
+                    errorMessageLabel.setText("Please select a valid restaurant");
+                }
+            });
+        }
+
+        if (selectRestaurantForOrders != null) {
+            selectRestaurantForOrders.valueProperty().addListener((obs, oldVal, newVal) -> {
+                viewRestaurantOrders();
+            });
+        }
 
         // Initial data loading when dashboard is opened
         viewMyRestaurants();
         viewRestaurantOrders();
+        viewManageMenu();
     }
 
     private void handleActionSelection(String action) {
@@ -128,16 +214,17 @@ public class SellerDashboard {
                 if (mainTabPane != null) mainTabPane.getSelectionModel().select(0);
                 viewMyRestaurants();
                 break;
-            case "Manage Menu":
-                errorMessageLabel.setText("Manage Menu functionality not yet implemented.");
+            case "Manage menu":
+                if (mainTabPane != null) mainTabPane.getSelectionModel().select(1);
+                viewManageMenu();
                 break;
             case "Restaurant Orders":
-                if (mainTabPane != null) mainTabPane.getSelectionModel().select(1);
+                if (mainTabPane != null) mainTabPane.getSelectionModel().select(2);
                 viewRestaurantOrders();
                 break;
             case "My Profile":
-                if (mainTabPane != null) mainTabPane.getSelectionModel().select(2);
-                loadUserProfileView(); // فراخوانی متد جدید
+                if (mainTabPane != null) mainTabPane.getSelectionModel().select(3);
+                loadUserProfileView();
                 break;
             case "Manage Fees":
                 errorMessageLabel.setText("Manage Fees functionality not yet implemented.");
@@ -150,7 +237,6 @@ public class SellerDashboard {
         }
     }
 
-    // متد جدید برای بارگذاری پویا UserProfileView.fxml
     private void loadUserProfileView() {
         errorMessageLabel.setText("Loading profile view...");
         executorService.submit(() -> {
@@ -213,10 +299,13 @@ public class SellerDashboard {
                                 ObservableList<String> restaurantNames = FXCollections.observableArrayList();
                                 sellerRestaurants.forEach(r -> restaurantNames.add(r.getName() + " (ID: " + r.getId() + ")"));
                                 selectRestaurantForOrders.setItems(restaurantNames);
+                                selectRestaurantForMenu.setItems(restaurantNames);
                                 if (!restaurantNames.isEmpty()) {
                                     selectRestaurantForOrders.getSelectionModel().selectFirst();
-                                    selectRestaurantForOrders.valueProperty().addListener((obs, oldVal, newVal) -> viewRestaurantOrders());
+                                    selectRestaurantForMenu.getSelectionModel().selectFirst();
                                 }
+
+
                                 errorMessageLabel.setText("Your restaurants loaded successfully.");
                             } catch (IOException e) {
                                 errorMessageLabel.setText("Error parsing restaurant data: " + e.getMessage());
@@ -375,6 +464,106 @@ public class SellerDashboard {
         });
     }
 
+    @FXML
+    private void viewManageMenu() {
+        errorMessageLabel.setText("Loading manage menu ...");
+        executorService.submit(() -> {
+            try {
+                String token = AuthManager.getJwtToken();
+                if (token == null || token.isEmpty()) {
+                    Platform.runLater(() -> {
+                        errorMessageLabel.setText("Authentication token is missing. Please log in again");
+                    });
+                    return;
+                }
+                if (selectedRestaurantForMenuId == null || selectedRestaurantForMenuId.isEmpty()) {
+                    Platform.runLater(() -> {
+                        errorMessageLabel.setText("Please select a valid restaurant");
+                        foodItemTable.setItems(FXCollections.emptyObservableList());
+                    });
+                    return;
+                }
+                String restaurantId = selectedRestaurantForMenuId;
+
+                Optional<HttpResponse<String>> responseOptional = ApiClient.get("/vendors/" + restaurantId, token);
+
+
+                if (responseOptional.isPresent()) {
+                    HttpResponse<String> response = responseOptional.get();
+                    JsonNode rootNode = JsonUtil.getObjectMapper().readTree(response.body());
+                    Platform.runLater(() -> {
+                        if (response.statusCode() == 200) {
+                            try {
+                                List<FoodItem> allFoodItems = new java.util.ArrayList<>();
+                                JsonNode menuTitleNode = rootNode.get("menu-titles");
+                                if (menuTitleNode != null && menuTitleNode.isArray()){
+                                    for (JsonNode titleNode : menuTitleNode) {
+                                        String menuTitle = titleNode.asText();
+
+                                        JsonNode itemsUnderTitle = rootNode.get(menuTitle);
+                                        if (itemsUnderTitle != null && itemsUnderTitle.isArray()){
+                                            List<FoodItem> items = JsonUtil.getObjectMapper().readerForListOf(FoodItem.class).readValue(itemsUnderTitle);
+                                            allFoodItems.addAll(items);
+                                        }
+                                    }
+                                }
+                                ObservableList<FoodItem> foodItemObservableList = FXCollections.observableArrayList(allFoodItems);
+                                foodItemTable.setItems(foodItemObservableList);
+                                errorMessageLabel.setText("Food item loaded successfully for restaurant ID: " + selectedRestaurantForMenuId);
+
+                            } catch (IOException e) {
+                                errorMessageLabel.setText("Error parsing food items data: " + e.getMessage());
+                                e.printStackTrace();
+                            }
+
+
+                        } else {
+                            Platform.runLater(() -> {
+                                errorMessageLabel.setText("Error fetching food items: " + (rootNode.has("error") ? rootNode.get("error").asText() : "An unknown error occurred"));
+                            });
+                        }
+                    });
+
+                } else {
+                    Platform.runLater(() -> {
+                        errorMessageLabel.setText("Field to connect to server for food items");
+                    });
+                }
+            } catch (IOException | InterruptedException e) {
+                Platform.runLater(() -> {
+                    errorMessageLabel.setText("An unexpected error occurred while fetching food items: " + e.getMessage());
+                    e.printStackTrace();
+                });
+            }
+        });
+    }
+    @FXML
+    private void addFoodItem(ActionEvent event) {
+    }
+
+    @FXML
+    private void editFoodItem() {
+    }
+
+    @FXML
+    private void deleteFoodItem() {
+    }
+
+    @FXML
+    private void creatMenu() {
+    }
+
+    @FXML
+    private void deleteMenu() {
+    }
+
+    @FXML
+    private void addItemToMenu() {
+    }
+
+    @FXML
+    private void deletItemFromMenu() {
+    }
 
     @FXML
     private void logout() {
@@ -399,4 +588,6 @@ public class SellerDashboard {
     public void shutdown() {
         executorService.shutdown();
     }
+
+
 }

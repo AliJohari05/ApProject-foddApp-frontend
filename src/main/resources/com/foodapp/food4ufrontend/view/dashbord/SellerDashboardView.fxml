@@ -56,6 +56,40 @@
                     </content>
                 </Tab>
 
+                <Tab text="Manage menu">
+                    <content>
+                        <VBox spacing="20" alignment="TOP_LEFT" style="-fx-background-color: white; -fx-padding: 30;">
+                            <Label text="Manage menu" styleClass="section-title"/>
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Label text="Select Restaurant:"/>
+                                <ComboBox fx:id="selectRestaurantForMenu" promptText="Choose Restaurant" />
+                                <MFXButton text ="Add a new food item" onAction="#addFoodItem" styleClass="login-button"/>
+                                <MFXButton text="Edit a food item" onAction="#editFoodItem" styleClass="login-button"/>
+                                <MFXButton text="Delete a food item" onAction="#deleteFoodItem" styleClass="login-button"/>
+
+                            </HBox>
+                            <HBox>
+                                <MFXButton text="Create a new menu" onAction="#creatMenu" styleClass="login-button"/>
+                                <MFXButton text="Delete a menu" onAction="#deleteMenu" styleClass="login-button"/>
+                                <MFXButton text="Add a food item to menu" onAction="#addItemToMenu" styleClass="login-button"/>
+                                <MFXButton text="Delete a food from menu" onAction="#deletItemFromMenu" styleClass="login-button"/>
+                            </HBox>
+                            <TableView fx:id="foodItemTable" VBox.vgrow="ALWAYS" prefWidth="600" prefHeight="200" styleClass="data-table">
+                                <columns>
+                                    <TableColumn fx:id="foodItemIdColumn" text="ID" prefWidth="50"/>
+                                    <TableColumn fx:id="foodItemNameColumn" text="Name" prefWidth="140"/>
+                                    <TableColumn fx:id="foodItemDescription" text="Description" prefWidth="200"/>
+                                    <TableColumn fx:id="foodItemVendorId" text="Vendor ID" prefWidth="200"/>
+                                    <TableColumn fx:id="foodItemPrice" text="Price" prefWidth="140"/>
+                                    <TableColumn fx:id="foodItemSupply" text="Supply" prefWidth="150"/>
+                                    <TableColumn fx:id="foodItemKeywords" text="Keywords" prefWidth="150"/>
+                                </columns>
+                                <columnResizePolicy ><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/> </columnResizePolicy>
+                            </TableView>
+                        </VBox>
+                    </content>
+                </Tab>
+
                 <Tab text="Restaurant Orders">
                     <content>
                         <VBox spacing="20" alignment="TOP_LEFT" style="-fx-background-color: white; -fx-padding: 30;">
