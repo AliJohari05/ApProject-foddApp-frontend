@@ -3,6 +3,8 @@ package com.foodapp.food4ufrontend.controller.dashbord;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.foodapp.food4ufrontend.model.Restaurant;
 import com.foodapp.food4ufrontend.model.Order;
+import com.foodapp.food4ufrontend.model.Transaction;
+import com.foodapp.food4ufrontend.model.User;
 import com.foodapp.food4ufrontend.util.ApiClient;
 import com.foodapp.food4ufrontend.util.AuthManager;
 import com.foodapp.food4ufrontend.util.JsonUtil;
@@ -10,6 +12,7 @@ import io.github.palexdev.materialfx.controls.MFXButton;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -23,8 +26,12 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.Tab;
-import javafx.scene.layout.AnchorPane; // اضافه شده
-import javafx.scene.Node; // اضافه شده
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.Node;
+
+import javafx.scene.control.RadioButton;
+
+import javafx.scene.control.ToggleGroup;
 
 import java.io.IOException;
 import java.net.http.HttpResponse;
@@ -35,29 +42,85 @@ import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import javafx.scene.control.TextField; // if not already imported
+
+import javax.swing.*;
+import java.math.BigDecimal; // Import for walletBalance
+
 public class BuyerDashboard {
 
-    @FXML private ListView<String> actionList;
-    @FXML private Label errorMessageLabel;
-    @FXML private TabPane mainTabPane;
+    @FXML
+    private ListView<String> actionList;
+    @FXML
+    private Label errorMessageLabel;
+    @FXML
+    private TabPane mainTabPane;
 
-    @FXML private TextField searchRestaurantField;
-    @FXML private TableView<Restaurant> restaurantsTable;
-    @FXML private TableColumn<Restaurant, String> restaurantIdColumn;
-    @FXML private TableColumn<Restaurant, String> restaurantNameColumn;
-    @FXML private TableColumn<Restaurant, String> restaurantAddressColumn;
-    @FXML private TableColumn<Restaurant, String> restaurantPhoneColumn;
+    @FXML
+    private TextField searchRestaurantField;
+    @FXML
+    private TableView<Restaurant> restaurantsTable;
+    @FXML
+    private TableColumn<Restaurant, String> restaurantIdColumn;
+    @FXML
+    private TableColumn<Restaurant, String> restaurantNameColumn;
+    @FXML
+    private TableColumn<Restaurant, String> restaurantAddressColumn;
+    @FXML
+    private TableColumn<Restaurant, String> restaurantPhoneColumn;
 
-    @FXML private TableView<Order> orderHistoryTable;
-    @FXML private TableColumn<Order, Integer> orderIdColumn;
-    @FXML private TableColumn<Order, Integer> orderVendorColumn;
-    @FXML private TableColumn<Order, String> orderStatusColumn;
-    @FXML private TableColumn<Order, Integer> orderPriceColumn;
-    @FXML private TableColumn<Order, String> orderDateColumn;
+    @FXML
+    private TableView<Order> orderHistoryTable;
+    @FXML
+    private TableColumn<Order, Integer> orderIdColumn;
+    @FXML
+    private TableColumn<Order, Integer> orderVendorColumn;
+    @FXML
+    private TableColumn<Order, String> orderStatusColumn;
+    @FXML
+    private TableColumn<Order, Integer> orderPriceColumn;
+    @FXML
+    private TableColumn<Order, String> orderDateColumn;
+    @FXML
+    private ToggleGroup paymentMethodGroup;
+    @FXML
+    private RadioButton walletRadioButton;
+    @FXML
+    private RadioButton onlineRadioButton;
 
-    @FXML private UserProfileController userProfileViewController; // این فیلد ممکن است دیگر ضروری نباشد اگر به صورت دستی کنترلر را فراخوانی می‌کنید
+    @FXML
+    private TableView<Restaurant> favoriteRestaurantsTable;
+    @FXML
+    private TableColumn<Restaurant, String> favRestaurantIdColumn;
+    @FXML
+    private TableColumn<Restaurant, String> favRestaurantNameColumn;
+    @FXML
+    private TableColumn<Restaurant, String> favRestaurantAddressColumn;
+    @FXML
+    private TableColumn<Restaurant, String> favRestaurantPhoneColumn;
 
-    @FXML private AnchorPane myProfileContainer; // اضافه شده: کانتینر برای بارگذاری پروفایل کاربر
+    @FXML
+    private Label currentWalletBalanceLabel;
+    @FXML
+    private TextField topUpAmountField;
+    @FXML
+    private TableView<Transaction> transactionsTable;
+    @FXML
+    private TableColumn<Transaction, Integer> transactionIdColumn;
+    @FXML
+    private TableColumn<Transaction, Integer> transactionOrderIdColumn;
+    @FXML
+    private TableColumn<Transaction, Integer> transactionUserIdColumn;
+    @FXML
+    private TableColumn<Transaction, String> transactionMethodColumn;
+    @FXML
+    private TableColumn<Transaction, String> transactionStatusColumn;
+
+    @FXML
+    private UserProfileController userProfileViewController; // این فیلد ممکن است دیگر ضروری نباشد اگر به صورت دستی کنترلر را فراخوانی می‌کنید
+
+    @FXML
+    private AnchorPane myProfileContainer; // اضافه شده: کانتینر برای بارگذاری پروفایل کاربر
 
     private final ExecutorService executorService = Executors.newCachedThreadPool();
 
@@ -68,7 +131,7 @@ public class BuyerDashboard {
                 "Order History",
                 "My Profile",
                 "Manage Favorites",
-                "Wallet & Payments",
+                "Wallet and Payments",
                 "Logout"
         );
         actionList.setItems(actions);
@@ -82,8 +145,10 @@ public class BuyerDashboard {
         // Initialize Restaurant Table Columns
         if (restaurantIdColumn != null) restaurantIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         if (restaurantNameColumn != null) restaurantNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
-        if (restaurantAddressColumn != null) restaurantAddressColumn.setCellValueFactory(new PropertyValueFactory<>("address"));
-        if (restaurantPhoneColumn != null) restaurantPhoneColumn.setCellValueFactory(new PropertyValueFactory<>("phone"));
+        if (restaurantAddressColumn != null)
+            restaurantAddressColumn.setCellValueFactory(new PropertyValueFactory<>("address"));
+        if (restaurantPhoneColumn != null)
+            restaurantPhoneColumn.setCellValueFactory(new PropertyValueFactory<>("phone"));
 
         // Initialize Order History Table Columns
         if (orderIdColumn != null) orderIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -92,9 +157,27 @@ public class BuyerDashboard {
         if (orderPriceColumn != null) orderPriceColumn.setCellValueFactory(new PropertyValueFactory<>("payPrice"));
         if (orderDateColumn != null) orderDateColumn.setCellValueFactory(new PropertyValueFactory<>("createdAt"));
 
+        if (paymentMethodGroup != null) {walletRadioButton.setSelected(true);}
+
+        if (favoriteRestaurantsTable != null) {
+            favRestaurantIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+            favRestaurantNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+            favRestaurantAddressColumn.setCellValueFactory(new PropertyValueFactory<>("address"));
+            favRestaurantPhoneColumn.setCellValueFactory(new PropertyValueFactory<>("phone"));
+        }
+        if (transactionsTable != null) {
+            transactionIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+            transactionOrderIdColumn.setCellValueFactory(new PropertyValueFactory<>("orderId"));
+            transactionUserIdColumn.setCellValueFactory(new PropertyValueFactory<>("UserId"));
+            transactionMethodColumn.setCellValueFactory(new PropertyValueFactory<>("method"));
+            transactionStatusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
+        }
+
         // Load initial data
         viewRestaurants();
         viewOrderHistory();
+        viewFavoriteRestaurants();
+        viewWalletAndPaymants();
     }
 
     private void handleActionSelection(String action) {
@@ -112,10 +195,12 @@ public class BuyerDashboard {
                 loadUserProfileView(); // فراخوانی متد جدید برای بارگذاری پروفایل
                 break;
             case "Manage Favorites":
-                errorMessageLabel.setText("Manage Favorites functionality not yet implemented.");
+                if (mainTabPane != null) mainTabPane.getSelectionModel().select(3);
+                viewFavoriteRestaurants();
                 break;
-            case "Wallet & Payments":
-                errorMessageLabel.setText("Wallet & Payments functionality not yet implemented.");
+            case "Wallet and Payments":
+                if (mainTabPane != null) mainTabPane.getSelectionModel().select(4);
+                viewWalletAndPaymants();
                 break;
             case "Logout":
                 logout();
@@ -125,7 +210,6 @@ public class BuyerDashboard {
         }
     }
 
-    // متد جدید برای بارگذاری پویا UserProfileView.fxml
     private void loadUserProfileView() {
         errorMessageLabel.setText("Loading profile view...");
         executorService.submit(() -> {
@@ -259,7 +343,6 @@ public class BuyerDashboard {
         });
     }
 
-
     private void viewOrderHistory() {
         errorMessageLabel.setText("Loading order history...");
         executorService.submit(() -> {
@@ -302,6 +385,318 @@ public class BuyerDashboard {
                 });
             }
         });
+    }
+
+    @FXML
+    private void handleMakePayment(ActionEvent event){
+        Order selectedOrder = orderHistoryTable.getSelectionModel().getSelectedItem();
+        if(selectedOrder == null){
+            errorMessageLabel.setText("Please select an order to pay");
+            return;
+        }
+        String paymentMethod;
+        if (paymentMethodGroup.getSelectedToggle() != null){
+            paymentMethod = (String) paymentMethodGroup.getSelectedToggle().getUserData();
+        } else {
+            paymentMethod = null;
+        }
+        if(paymentMethod == null || paymentMethod.isEmpty()){
+            errorMessageLabel.setText("Please select a payment method");
+            return;
+        }
+        errorMessageLabel.setText("Paying price with order id : " + selectedOrder.getId() );
+        executorService.submit(() -> {
+            try {
+                String token = AuthManager.getJwtToken();
+                if (token == null || token.isEmpty()){
+                    Platform.runLater(() -> {errorMessageLabel.setText("Authentication token is missing. Please login again.");});
+                    return;
+                }
+                Integer orderId = selectedOrder.getId();
+                Map<String,Object> paymentData = new HashMap<>();
+                paymentData.put("order_id",orderId);
+                paymentData.put("method",paymentMethod);
+                String jsonBody = JsonUtil.getObjectMapper().writeValueAsString(paymentData);
+                Optional<HttpResponse<String>> responseOptional= ApiClient.post("/payment/online",jsonBody,token);
+                if(responseOptional.isPresent()){
+                    HttpResponse<String> response = responseOptional.get();
+                    JsonNode rootNode = JsonUtil.getObjectMapper().readTree(response.body());
+                    Platform.runLater(() -> {
+                    if (response.statusCode() == 200){
+
+                        errorMessageLabel.setText(rootNode.has("message") ? rootNode.get("message").asText() : "Payment was successful");
+                        viewOrderHistory();
+                        viewWalletAndPaymants();
+                    }else {
+                        errorMessageLabel.setText("Error in payment :" + (rootNode.has("error") ? rootNode.get("error").asText() : "An unknown error occurred"));
+                    }
+                    });
+                }else {
+                    Platform.runLater(() ->{errorMessageLabel.setText("Could not connect to server to Payment");});
+                }
+
+            } catch (IOException | InterruptedException e) {
+                Platform.runLater(() -> {
+                    errorMessageLabel.setText("An unexpected error occurred during payment: " + e.getMessage());
+                    e.printStackTrace();
+                });
+            }
+        });
+    }
+
+    @FXML
+    private void viewFavoriteRestaurants() {
+        errorMessageLabel.setText("Loading favorite restaurant ...");
+        executorService.submit(() -> {
+            try {
+                String token = AuthManager.getJwtToken();
+                if (token == null || token.isEmpty()) {
+                    Platform.runLater(() -> errorMessageLabel.setText("Authentication token missing. Please log in again."));
+                    return;
+                }
+
+                Optional<HttpResponse<String>> responseOpt = ApiClient.get("/favorites", token);
+
+                if (responseOpt.isPresent()) {
+                    HttpResponse<String> response = responseOpt.get();
+                    JsonNode rootNode = JsonUtil.getObjectMapper().readTree(response.body());
+
+                    Platform.runLater(() -> {
+                        if (response.statusCode() == 200) {
+                            try {
+                                // تبدیل JSON به لیست آبجکت‌های Restaurant
+                                List<Restaurant> favorites = JsonUtil.getObjectMapper().readerForListOf(Restaurant.class).readValue(rootNode);
+                                ObservableList<Restaurant> favoriteObservableList = FXCollections.observableArrayList(favorites);
+                                favoriteRestaurantsTable.setItems(favoriteObservableList);
+                                errorMessageLabel.setText("Favorite restaurants successfully loaded.");
+                            } catch (IOException e) {
+                                errorMessageLabel.setText("Error parsing favorite restaurants data:" + e.getMessage());
+                                e.printStackTrace();
+                            }
+                        } else {
+                            String errorMessage = rootNode.has("error") ? rootNode.get("error").asText() : "An unknown error occurred.";
+                            errorMessageLabel.setText("Error viewing favorite restaurants:" + errorMessage);
+                        }
+                    });
+                } else {
+                    Platform.runLater(() -> errorMessageLabel.setText("Could not connect to server for favorite restaurants."));
+                }
+            } catch (IOException | InterruptedException e) {
+                Platform.runLater(() -> {
+                    errorMessageLabel.setText("Unexpected error fetching favorite restaurants: " + e.getMessage());
+                    e.printStackTrace();
+                });
+            }
+        });
+    }
+
+    @FXML
+    private void handleAddFavorite(javafx.event.ActionEvent event) {
+        Restaurant selectedRestaurant = restaurantsTable.getSelectionModel().getSelectedItem();
+        if (selectedRestaurant == null) {
+            errorMessageLabel.setText("Please select a restaurant to add to favorites.");
+            return;
+        }
+
+        errorMessageLabel.setText("Adding " + selectedRestaurant.getName() + " to favorite...");
+        executorService.submit(() -> {
+            try {
+                String token = AuthManager.getJwtToken();
+                if (token == null || token.isEmpty()) {
+                    Platform.runLater(() -> errorMessageLabel.setText("Authentication token does not exist. Please log in again."));
+                    return;
+                }
+
+                String restaurantId = selectedRestaurant.getId();
+                Optional<HttpResponse<String>> responseOpt = ApiClient.put("/favorites/" + restaurantId, "", token);
+
+                if (responseOpt.isPresent()) {
+                    HttpResponse<String> response = responseOpt.get();
+                    JsonNode rootNode = JsonUtil.getObjectMapper().readTree(response.body());
+
+                    Platform.runLater(() -> {
+                        if (response.statusCode() == 200) {
+                            errorMessageLabel.setText(rootNode.has("message") ? rootNode.get("message").asText() : "Restaurant successfully added to favorites!");
+                            viewFavoriteRestaurants();
+                        } else {
+                            String errorMessage = rootNode.has("error") ? rootNode.get("error").asText() : "An unknown error occurred.";
+                            errorMessageLabel.setText("Error in adding to favorite: " + errorMessage);
+                        }
+                    });
+                } else {
+                    Platform.runLater(() -> errorMessageLabel.setText("Could not connect to server to add to favorites."));
+                }
+            } catch (IOException | InterruptedException e) {
+                Platform.runLater(() -> {
+                    errorMessageLabel.setText("Unexpected error adding to favorites:" + e.getMessage());
+                    e.printStackTrace();
+                });
+            }
+        });
+    }
+
+    @FXML
+    private void handleRemoveFavorite(javafx.event.ActionEvent event) { // از javafx.event.ActionEvent استفاده شود
+        Restaurant selectedFavorite = favoriteRestaurantsTable.getSelectionModel().getSelectedItem(); // رستوران انتخاب شده از جدول علاقه‌مندی‌ها
+        if (selectedFavorite == null) {
+            errorMessageLabel.setText("Please select a restaurant to remove from favorites.");
+            return;
+        }
+
+        errorMessageLabel.setText("Removing" + selectedFavorite.getName() + " from favorites...");
+        executorService.submit(() -> {
+            try {
+                String token = AuthManager.getJwtToken(); // دریافت توکن احراز هویت
+                if (token == null || token.isEmpty()) {
+                    Platform.runLater(() -> errorMessageLabel.setText("Authentication token does not exist. Please log in again."));
+                    return;
+                }
+
+                String restaurantId = selectedFavorite.getId();
+                // API برای حذف از علاقه‌مندی‌ها یک DELETE request با restaurantId در مسیر نیاز دارد.
+                Optional<HttpResponse<String>> responseOpt = ApiClient.delete("/favorites/" + restaurantId, token);
+
+                if (responseOpt.isPresent()) {
+                    HttpResponse<String> response = responseOpt.get();
+                    JsonNode rootNode = JsonUtil.getObjectMapper().readTree(response.body()); // تجزیه پاسخ JSON
+
+                    Platform.runLater(() -> {
+                        if (response.statusCode() == 200) {
+                            errorMessageLabel.setText(rootNode.has("message") ? rootNode.get("message").asText() : "The restaurant was successfully removed from favorites.");
+                            viewFavoriteRestaurants(); // رفرش لیست علاقه‌مندی‌ها
+                        } else {
+                            String errorMessage = rootNode.has("error") ? rootNode.get("error").asText() : "An unknown error occurred.";
+                            errorMessageLabel.setText("خطا در حذف از علاقه‌مندی‌ها: " + errorMessage);
+                        }
+                    });
+                } else {
+                    Platform.runLater(() -> errorMessageLabel.setText("Could not connect to server to remove from favorites."));
+                }
+            } catch (IOException | InterruptedException e) {
+                Platform.runLater(() -> {
+                    errorMessageLabel.setText("Unexpected error while removing from favorites:" + e.getMessage());
+                    e.printStackTrace();
+                });
+            }
+        });
+    }
+
+    @FXML
+    private void viewWalletAndPaymants() {
+        errorMessageLabel.setText("Loading favorite restaurant ...");
+        executorService.submit(() -> {
+            try {
+                String token = AuthManager.getJwtToken();
+
+                if (token == null || token.isEmpty()) {
+                    Platform.runLater(() -> errorMessageLabel.setText("Authentication token missing. Please log in again."));
+                    return;
+                }
+
+                Optional<HttpResponse<String>> profileResponseOptional = ApiClient.get("/auth/profile", token);
+                if (profileResponseOptional.isPresent()) {
+                    HttpResponse<String> profileResponse = profileResponseOptional.get();
+                    JsonNode profileRootNode = JsonUtil.getObjectMapper().readTree(profileResponse.body());
+                    Platform.runLater(() -> {
+                        if (profileResponse.statusCode() == 200) {
+                            try {
+                                User currentUser = JsonUtil.getObjectMapper().treeToValue(profileRootNode, User.class);
+                                currentWalletBalanceLabel.setText(currentUser.getWalletBalance() != null ? currentUser.getWalletBalance().toPlainString() : "0.00");
+                            } catch (IOException e) {
+                                errorMessageLabel.setText("Error parsing profile data " + e.getMessage());
+                                e.printStackTrace();
+                            }
+                        } else {
+                            String errorMassage = profileRootNode.has("error") ? profileRootNode.get("error").asText() : "An Unknown error occurred.";
+                            errorMessageLabel.setText("Error loading wallet balance :" + errorMassage);
+                        }
+                    });
+                } else {
+                    Platform.runLater(() -> errorMessageLabel.setText("Failed to connect to server for wallet balance."));
+                }
+                Optional<HttpResponse<String>> transactionResponseOpt = ApiClient.get("/transactions", token);
+                if (transactionResponseOpt.isPresent()) {
+                    HttpResponse<String> transactionResponse = transactionResponseOpt.get();
+                    JsonNode transactionRootNode = JsonUtil.getObjectMapper().readTree(transactionResponse.body());
+                    Platform.runLater( () -> {
+                        if (transactionResponse.statusCode() == 200) {
+                            try {
+                                List<Transaction> transactions = JsonUtil.getObjectMapper().readerForListOf(Transaction.class).readValue(transactionRootNode);
+                                ObservableList<Transaction> transactionObservableList = FXCollections.observableArrayList(transactions);
+                                transactionsTable.setItems(transactionObservableList);
+                                errorMessageLabel.setText("Wallet and transaction history loaded successfully.");
+                            } catch (IOException e) {
+                                errorMessageLabel.setText("Error parsing transaction data " + e.getMessage());
+                                e.printStackTrace();
+                            }
+                        } else {
+                            String errorMassage = transactionRootNode.has("error") ? transactionRootNode.get("error").asText() : "An unknown error occurred ";
+                            errorMessageLabel.setText("Error viewing transaction :" + errorMassage);
+                        }
+                    });
+                } else {
+                    Platform.runLater(() -> {errorMessageLabel.setText("Field to connect to server for transaction history");});
+                }
+
+
+            } catch (IOException | InterruptedException e) {
+                Platform.runLater(() -> {
+                    errorMessageLabel.setText("An unexpected error occurred while loading wallet and transactions: " + e.getMessage());
+                    e.printStackTrace();
+                });
+            }
+        });
+    }
+
+    @FXML
+    private void handleTopUp(ActionEvent event) {
+        String amountText = topUpAmountField.getText();
+        if(amountText.isEmpty()){
+            errorMessageLabel.setText("Please enter an amount to top up");
+            return;
+        }
+        try{
+            double amount = Double.parseDouble(amountText);
+            if (amount < 0){
+                errorMessageLabel.setText ("Amount must be a positive number.");
+                return;
+            }
+            errorMessageLabel.setText("Topping up wallet with "+ amount +"...");
+            executorService.submit(() -> {
+                try {
+                   String token= AuthManager.getJwtToken();
+                   if (token == null || token.isEmpty()){
+                       Platform.runLater(() -> errorMessageLabel.setText("Authentication token missing.Please login again."));
+                       return;
+                   }
+                   Map<String,Object> requestBody = new HashMap<>();
+                   requestBody.put("amount",amount);
+                   String jsonBody = JsonUtil.getObjectMapper().writeValueAsString(requestBody);
+                   Optional<HttpResponse<String>> responseOptional = ApiClient.post("/wallet/top-up",jsonBody,token);
+                   if (responseOptional.isPresent()){
+                       HttpResponse<String> response = responseOptional.get();
+                       JsonNode rootNode = JsonUtil.getObjectMapper().readTree(response.body());
+                       Platform.runLater(() -> {
+                           if (response.statusCode() == 200) {
+                               errorMessageLabel.setText(rootNode.has("error" )? rootNode.get("error").asText() : "Wallet topped up successfully");
+                               topUpAmountField.clear();
+                               viewWalletAndPaymants();
+                           }else {
+                               errorMessageLabel.setText("Error topping up wallet :" + (rootNode.has("error")?rootNode.get("error").asText() : "An unknown error occurred"));
+                           }
+                       });
+                   }else {
+                       Platform.runLater(() -> errorMessageLabel.setText("Field to connect to server for top up"));
+                   }
+                } catch (IOException | InterruptedException e) {
+                    Platform.runLater(() -> {errorMessageLabel.setText("An unexpected error in during top up : " + e.getMessage());
+                    e.printStackTrace();
+                    });
+                }
+            });
+        } catch (NumberFormatException e) {
+            Platform.runLater(() -> {errorMessageLabel.setText("Please enter a valid number for amount.");});
+        }
     }
 
     @FXML
