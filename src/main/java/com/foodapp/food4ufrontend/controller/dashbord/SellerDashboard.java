@@ -303,9 +303,11 @@ public class SellerDashboard {
                         if (response.statusCode() == 200) {
                             try {
                                 // FIX: Explicitly specify generic type to resolve ambiguity
-                                sellerRestaurants = FXCollections.<Restaurant>observableArrayList(
-                                        (Callback<Restaurant, Observable[]>) JsonUtil.getObjectMapper().readerForListOf(Restaurant.class).readValue(rootNode)
-                                );
+                                List<Restaurant> list = JsonUtil
+                                        .getObjectMapper()
+                                        .readerForListOf(Restaurant.class)
+                                        .readValue(rootNode);
+                                sellerRestaurants = FXCollections.observableList(list);
                                 myRestaurantsTable.setItems(sellerRestaurants);
 
                                 ObservableList<String> restaurantNames = FXCollections.observableArrayList();
@@ -556,7 +558,7 @@ public class SellerDashboard {
     private void addNewRestaurant() {
         errorMessageLabel.setText("");
         try {
-            FXMLLoader fxmlLoader=new FXMLLoader(getClass().getResource("/com.foodapp.food4ufrontend/view/dashbord/RestaurantFormView.fxml"));
+            FXMLLoader fxmlLoader=new FXMLLoader(getClass().getResource("/com/foodapp/food4ufrontend/view/dashbord/RestaurantFormView.fxml"));
             Parent restaurantFormView=fxmlLoader.load();
             RestaurantFormController controller=fxmlLoader.getController();
             controller.setRestaurantId(null);
@@ -566,7 +568,7 @@ public class SellerDashboard {
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setTitle("Add new restaurant");
             Scene scene=new Scene(restaurantFormView);
-            scene.getStylesheets().add(getClass().getResource("/com.foodapp.food4ufrontend/css/application.css").toExternalForm());
+            scene.getStylesheets().add(getClass().getResource("/com/foodapp/food4ufrontend/css/application.css").toExternalForm());
             stage.setScene(scene);
             stage.showAndWait();
 
@@ -584,7 +586,7 @@ public class SellerDashboard {
             return;
         }
         try {
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com.foodapp.food4ufrontend/view/dashbord/FoodItemFormView.fxml"));
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/foodapp/food4ufrontend/view/dashbord/FoodItemFormView.fxml"));
             Parent foodItemFormView = fxmlLoader.load();
             FoodItemFormController controller = fxmlLoader.getController();
             controller.setRestaurantId(selectedRestaurantForMenuId);
@@ -593,7 +595,7 @@ public class SellerDashboard {
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setTitle("Add new food item");
             Scene scene = new Scene(foodItemFormView);
-            scene.getStylesheets().add(getClass().getResource("/com.foodapp.food4ufrontend/css/application.css").toExternalForm());
+            scene.getStylesheets().add(getClass().getResource("/com/foodapp/food4ufrontend/css/application.css").toExternalForm());
             stage.setScene(scene);
             stage.showAndWait();
 
@@ -611,7 +613,7 @@ public class SellerDashboard {
             return;
         }
         try {
-            FXMLLoader fxmlLoader=new FXMLLoader(getClass().getResource("/com.foodapp.food4ufrontend/view/dashbord/RestaurantFormView.fxml"));
+            FXMLLoader fxmlLoader=new FXMLLoader(getClass().getResource("/com/foodapp/food4ufrontend/view/dashbord/RestaurantFormView.fxml"));
             Parent RestaurantFormView=fxmlLoader.load();
             RestaurantFormController controller=fxmlLoader.getController();
             controller.setRestaurantEdited(selectedRestaurant);
@@ -621,7 +623,7 @@ public class SellerDashboard {
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setTitle("Edit restaurant");
             Scene scene=new Scene(RestaurantFormView);
-            scene.getStylesheets().add(getClass().getResource("/com.foodapp.food4ufrontend/css/application.css").toExternalForm());
+            scene.getStylesheets().add(getClass().getResource("/com/foodapp/food4ufrontend/css/application.css").toExternalForm());
             stage.setScene(scene);
             stage.showAndWait();
         } catch (IOException e) {
@@ -642,7 +644,7 @@ public class SellerDashboard {
             return;
         }
         try {
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com.foodapp.food4ufrontend/view/dashbord/FoodItemFormView.fxml"));
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/foodapp/food4ufrontend/view/dashbord/FoodItemFormView.fxml"));
             Parent foodItemFormView = fxmlLoader.load();
             FoodItemFormController controller = fxmlLoader.getController();
             controller.setRestaurantId(selectedRestaurantForMenuId);
@@ -652,7 +654,7 @@ public class SellerDashboard {
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setTitle("Edit food item");
             Scene scene = new Scene(foodItemFormView);
-            scene.getStylesheets().add(getClass().getResource("/com.foodapp.food4ufrontend/css/application.css").toExternalForm());
+            scene.getStylesheets().add(getClass().getResource("/com/foodapp/food4ufrontend/css/application.css").toExternalForm());
             stage.setScene(scene);
             stage.showAndWait();
         } catch (IOException e) {

@@ -55,7 +55,7 @@ public class RestaurantFormController {
     @FXML
     public void initialize() {
         try {
-            InputStream imageStream = getClass().getResourceAsStream("/com.foodapp.food4ufrontend/images/default_food_item.png");
+            InputStream imageStream = getClass().getResourceAsStream("/com/foodapp/food4ufrontend/images/default_food_item.png");
             if (imageStream != null) {
                 Image defaultImage = new Image(imageStream);
                 if (!defaultImage.isError()) {
