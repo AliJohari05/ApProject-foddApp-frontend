@@ -566,7 +566,7 @@ public class BuyerDashboard {
                             viewFavoriteRestaurants(); // رفرش لیست علاقه‌مندی‌ها
                         } else {
                             String errorMessage = rootNode.has("error") ? rootNode.get("error").asText() : "An unknown error occurred.";
-                            errorMessageLabel.setText("خطا در حذف از علاقه‌مندی‌ها: " + errorMessage);
+                            errorMessageLabel.setText("Error during removing: " + errorMessage);
                         }
                     });
                 } else {

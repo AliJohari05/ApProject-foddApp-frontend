@@ -39,6 +39,7 @@
                             <Label text="My Restaurants" styleClass="section-title"/>
                             <HBox spacing="10" alignment="CENTER_LEFT">
                                 <MFXButton text="Add New Restaurant" onAction="#addNewRestaurant" styleClass="login-button"/>
+                                <MFXButton text="Edit restaurant" onAction="#handleEditRestaurant" styleClass="login-button"/>
                                 <MFXButton text="Refresh Restaurants" onAction="#viewMyRestaurants" styleClass="login-button"/>
                             </HBox>
                             <TableView fx:id="myRestaurantsTable" VBox.vgrow="ALWAYS" prefHeight="200" prefWidth="600" styleClass="data-table">
@@ -63,16 +64,19 @@
                             <HBox spacing="10" alignment="CENTER_LEFT">
                                 <Label text="Select Restaurant:"/>
                                 <ComboBox fx:id="selectRestaurantForMenu" promptText="Choose Restaurant" />
+                                <Label text="Select Menu:"/>
+                                <ComboBox fx:id="selectMenuComboBox" promptText="Choose Menu"/>
+
                                 <MFXButton text ="Add a new food item" onAction="#addFoodItem" styleClass="login-button"/>
                                 <MFXButton text="Edit a food item" onAction="#editFoodItem" styleClass="login-button"/>
                                 <MFXButton text="Delete a food item" onAction="#deleteFoodItem" styleClass="login-button"/>
 
                             </HBox>
                             <HBox>
-                                <MFXButton text="Create a new menu" onAction="#creatMenu" styleClass="login-button"/>
+                                <MFXButton text="Create a new menu" onAction="#createMenu" styleClass="login-button"/>
                                 <MFXButton text="Delete a menu" onAction="#deleteMenu" styleClass="login-button"/>
                                 <MFXButton text="Add a food item to menu" onAction="#addItemToMenu" styleClass="login-button"/>
-                                <MFXButton text="Delete a food from menu" onAction="#deletItemFromMenu" styleClass="login-button"/>
+                                <MFXButton text="Delete a food from menu" onAction="#deleteItemFromMenu" styleClass="login-button"/>
                             </HBox>
                             <TableView fx:id="foodItemTable" VBox.vgrow="ALWAYS" prefWidth="600" prefHeight="200" styleClass="data-table">
                                 <columns>
