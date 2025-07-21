@@ -1,6 +1,6 @@
 @font-face {
-    font-family: 'Roboto';
-    src: url("../fonts/Roboto-Regular.ttf");
+    font-family: "Roboto";
+    src: url("/com/foodapp/food4ufrontend/fonts/Roboto-Regular.ttf");
 }
 
 .root {
