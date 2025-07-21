@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.geometry.Insets?>
+<?import io.github.palexdev.materialfx.controls.MFXButton?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.foodapp.food4ufrontend.controller.dashbord.RestaurantMenuController"
+      spacing="15" alignment="TOP_CENTER" style="-fx-background-color: white; -fx-padding: 20;">
+
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <ImageView fx:id="restaurantLogoImageView" fitWidth="80" fitHeight="80" preserveRatio="true"/>
+        <VBox>
+            <Label fx:id="restaurantNameLabel" text="Restaurant Name" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #333;"/>
+            <Label fx:id="restaurantAddressLabel" text="Address" style="-fx-font-size: 14px; -fx-text-fill: #666;"/>
+            <Label fx:id="restaurantPhoneLabel" text="Phone" style="-fx-font-size: 14px; -fx-text-fill: #666;"/>
+        </VBox>
+    </HBox>
+
+    <Label text="Menu Items" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #333;"/>
+
+    <TabPane fx:id="menuTabPane" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+    </TabPane>
+
+    <Label fx:id="menuErrorMessageLabel" textFill="red" wrapText="true"/>
+
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <MFXButton text="Add to Cart" onAction="#handleAddToCart" styleClass="login-button"/>
+        <MFXButton text="View Cart and Order" onAction="#handleViewCartAndOrder" styleClass="login-button"/>
+        <MFXButton text="Close" onAction="#handleClose" styleClass="login-button"/>
+    </HBox>
+
+</VBox>
