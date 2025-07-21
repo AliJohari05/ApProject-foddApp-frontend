@@ -45,6 +45,7 @@
                                 <MFXButton text="Search" onAction="#searchRestaurants" styleClass="login-button"/>
                                 <MFXButton text="Refresh" onAction="#viewRestaurants" styleClass="login-button"/>
                                 <MFXButton text="Add to favorite" onAction="#handleAddFavorite" styleClass="login-button"/>
+                                <MFXButton text="View Menu" onAction="#handleViewMenu" styleClass="login-button"/>
                             </HBox>
                             <TableView fx:id="restaurantsTable" VBox.vgrow="ALWAYS" prefHeight="400" prefWidth="600" styleClass="data-table">
                                 <columns>

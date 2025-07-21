@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.geometry.Insets?>
+<?import io.github.palexdev.materialfx.controls.MFXButton?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Button?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.foodapp.food4ufrontend.controller.dashbord.CartController"
+      spacing="15" alignment="TOP_CENTER" style="-fx-background-color: white; -fx-padding: 20;">
+
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <Label text="Your Shopping Cart" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #333;"/>
+
+    <TableView fx:id="cartItemsTable" VBox.vgrow="ALWAYS" prefHeight="300" prefWidth="600" styleClass="data-table">
+        <columns>
+            <TableColumn fx:id="cartItemNameColumn" text="Item" prefWidth="200"/>
+            <TableColumn fx:id="cartItemQuantityColumn" text="Quantity" prefWidth="100"/>
+            <TableColumn fx:id="cartItemPriceColumn" text="Price" prefWidth="100"/>
+            <TableColumn fx:id="cartItemSubtotalColumn" text="Subtotal" prefWidth="100"/>
+            <TableColumn fx:id="cartItemActionsColumn" text="Actions" prefWidth="100"/> </columns>
+        <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
+    </TableView>
+
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <Label text="Total Price:" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+        <Label fx:id="totalPriceLabel" text="0.00" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #007bff;"/>
+    </HBox>
+
+    <Label fx:id="cartErrorMessageLabel" textFill="red" wrapText="true"/>
+
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <MFXButton text="Clear Cart" onAction="#handleClearCart" styleClass="login-button"/>
+        <MFXButton text="Place Order" onAction="#handlePlaceOrder" styleClass="login-button"/>
+        <MFXButton text="Close" onAction="#handleClose" styleClass="login-button"/>
+    </HBox>
+
+</VBox>

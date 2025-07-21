@@ -23,6 +23,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.Tab;
@@ -118,7 +119,7 @@ public class BuyerDashboard {
 
     @FXML
     private UserProfileController userProfileViewController; // این فیلد ممکن است دیگر ضروری نباشد اگر به صورت دستی کنترلر را فراخوانی می‌کنید
-
+    @FXML private MFXButton viewMenuButton;
     @FXML
     private AnchorPane myProfileContainer; // اضافه شده: کانتینر برای بارگذاری پروفایل کاربر
 
@@ -177,9 +178,8 @@ public class BuyerDashboard {
         viewRestaurants();
         viewOrderHistory();
         viewFavoriteRestaurants();
-        viewWalletAndPaymants();
+        viewWalletAndPayments();
     }
-
     private void handleActionSelection(String action) {
         switch (action) {
             case "View Restaurants":
@@ -200,7 +200,7 @@ public class BuyerDashboard {
                 break;
             case "Wallet and Payments":
                 if (mainTabPane != null) mainTabPane.getSelectionModel().select(4);
-                viewWalletAndPaymants();
+                viewWalletAndPayments();
                 break;
             case "Logout":
                 logout();
@@ -209,7 +209,6 @@ public class BuyerDashboard {
                 break;
         }
     }
-
     private void loadUserProfileView() {
         errorMessageLabel.setText("Loading profile view...");
         executorService.submit(() -> {
@@ -242,7 +241,6 @@ public class BuyerDashboard {
             }
         });
     }
-
     @FXML
     private void viewRestaurants() {
         errorMessageLabel.setText("Loading restaurants...");
@@ -290,7 +288,6 @@ public class BuyerDashboard {
             }
         });
     }
-
     @FXML
     private void searchRestaurants() {
         String searchTerm = searchRestaurantField.getText();
@@ -342,7 +339,6 @@ public class BuyerDashboard {
             }
         });
     }
-
     private void viewOrderHistory() {
         errorMessageLabel.setText("Loading order history...");
         executorService.submit(() -> {
@@ -386,7 +382,6 @@ public class BuyerDashboard {
             }
         });
     }
-
     @FXML
     private void handleMakePayment(ActionEvent event){
         Order selectedOrder = orderHistoryTable.getSelectionModel().getSelectedItem();
@@ -426,7 +421,7 @@ public class BuyerDashboard {
 
                         errorMessageLabel.setText(rootNode.has("message") ? rootNode.get("message").asText() : "Payment was successful");
                         viewOrderHistory();
-                        viewWalletAndPaymants();
+                        viewWalletAndPayments();
                     }else {
                         errorMessageLabel.setText("Error in payment :" + (rootNode.has("error") ? rootNode.get("error").asText() : "An unknown error occurred"));
                     }
@@ -443,7 +438,6 @@ public class BuyerDashboard {
             }
         });
     }
-
     @FXML
     private void viewFavoriteRestaurants() {
         errorMessageLabel.setText("Loading favorite restaurant ...");
@@ -489,7 +483,6 @@ public class BuyerDashboard {
             }
         });
     }
-
     @FXML
     private void handleAddFavorite(javafx.event.ActionEvent event) {
         Restaurant selectedRestaurant = restaurantsTable.getSelectionModel().getSelectedItem();
@@ -534,7 +527,6 @@ public class BuyerDashboard {
             }
         });
     }
-
     @FXML
     private void handleRemoveFavorite(javafx.event.ActionEvent event) { // از javafx.event.ActionEvent استفاده شود
         Restaurant selectedFavorite = favoriteRestaurantsTable.getSelectionModel().getSelectedItem(); // رستوران انتخاب شده از جدول علاقه‌مندی‌ها
@@ -543,7 +535,7 @@ public class BuyerDashboard {
             return;
         }
 
-        errorMessageLabel.setText("Removing" + selectedFavorite.getName() + " from favorites...");
+        errorMessageLabel.setText("Removing " + selectedFavorite.getName() + " from favorites...");
         executorService.submit(() -> {
             try {
                 String token = AuthManager.getJwtToken(); // دریافت توکن احراز هویت
@@ -580,10 +572,9 @@ public class BuyerDashboard {
             }
         });
     }
-
     @FXML
-    private void viewWalletAndPaymants() {
-        errorMessageLabel.setText("Loading favorite restaurant ...");
+    private void viewWalletAndPayments() {
+        errorMessageLabel.setText("Loading wallet and payment info ...");
         executorService.submit(() -> {
             try {
                 String token = AuthManager.getJwtToken();
@@ -630,12 +621,12 @@ public class BuyerDashboard {
                                 e.printStackTrace();
                             }
                         } else {
-                            String errorMassage = transactionRootNode.has("error") ? transactionRootNode.get("error").asText() : "An unknown error occurred ";
-                            errorMessageLabel.setText("Error viewing transaction :" + errorMassage);
+                            String errorMessage = transactionRootNode.has("error") ? transactionRootNode.get("error").asText() : "An unknown error occurred ";
+                            errorMessageLabel.setText("Error viewing transaction :" + errorMessage);
                         }
                     });
                 } else {
-                    Platform.runLater(() -> {errorMessageLabel.setText("Field to connect to server for transaction history");});
+                    Platform.runLater(() -> {errorMessageLabel.setText("Failed to connect to server for transaction history");});
                 }
 
 
@@ -647,7 +638,6 @@ public class BuyerDashboard {
             }
         });
     }
-
     @FXML
     private void handleTopUp(ActionEvent event) {
         String amountText = topUpAmountField.getText();
@@ -678,15 +668,15 @@ public class BuyerDashboard {
                        JsonNode rootNode = JsonUtil.getObjectMapper().readTree(response.body());
                        Platform.runLater(() -> {
                            if (response.statusCode() == 200) {
-                               errorMessageLabel.setText(rootNode.has("error" )? rootNode.get("error").asText() : "Wallet topped up successfully");
+                               errorMessageLabel.setText(rootNode.has("message" )? rootNode.get("message").asText() : "Wallet topped up successfully");
                                topUpAmountField.clear();
-                               viewWalletAndPaymants();
+                               viewWalletAndPayments();
                            }else {
                                errorMessageLabel.setText("Error topping up wallet :" + (rootNode.has("error")?rootNode.get("error").asText() : "An unknown error occurred"));
                            }
                        });
                    }else {
-                       Platform.runLater(() -> errorMessageLabel.setText("Field to connect to server for top up"));
+                       Platform.runLater(() -> errorMessageLabel.setText("Failed to connect to server for top up"));
                    }
                 } catch (IOException | InterruptedException e) {
                     Platform.runLater(() -> {errorMessageLabel.setText("An unexpected error in during top up : " + e.getMessage());
@@ -698,7 +688,6 @@ public class BuyerDashboard {
             Platform.runLater(() -> {errorMessageLabel.setText("Please enter a valid number for amount.");});
         }
     }
-
     @FXML
     private void logout() {
         AuthManager.logout();
@@ -718,8 +707,44 @@ public class BuyerDashboard {
             }
         });
     }
-
     public void shutdown() {
         executorService.shutdown();
+    }
+@FXML
+    private void handleViewMenu(ActionEvent event) {
+    errorMessageLabel.setText(""); // پاک کردن پیام قبلی
+
+    // 1. اعتبارسنجی: مطمئن شویم یک رستوران از جدول انتخاب شده است.
+    Restaurant selectedRestaurant = restaurantsTable.getSelectionModel().getSelectedItem(); //
+    if (selectedRestaurant == null) {
+        errorMessageLabel.setText("Please select a restaurant to view its menu."); //
+        return; // اگر رستورانی انتخاب نشده باشد، از متد خارج می‌شویم.
+    }
+
+    try {
+        // 2. بارگذاری فایل FXML نمای منو
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/foodapp/food4ufrontend/view/dashbord/RestaurantMenuView.fxml")); //
+        Parent restaurantMenuView = loader.load(); //
+
+        // 3. دسترسی به کنترلر نمای منو
+        RestaurantMenuController controller = loader.getController(); //
+
+        // 4. انتقال داده‌ها (شیء رستوران) به کنترلر منو
+        controller.setRestaurant(selectedRestaurant); // متد جدید در RestaurantMenuController
+
+        // 5. ایجاد و نمایش پنجره Dialog (Modal Stage)
+        Stage stage = new Stage(); //
+        stage.initModality(Modality.APPLICATION_MODAL); // پنجره را به صورت Modal تنظیم می‌کنیم
+        stage.setTitle("Menu for " + selectedRestaurant.getName()); // عنوان پنجره
+        Scene scene = new Scene(restaurantMenuView); //
+        scene.getStylesheets().add(getClass().getResource("/com/foodapp/food4ufrontend/css/application.css").toExternalForm()); // اعمال استایل CSS
+        stage.setScene(scene); //
+        stage.showAndWait(); // نمایش پنجره و انتظار برای بسته شدن آن
+
+    } catch (IOException e) {
+        // 6. مدیریت خطا در صورت عدم بارگذاری FXML
+        errorMessageLabel.setText("Error opening menu view: " + e.getMessage()); //
+        e.printStackTrace(); //
+    }
     }
 }
