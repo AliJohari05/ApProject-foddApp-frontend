@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+<?import io.github.palexdev.materialfx.controls.MFXButton?>
+<?import javafx.scene.layout.HBox?>
+<VBox xmlns="http://javafx.com/javafx21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.foodapp.food4ufrontend.controller.dashbord.RestaurantFormController"
+      spacing="15" alignment="TOP_CENTER" style="-fx-background-color: White;-fx-padding: 20"
+>
+    <padding>
+        <Insets top="20" left="20" right="20" bottom="20"/>
+    </padding>
+    <Label text="Restaurant details" style="-fx-font-size: 20;-fx-font-weight: bold;-fx-text-fill: #333"/>
+    <GridPane hgap="10" vgap="10" alignment="CENTER">
+    <padding>
+        <Insets top="10" left="10" right="10" bottom="10"/>
+    </padding>
+    <Label text="Name:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+    <TextField fx:id="nameField" promptText="Restaurant name" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+    <Label text="Address:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+    <TextField fx:id="addressField" promptText="Restaurant address" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+    <Label text="Phone:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+    <TextField fx:id="phoneField" promptText="Restaurant phone number" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+    <Label text="Tax fee:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+    <TextField fx:id="taxField" promptText="Restaurant tax fee" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+    <Label text="Additional fee:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+    <TextField fx:id="additionalField" promptText="Restaurant additional fee" GridPane.rowIndex="4"
+               GridPane.columnIndex="1"/>
+
+    <Label text="Logo:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+    <VBox GridPane.rowIndex="5" GridPane.columnIndex="1" spacing="5" alignment="CENTER_LEFT">
+        <ImageView fx:id="restaurantImageView" fitHeight="100" fitWidth="100" preserveRatio="true">
+            <image>
+                <Image url="@../../images/default_food_item.png"/>
+            </image>
+        </ImageView>
+        <MFXButton text="Upload logo" onAction="#handleLogoUpload" styleClass="login-button"/>
+    </VBox>
+        <Label fx:id="formErrorMessageLabel" textFill="red" wrapText="true" GridPane.rowIndex="6" GridPane.columnSpan="2" alignment="CENTER"/>
+    </GridPane>
+    <HBox spacing="10" alignment="CENTER_RIGHT" VBox.vgrow="NEVER" >
+        <MFXButton text="Save" onAction="#handleSaveRestaurant" styleClass="login-button"/>
+        <MFXButton text="Cancel" onAction="#handleCancel" styleClass="login-button"/>
+    </HBox>
+</VBox>

@@ -1,5 +1,6 @@
 package com.foodapp.food4ufrontend.controller.dashbord;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.foodapp.food4ufrontend.model.FoodItem;
 import com.foodapp.food4ufrontend.model.Restaurant;
@@ -17,16 +18,10 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.ComboBox;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.scene.control.TabPane;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TextField;
 import javafx.util.Callback;
 import javafx.scene.layout.AnchorPane; // اضافه شده
 import javafx.scene.Node; // اضافه شده
@@ -41,6 +36,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class SellerDashboard {
+
 
     @FXML
     private ListView<String> actionList;
@@ -103,8 +99,13 @@ public class SellerDashboard {
     private TableColumn<FoodItem, String[]> foodItemKeywords;
     @FXML
     private ComboBox<String> selectRestaurantForMenu;
+    @FXML
+    public ComboBox<String> selectMenuComboBox;
+
 
     private String selectedRestaurantForMenuId;
+
+    private String selectedMenuTitle;
 
     // FXML for included UserProfileView (این فیلد ممکن است دیگر ضروری نباشد اگر به صورت دستی کنترلر را فراخوانی می‌کنید)
     @FXML
@@ -194,6 +195,17 @@ public class SellerDashboard {
                     errorMessageLabel.setText("Please select a valid restaurant");
                 }
             });
+        }
+        if (selectMenuComboBox !=null){
+            selectMenuComboBox.valueProperty().addListener((obs,oldVal,newVal)->{
+                if (newVal != null && !newVal.isEmpty()){
+                    selectedMenuTitle=newVal;
+                    errorMessageLabel.setText("Selected menu: "+selectedMenuTitle);
+                }
+            });
+        }else {
+            selectedMenuTitle=null;
+            errorMessageLabel.setText("Please select a valid menu");
         }
 
         if (selectRestaurantForOrders != null) {
@@ -328,10 +340,7 @@ public class SellerDashboard {
         });
     }
 
-    @FXML
-    private void addNewRestaurant() {
-        errorMessageLabel.setText("Add New Restaurant functionality not yet implemented.");
-    }
+
 
     @FXML
     private void viewRestaurantOrders() {
@@ -495,13 +504,14 @@ public class SellerDashboard {
                         if (response.statusCode() == 200) {
                             try {
                                 List<FoodItem> allFoodItems = new java.util.ArrayList<>();
-                                JsonNode menuTitleNode = rootNode.get("menu-titles");
-                                if (menuTitleNode != null && menuTitleNode.isArray()){
+                                ObservableList<String> menuTitles=FXCollections.observableArrayList();
+                                JsonNode menuTitleNode = rootNode.get("menu_titles");
+                                if (menuTitleNode != null && menuTitleNode.isArray()) {
                                     for (JsonNode titleNode : menuTitleNode) {
                                         String menuTitle = titleNode.asText();
-
+                                        menuTitles.add(menuTitle);
                                         JsonNode itemsUnderTitle = rootNode.get(menuTitle);
-                                        if (itemsUnderTitle != null && itemsUnderTitle.isArray()){
+                                        if (itemsUnderTitle != null && itemsUnderTitle.isArray()) {
                                             List<FoodItem> items = JsonUtil.getObjectMapper().readerForListOf(FoodItem.class).readValue(itemsUnderTitle);
                                             allFoodItems.addAll(items);
                                         }
@@ -509,6 +519,10 @@ public class SellerDashboard {
                                 }
                                 ObservableList<FoodItem> foodItemObservableList = FXCollections.observableArrayList(allFoodItems);
                                 foodItemTable.setItems(foodItemObservableList);
+                                selectMenuComboBox.setItems(menuTitles);
+                                if (!menuTitles.isEmpty()){
+                                    selectMenuComboBox.getSelectionModel().selectFirst();
+                                }
                                 errorMessageLabel.setText("Food item loaded successfully for restaurant ID: " + selectedRestaurantForMenuId);
 
                             } catch (IOException e) {
@@ -537,32 +551,393 @@ public class SellerDashboard {
             }
         });
     }
+
+    @FXML
+    private void addNewRestaurant() {
+        errorMessageLabel.setText("");
+        try {
+            FXMLLoader fxmlLoader=new FXMLLoader(getClass().getResource("/com.foodapp.food4ufrontend/view/dashbord/RestaurantFormView.fxml"));
+            Parent restaurantFormView=fxmlLoader.load();
+            RestaurantFormController controller=fxmlLoader.getController();
+            controller.setRestaurantId(null);
+            controller.setRestaurantEdited(null);
+            controller.setRefreshRestaurantCallback(aVoid->viewManageMenu());
+            Stage stage=new Stage();
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setTitle("Add new restaurant");
+            Scene scene=new Scene(restaurantFormView);
+            scene.getStylesheets().add(getClass().getResource("/com.foodapp.food4ufrontend/css/application.css").toExternalForm());
+            stage.setScene(scene);
+            stage.showAndWait();
+
+        } catch (IOException e) {
+            errorMessageLabel.setText("Error opening restaurant form: "+e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
     @FXML
     private void addFoodItem(ActionEvent event) {
+        errorMessageLabel.setText("");
+        if (selectedRestaurantForMenuId == null || selectedRestaurantForMenuId.isEmpty()) {
+            errorMessageLabel.setText("Please select a restaurant to add a food item");
+            return;
+        }
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com.foodapp.food4ufrontend/view/dashbord/FoodItemFormView.fxml"));
+            Parent foodItemFormView = fxmlLoader.load();
+            FoodItemFormController controller = fxmlLoader.getController();
+            controller.setRestaurantId(selectedRestaurantForMenuId);
+            controller.setRefreshFoodItemCallback(aVoid -> viewMyRestaurants());
+            Stage stage = new Stage();
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setTitle("Add new food item");
+            Scene scene = new Scene(foodItemFormView);
+            scene.getStylesheets().add(getClass().getResource("/com.foodapp.food4ufrontend/css/application.css").toExternalForm());
+            stage.setScene(scene);
+            stage.showAndWait();
+
+        } catch (IOException e) {
+            errorMessageLabel.setText("Error opening food item form" + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    @FXML
+    private void handleEditRestaurant(ActionEvent event) {
+        errorMessageLabel.setText("");
+        Restaurant selectedRestaurant=myRestaurantsTable.getSelectionModel().getSelectedItem();
+        if (selectedRestaurant==null){
+            errorMessageLabel.setText("Please select a restaurant to edit");
+            return;
+        }
+        try {
+            FXMLLoader fxmlLoader=new FXMLLoader(getClass().getResource("/com.foodapp.food4ufrontend/view/dashbord/RestaurantFormView.fxml"));
+            Parent RestaurantFormView=fxmlLoader.load();
+            RestaurantFormController controller=fxmlLoader.getController();
+            controller.setRestaurantEdited(selectedRestaurant);
+            controller.setRestaurantId(selectedRestaurant.getId());
+            controller.setRefreshRestaurantCallback(aVoid->viewMyRestaurants());
+            Stage stage=new Stage();
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setTitle("Edit restaurant");
+            Scene scene=new Scene(RestaurantFormView);
+            scene.getStylesheets().add(getClass().getResource("/com.foodapp.food4ufrontend/css/application.css").toExternalForm());
+            stage.setScene(scene);
+            stage.showAndWait();
+        } catch (IOException e) {
+            errorMessageLabel.setText("Error opening restaurant form: "+e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    @FXML
+    private void editFoodItem(ActionEvent event) {
+        errorMessageLabel.setText("");
+        if (selectedRestaurantForMenuId == null || selectedRestaurantForMenuId.isEmpty()) {
+            errorMessageLabel.setText("Please select a restaurant to edit a food item");
+            return;
+        }
+        FoodItem selectedFoodItem = foodItemTable.getSelectionModel().getSelectedItem();
+        if (selectedFoodItem == null) {
+            errorMessageLabel.setText("Please select a food item to edit");
+            return;
+        }
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com.foodapp.food4ufrontend/view/dashbord/FoodItemFormView.fxml"));
+            Parent foodItemFormView = fxmlLoader.load();
+            FoodItemFormController controller = fxmlLoader.getController();
+            controller.setRestaurantId(selectedRestaurantForMenuId);
+            controller.setFoodItemToEdit(selectedFoodItem);
+            controller.setRefreshFoodItemCallback(aVoid -> viewManageMenu());
+            Stage stage = new Stage();
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setTitle("Edit food item");
+            Scene scene = new Scene(foodItemFormView);
+            scene.getStylesheets().add(getClass().getResource("/com.foodapp.food4ufrontend/css/application.css").toExternalForm());
+            stage.setScene(scene);
+            stage.showAndWait();
+        } catch (IOException e) {
+            errorMessageLabel.setText("Error opening food item form" + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     @FXML
-    private void editFoodItem() {
+    private void deleteFoodItem(ActionEvent event) {
+        FoodItem selectedFoodItem = foodItemTable.getSelectionModel().getSelectedItem();
+        if (selectedFoodItem == null) {
+            errorMessageLabel.setText("Please select a food item to delete");
+            return;
+        }
+        if (selectedRestaurantForMenuId == null || selectedRestaurantForMenuId.isEmpty()) {
+            errorMessageLabel.setText("Please select a restaurant to delete food item");
+        }
+        errorMessageLabel.setText("removing " + selectedFoodItem.getName() + " from food items");
+        executorService.submit(() -> {
+            try {
+                String token = AuthManager.getJwtToken();
+                if (token == null || token.isEmpty()) {
+                    Platform.runLater(() -> {
+                        errorMessageLabel.setText("Authentication token is missing.Please login again");
+                    });
+                    return;
+                }
+                Optional<HttpResponse<String>> optionalHttpResponse = ApiClient.delete("/restaurants/" + selectedRestaurantForMenuId + "/item/" + selectedFoodItem.getId(), token);
+                if (optionalHttpResponse.isPresent()) {
+                    HttpResponse<String> response = optionalHttpResponse.get();
+                    JsonNode rootNode = JsonUtil.getObjectMapper().readTree(response.body());
+                    Platform.runLater(() -> {
+                        if (response.statusCode() == 200) {
+                            errorMessageLabel.setText(rootNode.has("message") ? rootNode.get("message").asText() : "Food item deleted successfully");
+                            viewManageMenu();
+                        } else {
+                            errorMessageLabel.setText("Error during removing: " + (rootNode.has("error") ? rootNode.get("error").asText() : "An unknown error occurred"));
+                        }
+                    });
+
+                } else {
+                    Platform.runLater(() -> {
+                        errorMessageLabel.setText("Could not connect to server to remove food item");
+                    });
+                }
+
+            } catch (IOException | InterruptedException e) {
+                Platform.runLater(() -> {
+                    errorMessageLabel.setText("Unexpected error during removing: " + e.getMessage());
+                    e.printStackTrace();
+                });
+            }
+        });
     }
 
     @FXML
-    private void deleteFoodItem() {
-    }
+    private void createMenu(ActionEvent event) {
+        errorMessageLabel.setText("");
+        if (selectedRestaurantForMenuId == null || selectedRestaurantForMenuId.isEmpty()) {
+            errorMessageLabel.setText("Please select a restaurant to creat a menu");
+            return;
+        }
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Create new menu");
+        dialog.setHeaderText("Enter the title for new menu:");
+        dialog.setContentText("Menu Title:");
+        Optional<String> result = dialog.showAndWait();
+        if (result.isPresent()) {
+            String menuTitle = result.get().trim();
+            if (menuTitle.isEmpty()) {
+                errorMessageLabel.setText("Menu title cannot be empty");
+                return;
+            }
+            errorMessageLabel.setText("Creating menu: " + menuTitle + "...");
+            executorService.submit(() -> {
+                try {
+                    String token = AuthManager.getJwtToken();
+                    if (token == null || token.isEmpty()) {
+                        Platform.runLater(() -> {
+                            errorMessageLabel.setText("Authentication token is missing.Please login again");
+                        });
+                        return;
+                    }
+                    Map<String, Object> requestBody = new HashMap<>();
+                    requestBody.put("title", menuTitle);
+                    String jsonBody = JsonUtil.getObjectMapper().writeValueAsString(requestBody);
+                    Optional<HttpResponse<String>> responseOptional = ApiClient.post("/restaurants/" + selectedRestaurantForMenuId + "/menu", jsonBody, token);
+                    if (responseOptional.isPresent()) {
+                        HttpResponse<String> response = responseOptional.get();
+                        JsonNode rootNode = JsonUtil.getObjectMapper().readTree(response.body());
+                        Platform.runLater(() -> {
+                            if (response.statusCode() == 200) {
+                                errorMessageLabel.setText("Menu created successfully");
+                            } else {
+                                errorMessageLabel.setText("Error creating menu" + (rootNode.has("error") ? rootNode.get("error").asText() : "An unknown error occurred"));
+                            }
+                        });
 
-    @FXML
-    private void creatMenu() {
+                    } else {
+                        Platform.runLater(() -> {
+                            errorMessageLabel.setText("Failed to connect server to create menu");
+                        });
+                    }
+                } catch (IOException|InterruptedException e) {
+                    errorMessageLabel.setText("Unexpected error while creating menu: "+e.getMessage());
+                    e.printStackTrace();
+                }
+            });
+        }else {
+            errorMessageLabel.setText("Creating menu was cancelled");
+        }
+
     }
 
     @FXML
     private void deleteMenu() {
+        errorMessageLabel.setText("");
+        if (selectedRestaurantForMenuId==null||selectedRestaurantForMenuId.isEmpty()){
+            errorMessageLabel.setText("Please select a restaurant to delete menu");
+            return;
+        }
+        TextInputDialog dialog=new TextInputDialog();
+        dialog.setTitle("delete menu");
+        dialog.setHeaderText("Enter title of menu to delete");
+        dialog.setContentText("Menu Title: ");
+        Optional<String> result=dialog.showAndWait();
+        if (result.isPresent()){
+            String menuTitle = result.get().trim();
+            if (menuTitle.isEmpty()){
+                errorMessageLabel.setText("Menu Title cannot be empty");
+                return;
+            }
+            errorMessageLabel.setText("Deleting menu: "+ menuTitle+"...");
+            executorService.submit(()->{
+                try {
+                    String token = AuthManager.getJwtToken();
+                    if (token == null || token.isEmpty()) {
+                        Platform.runLater(() -> {
+                            errorMessageLabel.setText("Authentication token is missing.Please login again");
+                        });
+                        return;
+                    }
+                    Optional<HttpResponse<String>> responseOptional = ApiClient.delete("/restaurants/"+ selectedRestaurantForMenuId+"/menu/"+ menuTitle, token);
+                    if (responseOptional.isPresent()){
+                        HttpResponse<String> response=responseOptional.get();
+                        JsonNode rootNode=JsonUtil.getObjectMapper().readTree(response.body());
+                        Platform.runLater(()->{
+                            if (response.statusCode()==200){
+                                errorMessageLabel.setText(rootNode.has("message")?rootNode.get("message").asText():"Menu deleted successfully");
+                            }else {
+                                errorMessageLabel.setText("Error deleting menu: "+(rootNode.has("error")?rootNode.get("error").asText():"An unknown error occurred"));
+                            }
+                        });
+                    }else {
+                        Platform.runLater(()->{errorMessageLabel.setText("Failed to connect to server to delete menu");});
+                    }
+                } catch (IOException|InterruptedException e) {
+                    Platform.runLater(()->{errorMessageLabel.setText("Unexpected error occurred: "+e.getMessage());
+                    e.printStackTrace();
+                    });
+                }
+            });
+        }else {
+            errorMessageLabel.setText("Menu deletion cancelled");
+        }
     }
 
     @FXML
     private void addItemToMenu() {
+        errorMessageLabel.setText("");
+        if(selectedRestaurantForMenuId==null||selectedRestaurantForMenuId.isEmpty()){
+            errorMessageLabel.setText("Please select a restaurant first");
+            return;
+        }
+        FoodItem selectedFoodItem=foodItemTable.getSelectionModel().getSelectedItem();
+        if (selectedFoodItem==null){
+            errorMessageLabel.setText("Please select a food item to add menu");
+            return;
+        }
+        TextInputDialog dialog=new TextInputDialog();
+        dialog.setTitle("Add item to menu");
+        dialog.setHeaderText("Enter title of menu");
+        dialog.setContentText("Menu Title");
+        Optional<String> result=dialog.showAndWait();
+        if (result.isPresent()){
+            String menuTitle= result.get().trim();
+            if (menuTitle.isEmpty()){
+                errorMessageLabel.setText("Menu title cannot be empty");
+                return;
+            }
+            errorMessageLabel.setText("Adding food to menu...");
+            executorService.submit(()->{
+                try {
+                    String token = AuthManager.getJwtToken();
+                    if (token == null || token.isEmpty()) {
+                        Platform.runLater(() -> {
+                            errorMessageLabel.setText("Authentication token is missing.Please login again");
+                        });
+                        return;
+                    }
+                    Map<String, Object> requestBody = new HashMap<>();
+                    requestBody.put("item_id", selectedFoodItem.getId());
+                    String jsonBody = JsonUtil.getObjectMapper().writeValueAsString(requestBody);
+                    Optional<HttpResponse<String>> responseOptional = ApiClient.put("/restaurants/" + selectedRestaurantForMenuId + "/menu/" + menuTitle, jsonBody, token);
+                    if (responseOptional.isPresent()){
+                        HttpResponse<String> response=responseOptional.get();
+                        JsonNode rootNode=JsonUtil.getObjectMapper().readTree(response.body());
+                        Platform.runLater(()->{
+                            if (response.statusCode()==200){
+                                errorMessageLabel.setText(rootNode.has("message")?rootNode.get("message").asText():"Food added successfully");
+                            }else {
+                                errorMessageLabel.setText("Error adding food to menu"+(rootNode.has("error")?rootNode.get("error").asText():"An unknown error occurred"));
+                            }
+                        });
+                    }else {
+                        Platform.runLater(()->{errorMessageLabel.setText("Failed to connect to server for adding");});
+                    }
+                }  catch (IOException|InterruptedException e) {
+                    Platform.runLater(()->{errorMessageLabel.setText("Unexpected error during Adding: "+e.getMessage());
+                    e.printStackTrace();
+                    });
+                }
+            });
+        }else {
+            errorMessageLabel.setText("Add food to menu was cancelled");
+        }
     }
 
     @FXML
-    private void deletItemFromMenu() {
+    private void deleteItemFromMenu() {
+        errorMessageLabel.setText("");
+        if(selectedRestaurantForMenuId==null||selectedRestaurantForMenuId.isEmpty()){
+            errorMessageLabel.setText("Please select a restaurant first");
+            return;
+        }
+        FoodItem selectedFood=foodItemTable.getSelectionModel().getSelectedItem();
+        if (selectedFood==null){
+            errorMessageLabel.setText("Please select a food item to delete");
+            return;
+        }
+        TextInputDialog dialog=new TextInputDialog();
+        dialog.setTitle("Deleting food from menu");
+        dialog.setHeaderText("Enter title of menu: ");
+        dialog.setContentText("Menu Title");
+        Optional<String> result=dialog.showAndWait();
+        if (result.isPresent()){
+            String menuTitle=result.get().trim();
+            if (menuTitle.isEmpty()){
+                errorMessageLabel.setText("Menu title cannot be empty");
+                return;
+            }
+            errorMessageLabel.setText("Deleting food from menu: " + selectedFood.getName() + " from " + menuTitle + "...");
+            executorService.submit(()->{
+                try {
+                   String token=AuthManager.getJwtToken();
+                   if (token==null||token.isEmpty()){
+                       Platform.runLater(()->{errorMessageLabel.setText("Authentication token is missing.Please login again");});
+                       return;
+                   }
+                    Optional<HttpResponse<String>> responseOptional=ApiClient.delete("/restaurants/"+selectedRestaurantForMenuId+"/menu/"+menuTitle+"/"+selectedFood.getId(),token);
+                    if (responseOptional.isPresent()){
+                        HttpResponse<String> response=responseOptional.get();
+                        JsonNode rootNode=JsonUtil.getObjectMapper().readTree(response.body());
+                        Platform.runLater(()->{
+                            if (response.statusCode()==200){
+                                errorMessageLabel.setText(rootNode.has("message")?rootNode.get("message").asText():"Food deleted successfully");
+                            }else {
+                                errorMessageLabel.setText("Error deleting food from menu: "+(rootNode.has("error")?rootNode.get("error").asText():"An unknown error occurred"));
+                            }
+                        });
+
+                    }else {
+                        Platform.runLater(()->{errorMessageLabel.setText("Failed to connect to server to delete food from menu");});
+                    }
+                } catch (IOException|InterruptedException e) {
+                    Platform.runLater(()->{
+                        errorMessageLabel.setText("Unexpected error occurred: "+e.getMessage());
+                        e.printStackTrace();
+                    });
+                }
+            });
+        }else {
+            errorMessageLabel.setText("Deleting food from menu cancelled");
+        }
     }
 
     @FXML
