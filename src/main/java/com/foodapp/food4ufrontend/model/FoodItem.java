@@ -9,8 +9,8 @@ private Integer id;
 private String name;
 private String imageBase64;
 private String description;
-@JsonProperty("vendor_id")
-    private Integer vendorId;
+//@JsonProperty("vendor_id")
+//    private Integer vendorId;
 private Integer price;
 private Integer supply;
 private String[] keywords;
@@ -43,12 +43,7 @@ private String[] keywords;
         this.description = description;
     }
 
-    public Integer getVendorId() {
-        return vendorId;
-    }
-    public void setVendorId(Integer vendorId) {
-        this.vendorId = vendorId;
-    }
+
 
     public Integer getPrice() {
         return price;

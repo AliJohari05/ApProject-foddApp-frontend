@@ -61,6 +61,11 @@ public class FoodItemFormController {
                 Image defaultImage = new Image(imageStream);
                 if (!defaultImage.isError()) {
                     foodItemImageView.setImage(defaultImage);
+                    imageStream = getClass().getResourceAsStream("/com/foodapp/food4ufrontend/images/default_food_item.png");
+                    if (imageStream != null) {
+                        byte[] defaultBytes = imageStream.readAllBytes();
+                        base64ImageString = Base64.getEncoder().encodeToString(defaultBytes);
+                    }
                 } else {
                     System.err.println("Error loading default image from stream: " + defaultImage.getException().getMessage());
                 }
@@ -143,7 +148,7 @@ public class FoodItemFormController {
             foodItemData.put("price", price);
             foodItemData.put("supply", supply);
             foodItemData.put("keywords", keywords);
-            foodItemData.put("vendor_id", Integer.parseInt(restaurantId));
+//            foodItemData.put("vendor_id", Integer.parseInt(restaurantId));
             if (base64ImageString != null && !base64ImageString.isEmpty()) {
                 foodItemData.put("imageBase64", base64ImageString);
             }
