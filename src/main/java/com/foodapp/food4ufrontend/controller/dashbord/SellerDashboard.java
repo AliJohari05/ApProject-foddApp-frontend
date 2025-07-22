@@ -125,7 +125,6 @@ public class SellerDashboard {
                 "Manage menu",
                 "Restaurant Orders",
                 "My Profile",
-                "Manage Fees",
                 "Logout"
         );
         actionList.setItems(actions);
@@ -158,7 +157,7 @@ public class SellerDashboard {
         if (sellerOrderStatusColumn != null)
             sellerOrderStatusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
         if (sellerOrderPriceColumn != null)
-            sellerOrderPriceColumn.setCellValueFactory(new PropertyValueFactory<>("payPrice"));
+            sellerOrderPriceColumn.setCellValueFactory(new PropertyValueFactory<>("totalPrice"));
         if (sellerOrderCreatedAtColumn != null)
             sellerOrderCreatedAtColumn.setCellValueFactory(new PropertyValueFactory<>("createdAt"));
 

@@ -3,6 +3,7 @@ package com.foodapp.food4ufrontend.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -35,7 +36,8 @@ public class Order {
     private String createdAt; // Consider using java.time.LocalDateTime
     @JsonProperty("updated_at")
     private String updatedAt; // Consider using java.time.LocalDateTime
-
+    @JsonProperty("total_price")
+    private BigDecimal totalPrice;
     // Getters and Setters
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
@@ -67,4 +69,12 @@ public class Order {
     public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
     public String getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(String updatedAt) { this.updatedAt = updatedAt; }
+
+    public BigDecimal getTotalPrice() {
+        return totalPrice;
+    }
+
+    public void setTotalPrice(BigDecimal totalPrice) {
+        this.totalPrice = totalPrice;
+    }
 }
