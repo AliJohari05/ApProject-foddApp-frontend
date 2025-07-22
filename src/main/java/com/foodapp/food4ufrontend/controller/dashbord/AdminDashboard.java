@@ -23,6 +23,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.AnchorPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.scene.control.TabPane;
@@ -99,7 +100,8 @@ public class AdminDashboard {
     @FXML private TableColumn<Coupon, Integer> couponUserCountColumn;
     @FXML private TableColumn<Coupon, String> couponStartDateColumn;
     @FXML private TableColumn<Coupon, String> couponEndDateColumn;
-
+    @FXML
+    private AnchorPane myProfileContainer;
 
     private final ExecutorService executorService = Executors.newCachedThreadPool();
 
@@ -111,6 +113,7 @@ public class AdminDashboard {
                 "View Orders",
                 "View Transactions",
                 "Manage Coupons",
+                "My Profile",
                 "Log Out"
         );
         actionList.setItems(actions);
@@ -205,6 +208,10 @@ public class AdminDashboard {
             case "Manage Coupons":
                 if (mainTabPane != null) mainTabPane.getSelectionModel().select(3);
                 viewCoupons();
+                break;
+            case "My Profile":
+                if (mainTabPane != null) mainTabPane.getSelectionModel().select(3);
+                loadUserProfileView();
                 break;
             case "Log Out":
                 logout();
@@ -646,6 +653,38 @@ public class AdminDashboard {
             } catch (IOException e) {
                 e.printStackTrace();
                 errorMessageLabel.setText("Error navigating to login: " + e.getMessage());
+            }
+        });
+    }
+    private void loadUserProfileView() {
+        errorMessageLabel.setText("Loading profile view...");
+        executorService.submit(() -> {
+            try {
+                // این بارگذاری به صورت مستقیم از classpath است
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/foodapp/food4ufrontend/view/dashbord/UserProfileView.fxml"));
+                Parent userProfileView = loader.load(); // تلاش برای بارگذاری FXML
+
+                Platform.runLater(() -> {
+                    if (myProfileContainer != null) {
+                        myProfileContainer.getChildren().setAll(userProfileView); // تزریق محتوای بارگذاری شده به کانتینر
+                        errorMessageLabel.setText("Profile view loaded successfully.");
+
+                        // اگر UserProfileController نیاز به مقداردهی اولیه یا بارگذاری داده دارد،
+                        // می‌توانید کنترلر را دریافت کرده و متدهای آن را فراخوانی کنید.
+                        // UserProfileController userProfileControllerInstance = loader.getController();
+                        // if (userProfileControllerInstance != null) {
+                        //     userProfileControllerInstance.loadUserProfile(); // فرض بر وجود چنین متدی در UserProfileController
+                        // }
+                    } else {
+                        errorMessageLabel.setText("Error: My profile container (myProfileContainer) is null in FXML.");
+                    }
+                });
+            } catch (IOException e) {
+                // اگر بارگذاری در اینجا هم با شکست مواجه شود، خطای دقیق‌تری خواهیم داشت
+                Platform.runLater(() -> {
+                    errorMessageLabel.setText("Critical Error loading User Profile View dynamically: " + e.getMessage());
+                    e.printStackTrace();
+                });
             }
         });
     }
