@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.geometry.Insets?>
+<?import io.github.palexdev.materialfx.controls.MFXButton?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.collections.FXCollections?>
+<?import javafx.collections.ObservableList?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+<?import java.lang.String?>
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.foodapp.food4ufrontend.controller.dashbord.RatingFormController"
+      spacing="15" alignment="TOP_CENTER" style="-fx-background-color: white; -fx-padding: 20;">
+
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <Label text="Rate Your Order" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #333;"/>
+    <Label fx:id="orderInfoLabel" text="Order ID: #XXX - Total Price: $YYY" style="-fx-font-size: 14px; -fx-text-fill: #666;"/>
+    <Separator/>
+
+    <GridPane hgap="10" vgap="10" alignment="CENTER">
+        <padding>
+            <Insets top="10" right="10" bottom="10" left="10"/>
+        </padding>
+
+        <Label text="Rating (1-5):" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <ComboBox fx:id="ratingComboBox" promptText="Select Rating (1-5)" GridPane.rowIndex="0" GridPane.columnIndex="1">
+            <items>
+                <FXCollections fx:factory="observableArrayList">
+                    <String>1</String> <String>2</String>
+                    <String>3</String>
+                    <String>4</String>
+                    <String>5</String>
+                </FXCollections>
+            </items>
+        </ComboBox>
+
+        <Label text="Comment (optional):" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <TextArea fx:id="commentField" promptText="Your comment" GridPane.rowIndex="1" GridPane.columnIndex="1" prefRowCount="3"/>
+
+        <Label text="Image (optional):" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+        <VBox GridPane.rowIndex="2" GridPane.columnIndex="1" spacing="5" alignment="CENTER_LEFT">
+            <ImageView fx:id="ratingImageView" fitWidth="100" fitHeight="100" preserveRatio="true">
+                <image>
+                    <Image url="@../../images/default_profile.jpg" /> </image>
+            </ImageView>
+            <MFXButton text="Upload Image" onAction="#handleImageUpload" styleClass="login-button"/>
+        </VBox>
+
+        <Label fx:id="formErrorMessageLabel" textFill="red" wrapText="true" GridPane.rowIndex="3" GridPane.columnSpan="2" alignment="CENTER"/>
+    </GridPane>
+
+    <HBox spacing="10" alignment="CENTER_RIGHT" VBox.vgrow="NEVER">
+        <MFXButton text="Submit Rating" onAction="#handleSubmitRating" styleClass="login-button"/>
+        <MFXButton text="Cancel" onAction="#handleCancel" styleClass="login-button"/>
+    </HBox>
+
+</VBox>
