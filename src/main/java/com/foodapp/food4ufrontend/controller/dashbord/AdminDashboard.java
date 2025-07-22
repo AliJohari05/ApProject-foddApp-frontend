@@ -145,7 +145,7 @@ public class AdminDashboard {
         if (orderVendorIdColumn != null) orderVendorIdColumn.setCellValueFactory(new PropertyValueFactory<>("vendorId"));
         if (orderCourierIdColumn != null) orderCourierIdColumn.setCellValueFactory(new PropertyValueFactory<>("courierId"));
         if (orderStatusColumn != null) orderStatusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
-        if (orderPriceColumn != null) orderPriceColumn.setCellValueFactory(new PropertyValueFactory<>("payPrice"));
+        if (orderPriceColumn != null) orderPriceColumn.setCellValueFactory(new PropertyValueFactory<>("totalPrice"));
         if (orderAddressColumn != null) orderAddressColumn.setCellValueFactory(new PropertyValueFactory<>("deliveryAddress"));
         if (orderCreatedAtColumn != null) orderCreatedAtColumn.setCellValueFactory(new PropertyValueFactory<>("createdAt"));
 
