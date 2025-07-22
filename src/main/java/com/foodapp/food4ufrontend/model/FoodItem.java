@@ -13,6 +13,7 @@ private String description;
 //    private Integer vendorId;
 private Integer price;
 private Integer supply;
+@JsonProperty("keywords")
 private String[] keywords;
 
     public Integer getId() {

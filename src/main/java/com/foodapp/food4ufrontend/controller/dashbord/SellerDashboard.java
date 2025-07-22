@@ -96,7 +96,7 @@ public class SellerDashboard {
     @FXML
     private TableColumn<FoodItem, Integer> foodItemSupply;
     @FXML
-    private TableColumn<FoodItem, String[]> foodItemKeywords;
+    private TableColumn<FoodItem, String> foodItemKeywords;
     @FXML
     private ComboBox<String> selectRestaurantForMenu;
     @FXML
@@ -169,7 +169,14 @@ public class SellerDashboard {
         if (foodItemPrice != null) foodItemPrice.setCellValueFactory(new PropertyValueFactory<>("price"));
         if (foodItemVendorId != null) foodItemVendorId.setCellValueFactory(new PropertyValueFactory<>("vendorId"));
         if (foodItemSupply != null) foodItemSupply.setCellValueFactory(new PropertyValueFactory<>("supply"));
-        if (foodItemKeywords != null) foodItemKeywords.setCellValueFactory(new PropertyValueFactory<>("keywords"));
+        if (foodItemKeywords != null) {
+            foodItemKeywords.setCellValueFactory(cellData -> {
+                String[] keywords = cellData.getValue().getKeywords();
+                String joined = (keywords != null) ? String.join(", ", keywords) : "";
+                return new javafx.beans.property.SimpleStringProperty(joined);
+            });
+        }
+
 
         // Setup filterOrderStatus ComboBox
         ObservableList<String> orderStatuses = FXCollections.observableArrayList(
