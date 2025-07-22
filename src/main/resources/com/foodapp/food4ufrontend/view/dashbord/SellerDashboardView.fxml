@@ -81,12 +81,11 @@
                             <TableView fx:id="foodItemTable" VBox.vgrow="ALWAYS" prefWidth="600" prefHeight="200" styleClass="data-table">
                                 <columns>
                                     <TableColumn fx:id="foodItemIdColumn" text="ID" prefWidth="50"/>
-                                    <TableColumn fx:id="foodItemNameColumn" text="Name" prefWidth="140"/>
-                                    <TableColumn fx:id="foodItemDescription" text="Description" prefWidth="200"/>
-                                    <TableColumn fx:id="foodItemVendorId" text="Vendor ID" prefWidth="200"/>
-                                    <TableColumn fx:id="foodItemPrice" text="Price" prefWidth="140"/>
-                                    <TableColumn fx:id="foodItemSupply" text="Supply" prefWidth="150"/>
-                                    <TableColumn fx:id="foodItemKeywords" text="Keywords" prefWidth="150"/>
+                                    <TableColumn fx:id="foodItemNameColumn" text="Name" prefWidth="160"/>
+                                    <TableColumn fx:id="foodItemDescription" text="Description" prefWidth="250"/>
+                                    <TableColumn fx:id="foodItemPrice" text="Price" prefWidth="160"/>
+                                    <TableColumn fx:id="foodItemSupply" text="Supply" prefWidth="160"/>
+                                    <TableColumn fx:id="foodItemKeywords" text="Keywords" prefWidth="180"/>
                                 </columns>
                                 <columnResizePolicy ><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/> </columnResizePolicy>
                             </TableView>
