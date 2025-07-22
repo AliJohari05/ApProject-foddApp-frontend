@@ -165,7 +165,7 @@ public class RestaurantMenuController {
 
     private void loadDefaultLogo() {
         try {
-            InputStream imageStream = getClass().getResourceAsStream("/com/foodapp/food4ufrontend/images/default_restaurant_logo.png");
+            InputStream imageStream = getClass().getResourceAsStream("/com/foodapp/food4ufrontend/images/default_food_item.png");
             if (imageStream != null) {
                 Image defaultLogo = new Image(imageStream);
                 if (!defaultLogo.isError()) {

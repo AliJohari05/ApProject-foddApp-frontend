@@ -30,7 +30,8 @@ module com.foodapp.food4ufrontend {
     // This allows JavaFX's FXMLLoader to access FXML files within these packages
     opens com.foodapp.food4ufrontend.controller.login to javafx.fxml;
     opens com.foodapp.food4ufrontend.controller.signup to javafx.fxml;
-    opens com.foodapp.food4ufrontend.controller.dashbord to javafx.fxml;
+    opens com.foodapp.food4ufrontend.controller.dashbord to javafx.fxml, javafx.base, javafx.controls;
+
     opens com.foodapp.food4ufrontend.model to com.fasterxml.jackson.databind, javafx.base;
     opens com.foodapp.food4ufrontend.util to com.fasterxml.jackson.databind;
     opens com.foodapp.food4ufrontend.css to javafx.fxml;
