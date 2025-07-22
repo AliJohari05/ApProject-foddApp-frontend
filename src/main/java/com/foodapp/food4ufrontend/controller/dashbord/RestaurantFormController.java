@@ -60,6 +60,11 @@ public class RestaurantFormController {
                 Image defaultImage = new Image(imageStream);
                 if (!defaultImage.isError()) {
                     restaurantImageView.setImage(defaultImage);
+                    imageStream = getClass().getResourceAsStream("/com/foodapp/food4ufrontend/images/default_food_item.png");
+                    if (imageStream != null) {
+                        byte[] defaultBytes = imageStream.readAllBytes();
+                        base64ImageString = Base64.getEncoder().encodeToString(defaultBytes);
+                    }
                 } else {
                     System.err.println("Error loading default image from stream: " + defaultImage.getException().getMessage());
                 }
