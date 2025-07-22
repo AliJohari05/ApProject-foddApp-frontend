@@ -90,8 +90,8 @@ public class Login {
                     AuthManager.setCurrentUserRole(user.getRole());
                     AuthManager.setCurrentUserId(user.getId());
                     System.out.println("login 1");
-
-                    handleUserNavigation(event, user);
+                    Stage currentStage = (Stage) phoneField.getScene().getWindow();
+                    handleUserNavigation(currentStage,event, user);
 
                     System.out.println("login 2");
 
@@ -125,7 +125,7 @@ public class Login {
         window.show();
     }
 
-    private void handleUserNavigation(ActionEvent event, User user) throws IOException {
+    private void handleUserNavigation(Stage currentStage,ActionEvent event, User user) throws IOException {
         String userRole = user.getRole();
         String userStatus = user.getStatus();
 
@@ -136,15 +136,15 @@ public class Login {
                 AuthManager.logout();
 
                 System.out.println("Navigating to Login with propagated message: " + messageToDisplay);
-                navigateToLoginScreenWithPropagatedMessage(event, messageToDisplay);
+                navigateToLoginScreenWithPropagatedMessage(currentStage,event, messageToDisplay);
                 return;
             }
             else{
-                navigateToDashboard(event, userRole);
+                navigateToDashboard(currentStage,event, userRole);
 
             }
         }
-        navigateToDashboard(event, userRole);
+        navigateToDashboard(currentStage,event, userRole);
     }
 
     private void navigateToLoginScreen(ActionEvent event) throws IOException {
@@ -158,7 +158,7 @@ public class Login {
         window.show();
     }
 
-    private void navigateToLoginScreenWithPropagatedMessage(ActionEvent event, String message) throws IOException {
+    private void navigateToLoginScreenWithPropagatedMessage(Stage currentStage,ActionEvent event, String message) throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/foodapp/food4ufrontend/view/login.fxml"));
         Parent loginView = loader.load();
 
@@ -167,13 +167,13 @@ public class Login {
 
         Scene loginScene = new Scene(loginView);
         loginScene.getStylesheets().add(getClass().getResource("/com/foodapp/food4ufrontend/css/application.css").toExternalForm());
-        Stage window = (Stage)((Node)event.getSource()).getScene().getWindow();
-        window.setScene(loginScene);
-        window.setTitle("Food4u - Login");
-        window.show();
+        //Stage window = (Stage)((Node)event.getSource()).getScene().getWindow();
+        currentStage.setScene(loginScene);
+        currentStage.setTitle("Food4u - Login");
+        currentStage.show();
         System.out.println("Navigation to Login screen completed.");
     }
-    private void navigateToDashboard(ActionEvent event, String role) throws IOException {
+    private void navigateToDashboard(Stage currentStage,ActionEvent event, String role) throws IOException {
         String fxmlPath;
         String title;
         switch (role.toUpperCase()) {
@@ -222,9 +222,8 @@ public class Login {
         Scene dashboardScene = new Scene(dashboardView);
         dashboardScene.getStylesheets().add(getClass().getResource("/com/foodapp/food4ufrontend/css/application.css").toExternalForm());
 
-        Stage window = (Stage)((Node)event.getSource()).getScene().getWindow();
-        window.setScene(dashboardScene);
-        window.setTitle(title);
-        window.show();
+        currentStage.setScene(dashboardScene);
+        currentStage.setTitle(title);
+        currentStage.show();
     }
 }
