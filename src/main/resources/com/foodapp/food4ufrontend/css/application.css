@@ -1,6 +1,6 @@
 @font-face {
-    font-family: "Roboto";
-    src: url("/com/foodapp/food4ufrontend/fonts/Roboto-Regular.ttf");
+    font-family: 'Roboto';
+    src: url("../fonts/Roboto-Regular.ttf");
 }
 
 .root {
@@ -26,4 +26,14 @@
 
 .hyperlink {
     -fx-text-fill: #3366cc;
+}
+
+
+.mfx-button.login-button {
+    -fx-background-color: #8319ad;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 12;
+    -fx-padding: 8 24;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 6, 0, 0, 3);
 }
