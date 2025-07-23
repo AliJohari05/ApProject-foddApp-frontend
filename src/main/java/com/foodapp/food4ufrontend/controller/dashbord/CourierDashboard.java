@@ -82,7 +82,7 @@ public class CourierDashboard {
         if (availableStatusColumn != null) availableStatusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
 
         // Initialize Delivery History Table Columns
-        if (historyOrderIdColumn != null) historyOrderIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+        if (historyOrderIdColumn != null) historyOrderIdColumn.setCellValueFactory(new PropertyValueFactory<>("orderId"));
         if (historyVendorIdColumn != null) historyVendorIdColumn.setCellValueFactory(new PropertyValueFactory<>("vendorId"));
         if (historyDeliveryAddressColumn != null) historyDeliveryAddressColumn.setCellValueFactory(new PropertyValueFactory<>("deliveryAddress"));
         if (historyStatusColumn != null) historyStatusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));

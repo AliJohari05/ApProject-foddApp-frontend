@@ -38,7 +38,19 @@ public class Order {
     private String updatedAt; // Consider using java.time.LocalDateTime
     @JsonProperty("total_price")
     private BigDecimal totalPrice;
+    @JsonProperty("order_id")
+    private Integer orderId;
+
+
+
     // Getters and Setters
+    public Integer getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(Integer orderId) {
+        this.orderId = orderId;
+    }
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
     public String getDeliveryAddress() { return deliveryAddress; }
