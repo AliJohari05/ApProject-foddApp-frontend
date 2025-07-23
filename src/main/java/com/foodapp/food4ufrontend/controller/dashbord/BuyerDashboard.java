@@ -35,7 +35,9 @@ import javafx.scene.control.RadioButton;
 import javafx.scene.control.ToggleGroup;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -124,6 +126,8 @@ public class BuyerDashboard {
     private AnchorPane myProfileContainer; // اضافه شده: کانتینر برای بارگذاری پروفایل کاربر
 
     @FXML private MFXButton rateOrderButton; // NEW: Field for Rate Order Button
+    @FXML private TextField searchOrderField;
+    @FXML private TextField searchVendorField;
 
     private final ExecutorService executorService = Executors.newCachedThreadPool();
 
@@ -181,7 +185,18 @@ public class BuyerDashboard {
         viewOrderHistory();
         viewFavoriteRestaurants();
         viewWalletAndPayments();
+        searchOrderField.clear();
+        searchVendorField.clear();
+        viewOrderHistory();
+
     }
+    @FXML
+    private void handleSearchOrders() {
+        String search = searchOrderField.getText();
+        String vendor = searchVendorField.getText();
+        loadOrderHistoryWithFilters(search, vendor);
+    }
+
     private void handleActionSelection(String action) {
         switch (action) {
             case "View Restaurants":
@@ -796,4 +811,57 @@ public class BuyerDashboard {
             e.printStackTrace(); //
         }
     }
+
+    private void loadOrderHistoryWithFilters(String search, String vendor) {
+        errorMessageLabel.setText("Filtering order history...");
+        executorService.submit(() -> {
+            try {
+                String token = AuthManager.getJwtToken();
+                if (token == null || token.isEmpty()) {
+                    Platform.runLater(() -> errorMessageLabel.setText("Authentication token missing."));
+                    return;
+                }
+
+                StringBuilder urlBuilder = new StringBuilder("/orders/history?");
+                if (search != null && !search.isBlank()) {
+                    urlBuilder.append("search=").append(URLEncoder.encode(search, StandardCharsets.UTF_8)).append("&");
+                }
+                if (vendor != null && !vendor.isBlank()) {
+                    urlBuilder.append("vendor=").append(URLEncoder.encode(vendor, StandardCharsets.UTF_8)).append("&");
+                }
+
+                Optional<HttpResponse<String>> responseOpt = ApiClient.get(urlBuilder.toString(), token);
+                if (responseOpt.isPresent()) {
+                    HttpResponse<String> response = responseOpt.get();
+                    JsonNode rootNode = JsonUtil.getObjectMapper().readTree(response.body());
+
+                    Platform.runLater(() -> {
+                        if (response.statusCode() == 200) {
+                            try {
+                                List<Order> orders = JsonUtil.getObjectMapper()
+                                        .readerForListOf(Order.class)
+                                        .readValue(rootNode);
+                                orderHistoryTable.setItems(FXCollections.observableArrayList(orders));
+                                errorMessageLabel.setText("Order history filtered.");
+                            } catch (IOException e) {
+                                errorMessageLabel.setText("Parsing error: " + e.getMessage());
+                                e.printStackTrace();
+                            }
+                        } else {
+                            String errorMessage = rootNode.has("error") ? rootNode.get("error").asText() : "Error loading filtered orders.";
+                            errorMessageLabel.setText(errorMessage);
+                        }
+                    });
+                } else {
+                    Platform.runLater(() -> errorMessageLabel.setText("Server connection failed."));
+                }
+            } catch (IOException | InterruptedException e) {
+                Platform.runLater(() -> {
+                    errorMessageLabel.setText("Unexpected error: " + e.getMessage());
+                    e.printStackTrace();
+                });
+            }
+        });
+    }
+
 }
