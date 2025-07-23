@@ -649,6 +649,7 @@ public class AdminDashboard {
                 scene.getStylesheets().add(getClass().getResource("/com/foodapp/food4ufrontend/css/application.css").toExternalForm());
                 stage.setScene(scene);
                 stage.setTitle("Food4u - Login");
+                stage.setMaximized(true);
                 stage.show();
             } catch (IOException e) {
                 e.printStackTrace();
