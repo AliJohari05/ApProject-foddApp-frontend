@@ -40,7 +40,8 @@ public class Order {
     private BigDecimal totalPrice;
     @JsonProperty("order_id")
     private Integer orderId;
-
+    @JsonProperty("vendor_name")
+    private String vendorName;
 
 
     // Getters and Setters
@@ -88,5 +89,13 @@ public class Order {
 
     public void setTotalPrice(BigDecimal totalPrice) {
         this.totalPrice = totalPrice;
+    }
+
+    public String getVendorName() {
+        return vendorName;
+    }
+
+    public void setVendorName(String vendorName) {
+        this.vendorName = vendorName;
     }
 }
