@@ -1,11 +1,11 @@
 package com.foodapp.food4ufrontend.controller.dashbord;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.foodapp.food4ufrontend.model.AvailableDelivery;
 import com.foodapp.food4ufrontend.model.Order;
 import com.foodapp.food4ufrontend.util.ApiClient;
 import com.foodapp.food4ufrontend.util.AuthManager;
 import com.foodapp.food4ufrontend.util.JsonUtil;
-import io.github.palexdev.materialfx.controls.MFXButton;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -20,9 +20,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 import javafx.scene.control.TabPane;
-import javafx.scene.control.Tab;
 import javafx.scene.layout.AnchorPane; // اضافه شده
-import javafx.scene.Node; // اضافه شده
 
 import java.io.IOException;
 import java.net.http.HttpResponse;
@@ -39,11 +37,11 @@ public class CourierDashboard {
     @FXML private Label errorMessageLabel;
     @FXML private TabPane mainTabPane;
 
-    @FXML private TableView<Order> availableDeliveriesTable;
-    @FXML private TableColumn<Order, Integer> availableOrderIdColumn;
-    @FXML private TableColumn<Order, Integer> availableVendorIdColumn;
-    @FXML private TableColumn<Order, String> availableDeliveryAddressColumn;
-    @FXML private TableColumn<Order, String> availableStatusColumn;
+    @FXML private TableView<AvailableDelivery> availableDeliveriesTable;
+    @FXML private TableColumn<AvailableDelivery, Integer> availableOrderIdColumn;
+    @FXML private TableColumn<AvailableDelivery, Integer> availableVendorIdColumn;
+    @FXML private TableColumn<AvailableDelivery, String> availableDeliveryAddressColumn;
+    @FXML private TableColumn<AvailableDelivery, String> availableStatusColumn;
 
     @FXML private TableView<Order> deliveryHistoryTable;
     @FXML private TableColumn<Order, Integer> historyOrderIdColumn;
@@ -77,7 +75,7 @@ public class CourierDashboard {
 
         // Initialize Available Deliveries Table Columns
         if (availableOrderIdColumn != null) availableOrderIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
-        if (availableVendorIdColumn != null) availableVendorIdColumn.setCellValueFactory(new PropertyValueFactory<>("vendorId"));
+        if (availableVendorIdColumn != null) availableVendorIdColumn.setCellValueFactory(new PropertyValueFactory<>("restaurantId"));
         if (availableDeliveryAddressColumn != null) availableDeliveryAddressColumn.setCellValueFactory(new PropertyValueFactory<>("deliveryAddress"));
         if (availableStatusColumn != null) availableStatusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
 
@@ -169,9 +167,12 @@ public class CourierDashboard {
                     Platform.runLater(() -> {
                         if (response.statusCode() == 200) {
                             try {
-                                List<Order> orders = JsonUtil.getObjectMapper().readerForListOf(Order.class).readValue(rootNode);
-                                ObservableList<Order> orderObservableList = FXCollections.observableArrayList(orders);
-                                availableDeliveriesTable.setItems(orderObservableList);
+                                List<AvailableDelivery> deliveries = JsonUtil.getObjectMapper()
+                                        .readerForListOf(AvailableDelivery.class)
+                                        .readValue(rootNode);
+                                ObservableList<AvailableDelivery> observableDeliveries = FXCollections.observableArrayList(deliveries);
+                                availableDeliveriesTable.setItems(observableDeliveries);
+
                                 errorMessageLabel.setText("Available deliveries loaded successfully.");
                             } catch (IOException e) {
                                 errorMessageLabel.setText("Error parsing available deliveries: " + e.getMessage());
@@ -210,7 +211,7 @@ public class CourierDashboard {
     }
 
     private void updateDeliveryStatus(String status) {
-        Order selectedOrder = availableDeliveriesTable.getSelectionModel().getSelectedItem();
+        AvailableDelivery selectedOrder = availableDeliveriesTable.getSelectionModel().getSelectedItem();
         if (selectedOrder == null) {
             errorMessageLabel.setText("Please select a delivery to update its status.");
             return;
