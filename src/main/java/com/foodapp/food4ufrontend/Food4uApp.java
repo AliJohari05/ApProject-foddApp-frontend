@@ -19,6 +19,7 @@ public class Food4uApp extends Application {
 
         primaryStage.setTitle("Food4u");
         primaryStage.setScene(scene);
+        primaryStage.setMaximized(true);
         primaryStage.show();
     }
 

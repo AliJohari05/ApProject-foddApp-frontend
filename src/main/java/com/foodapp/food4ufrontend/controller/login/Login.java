@@ -122,6 +122,7 @@ public class Login {
         Stage window = (Stage)((Node)event.getSource()).getScene().getWindow();
         window.setScene(signupScene);
         window.setTitle("Food4u - Sign Up");
+        window.setMaximized(true);
         window.show();
     }
 
@@ -224,6 +225,7 @@ public class Login {
 
         currentStage.setScene(dashboardScene);
         currentStage.setTitle(title);
+        currentStage.setMaximized(true);
         currentStage.show();
     }
 }

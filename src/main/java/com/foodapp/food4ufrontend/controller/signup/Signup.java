@@ -301,6 +301,7 @@ public class Signup {
         Stage window = (Stage)((Node)event.getSource()).getScene().getWindow();
         window.setScene(dashboardScene);
         window.setTitle(title);
+        window.setMaximized(true);
         window.show();
     }
 }
