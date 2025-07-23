@@ -74,6 +74,9 @@
                                 </columns>
                                 <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
                             </TableView>
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <MFXButton text="Rate Order" onAction="#handleRateOrder" styleClass="login-button"/>
+                            </HBox>
                             <MFXButton text="Pay price" onAction="#handleMakePayment" styleClass="login-button" />
                             <fx:define>
                                 <ToggleGroup fx:id="paymentMethodGroup" />

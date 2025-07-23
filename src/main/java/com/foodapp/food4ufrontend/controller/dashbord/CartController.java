@@ -333,7 +333,7 @@ public class CartController {
                             if (clearCartCallback != null) {
                                 clearCartCallback.accept(null); // Notify parent to clear cart
                             }
-                            handleClose(null); // Close cart view
+                            handleClose(event); // Close cart view
                         } else {
                             String errorMessage = rootNode.has("error") ? rootNode.get("error").asText() : "An unknown error occurred.";
                             cartErrorMessageLabel.setText("Error placing order: " + errorMessage);
@@ -353,8 +353,16 @@ public class CartController {
 
     @FXML
     private void handleClose(ActionEvent event) {
-        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        stage.close();
-        executorService.shutdown();
+        // بررسی کنید که آیا event و source آن null نیستند
+        if (event != null && event.getSource() != null) {
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow(); //
+            stage.close(); // بستن پنجره
+        } else {
+            // اگر event یا source آن null باشد، یک پیام خطا نمایش دهید.
+            // در شرایط واقعی، ممکن است نیاز به نگهداری یک مرجع به Stage در خود کنترلر داشته باشید
+            // تا بتوانید در هر شرایطی پنجره را ببندید.
+            System.err.println("Cannot close stage: ActionEvent or its source is null.");
+        }
+        executorService.shutdown(); // خاموش کردن ExecutorService
     }
 }

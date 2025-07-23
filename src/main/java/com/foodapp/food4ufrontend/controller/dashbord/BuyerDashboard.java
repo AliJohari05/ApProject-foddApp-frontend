@@ -90,7 +90,7 @@ public class BuyerDashboard {
     private RadioButton onlineRadioButton;
 
     @FXML
-    private TableView<Restaurant> favoriteRestaurantsTable;
+    private TableView<Restaurant> favoriteRestaurantTable;
     @FXML
     private TableColumn<Restaurant, String> favRestaurantIdColumn;
     @FXML
@@ -122,6 +122,8 @@ public class BuyerDashboard {
     @FXML private MFXButton viewMenuButton;
     @FXML
     private AnchorPane myProfileContainer; // اضافه شده: کانتینر برای بارگذاری پروفایل کاربر
+
+    @FXML private MFXButton rateOrderButton; // NEW: Field for Rate Order Button
 
     private final ExecutorService executorService = Executors.newCachedThreadPool();
 
@@ -160,7 +162,7 @@ public class BuyerDashboard {
 
         if (paymentMethodGroup != null) {walletRadioButton.setSelected(true);}
 
-        if (favoriteRestaurantsTable != null) {
+        if (favoriteRestaurantTable != null) {
             favRestaurantIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
             favRestaurantNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
             favRestaurantAddressColumn.setCellValueFactory(new PropertyValueFactory<>("address"));
@@ -461,7 +463,7 @@ public class BuyerDashboard {
                                 // تبدیل JSON به لیست آبجکت‌های Restaurant
                                 List<Restaurant> favorites = JsonUtil.getObjectMapper().readerForListOf(Restaurant.class).readValue(rootNode);
                                 ObservableList<Restaurant> favoriteObservableList = FXCollections.observableArrayList(favorites);
-                                favoriteRestaurantsTable.setItems(favoriteObservableList);
+                                favoriteRestaurantTable.setItems(favoriteObservableList);
                                 errorMessageLabel.setText("Favorite restaurants successfully loaded.");
                             } catch (IOException e) {
                                 errorMessageLabel.setText("Error parsing favorite restaurants data:" + e.getMessage());
@@ -529,7 +531,7 @@ public class BuyerDashboard {
     }
     @FXML
     private void handleRemoveFavorite(javafx.event.ActionEvent event) { // از javafx.event.ActionEvent استفاده شود
-        Restaurant selectedFavorite = favoriteRestaurantsTable.getSelectionModel().getSelectedItem(); // رستوران انتخاب شده از جدول علاقه‌مندی‌ها
+        Restaurant selectedFavorite = favoriteRestaurantTable.getSelectionModel().getSelectedItem(); // رستوران انتخاب شده از جدول علاقه‌مندی‌ها
         if (selectedFavorite == null) {
             errorMessageLabel.setText("Please select a restaurant to remove from favorites.");
             return;
@@ -746,5 +748,51 @@ public class BuyerDashboard {
         errorMessageLabel.setText("Error opening menu view: " + e.getMessage()); //
         e.printStackTrace(); //
     }
+    }
+    @FXML
+    private void handleRateOrder(ActionEvent event) {
+        errorMessageLabel.setText(""); // پاک کردن پیام قبلی
+
+        // 1. اعتبارسنجی: مطمئن شویم یک سفارش از جدول 'orderHistoryTable' انتخاب شده است.
+        Order selectedOrder = orderHistoryTable.getSelectionModel().getSelectedItem(); //
+        if (selectedOrder == null) {
+            errorMessageLabel.setText("Please select an order to rate."); //
+            return; // اگر سفارشی انتخاب نشده باشد، از متد خارج می‌شویم.
+        }
+
+        // Optional: Only allow rating completed orders
+        if (!"completed".equalsIgnoreCase(selectedOrder.getStatus())) { //
+            errorMessageLabel.setText("Only completed orders can be rated."); //
+            return;
+        }
+
+        try {
+            // 2. بارگذاری فایل FXML فرم امتیازدهی
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/foodapp/food4ufrontend/view/dashbord/RatingFormView.fxml")); //
+            Parent ratingFormView = loader.load(); //
+
+            // 3. دسترسی به کنترلر فرم امتیازدهی
+            RatingFormController controller = loader.getController(); //
+
+            // 4. انتقال داده‌ها (شیء سفارش) به کنترلر فرم
+            controller.setOrder(selectedOrder); // متد جدید در RatingFormController
+
+            // 5. تنظیم Callback برای به‌روزرسانی تاریخچه سفارشات والد
+            controller.setRefreshOrderHistoryCallback(aVoid -> viewOrderHistory()); //
+
+            // 6. ایجاد و نمایش پنجره Dialog (Modal Stage)
+            Stage stage = new Stage(); //
+            stage.initModality(Modality.APPLICATION_MODAL); // پنجره را به صورت Modal تنظیم می‌کنیم
+            stage.setTitle("Rate Order #" + selectedOrder.getId()); // عنوان پنجره
+            Scene scene = new Scene(ratingFormView); //
+            scene.getStylesheets().add(getClass().getResource("/com/foodapp/food4ufrontend/css/application.css").toExternalForm()); // اعمال استایل CSS
+            stage.setScene(scene); //
+            stage.showAndWait(); // نمایش پنجره و انتظار برای بسته شدن آن
+
+        } catch (IOException e) {
+            // 7. مدیریت خطا در صورت عدم بارگذاری FXML
+            errorMessageLabel.setText("Error opening rating form: " + e.getMessage()); //
+            e.printStackTrace(); //
+        }
     }
 }
