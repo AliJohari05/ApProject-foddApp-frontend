@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.VBox?>
 
 <AnchorPane prefHeight="550.0" prefWidth="600.0" style="-fx-background-color: white; -fx-padding: 30;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.foodapp.food4ufrontend.controller.dashbord.UserProfileController">
-    <VBox alignment="TOP_CENTER" layoutX="150.0" layoutY="50.0" spacing="20.0" AnchorPane.leftAnchor="50.0" AnchorPane.rightAnchor="50.0" AnchorPane.topAnchor="30.0">
+    <VBox  maxWidth="600.0" style="-fx-background-color: white; -fx-background-radius: 20; -fx-padding: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 5);" alignment="TOP_CENTER" spacing="20.0" AnchorPane.leftAnchor="50.0" AnchorPane.rightAnchor="50.0" AnchorPane.topAnchor="30.0">
         <children>
             <Label styleClass="section-title" text="My Profile" /> <StackPane alignment="CENTER" prefHeight="120.0" prefWidth="120.0">
             <children>
