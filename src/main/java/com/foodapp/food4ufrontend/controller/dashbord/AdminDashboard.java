@@ -630,6 +630,7 @@ public class AdminDashboard {
             Scene scene = new Scene(couponFormView);
             scene.getStylesheets().add(getClass().getResource("/com/foodapp/food4ufrontend/css/application.css").toExternalForm());
             stage.setScene(scene);
+            stage.setMaximized(true);
             stage.showAndWait();
         } catch (IOException e) {
             errorMessageLabel.setText("Error opening coupon form: " + e.getMessage());

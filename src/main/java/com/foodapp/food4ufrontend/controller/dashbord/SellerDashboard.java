@@ -11,6 +11,7 @@ import com.foodapp.food4ufrontend.util.JsonUtil;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import javafx.application.Platform;
 import javafx.beans.Observable;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -107,12 +108,11 @@ public class SellerDashboard {
 
     private String selectedMenuTitle;
 
-    // FXML for included UserProfileView (این فیلد ممکن است دیگر ضروری نباشد اگر به صورت دستی کنترلر را فراخوانی می‌کنید)
     @FXML
     private UserProfileController userProfileViewController;
 
     @FXML
-    private AnchorPane myProfileContainer; // اضافه شده: کانتینر برای بارگذاری پروفایل کاربر
+    private AnchorPane myProfileContainer;
 
     private final ExecutorService executorService = Executors.newCachedThreadPool();
     // FIX: Explicitly specify generic type to resolve ambiguity
@@ -170,10 +170,11 @@ public class SellerDashboard {
         if (foodItemSupply != null) foodItemSupply.setCellValueFactory(new PropertyValueFactory<>("supply"));
         if (foodItemKeywords != null) {
             foodItemKeywords.setCellValueFactory(cellData -> {
-                String[] keywords = cellData.getValue().getKeywords();
+                List<String> keywords = cellData.getValue().getKeywords();
                 String joined = (keywords != null) ? String.join(", ", keywords) : "";
-                return new javafx.beans.property.SimpleStringProperty(joined);
+                return new SimpleStringProperty(joined);
             });
+
         }
 
 
@@ -244,9 +245,6 @@ public class SellerDashboard {
                 if (mainTabPane != null) mainTabPane.getSelectionModel().select(3);
                 loadUserProfileView();
                 break;
-            case "Manage Fees":
-                errorMessageLabel.setText("Manage Fees functionality not yet implemented.");
-                break;
             case "Logout":
                 logout();
                 break;
@@ -259,27 +257,20 @@ public class SellerDashboard {
         errorMessageLabel.setText("Loading profile view...");
         executorService.submit(() -> {
             try {
-                // این بارگذاری به صورت مستقیم از classpath است
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/foodapp/food4ufrontend/view/dashbord/UserProfileView.fxml"));
-                Parent userProfileView = loader.load(); // تلاش برای بارگذاری FXML
+                Parent userProfileView = loader.load();
 
                 Platform.runLater(() -> {
                     if (myProfileContainer != null) {
-                        myProfileContainer.getChildren().setAll(userProfileView); // تزریق محتوای بارگذاری شده به کانتینر
+                        myProfileContainer.getChildren().setAll(userProfileView);
                         errorMessageLabel.setText("Profile view loaded successfully.");
 
-                        // اگر UserProfileController نیاز به مقداردهی اولیه یا بارگذاری داده دارد،
-                        // می‌توانید کنترلر را دریافت کرده و متدهای آن را فراخوانی کنید.
-                        // UserProfileController userProfileControllerInstance = loader.getController();
-                        // if (userProfileControllerInstance != null) {
-                        //     userProfileControllerInstance.loadUserProfile(); // فرض بر وجود چنین متدی در UserProfileController
-                        // }
+
                     } else {
                         errorMessageLabel.setText("Error: My profile container (myProfileContainer) is null in FXML.");
                     }
                 });
             } catch (IOException e) {
-                // اگر بارگذاری در اینجا هم با شکست مواجه شود، خطای دقیق‌تری خواهیم داشت
                 Platform.runLater(() -> {
                     errorMessageLabel.setText("Critical Error loading User Profile View dynamically: " + e.getMessage());
                     e.printStackTrace();
@@ -576,6 +567,7 @@ public class SellerDashboard {
             Scene scene=new Scene(restaurantFormView);
             scene.getStylesheets().add(getClass().getResource("/com/foodapp/food4ufrontend/css/application.css").toExternalForm());
             stage.setScene(scene);
+            stage.setMaximized(true);
             stage.showAndWait();
 
         } catch (IOException e) {
@@ -603,6 +595,7 @@ public class SellerDashboard {
             Scene scene = new Scene(foodItemFormView);
             scene.getStylesheets().add(getClass().getResource("/com/foodapp/food4ufrontend/css/application.css").toExternalForm());
             stage.setScene(scene);
+            stage.setMaximized(true);
             stage.showAndWait();
 
         } catch (IOException e) {
@@ -631,6 +624,7 @@ public class SellerDashboard {
             Scene scene=new Scene(RestaurantFormView);
             scene.getStylesheets().add(getClass().getResource("/com/foodapp/food4ufrontend/css/application.css").toExternalForm());
             stage.setScene(scene);
+            stage.setMaximized(true);
             stage.showAndWait();
         } catch (IOException e) {
             errorMessageLabel.setText("Error opening restaurant form: "+e.getMessage());
@@ -662,6 +656,7 @@ public class SellerDashboard {
             Scene scene = new Scene(foodItemFormView);
             scene.getStylesheets().add(getClass().getResource("/com/foodapp/food4ufrontend/css/application.css").toExternalForm());
             stage.setScene(scene);
+            stage.setMaximized(true);
             stage.showAndWait();
         } catch (IOException e) {
             errorMessageLabel.setText("Error opening food item form" + e.getMessage());

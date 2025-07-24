@@ -120,10 +120,10 @@ public class BuyerDashboard {
     private TableColumn<Transaction, String> transactionStatusColumn;
 
     @FXML
-    private UserProfileController userProfileViewController; // این فیلد ممکن است دیگر ضروری نباشد اگر به صورت دستی کنترلر را فراخوانی می‌کنید
+    private UserProfileController userProfileViewController;
     @FXML private MFXButton viewMenuButton;
     @FXML
-    private AnchorPane myProfileContainer; // اضافه شده: کانتینر برای بارگذاری پروفایل کاربر
+    private AnchorPane myProfileContainer;
 
     @FXML private MFXButton rateOrderButton; // NEW: Field for Rate Order Button
     @FXML private TextField searchOrderField;
@@ -209,7 +209,7 @@ public class BuyerDashboard {
                 break;
             case "My Profile":
                 if (mainTabPane != null) mainTabPane.getSelectionModel().select(2);
-                loadUserProfileView(); // فراخوانی متد جدید برای بارگذاری پروفایل
+                loadUserProfileView();
                 break;
             case "Manage Favorites":
                 if (mainTabPane != null) mainTabPane.getSelectionModel().select(3);
@@ -230,27 +230,19 @@ public class BuyerDashboard {
         errorMessageLabel.setText("Loading profile view...");
         executorService.submit(() -> {
             try {
-                // این بارگذاری به صورت مستقیم از classpath است
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/foodapp/food4ufrontend/view/dashbord/UserProfileView.fxml"));
-                Parent userProfileView = loader.load(); // تلاش برای بارگذاری FXML
+                Parent userProfileView = loader.load();
 
                 Platform.runLater(() -> {
                     if (myProfileContainer != null) {
                         myProfileContainer.getChildren().setAll(userProfileView); // تزریق محتوای بارگذاری شده به کانتینر
                         errorMessageLabel.setText("Profile view loaded successfully.");
 
-                        // اگر UserProfileController نیاز به مقداردهی اولیه یا بارگذاری داده دارد،
-                        // می‌توانید کنترلر را دریافت کرده و متدهای آن را فراخوانی کنید.
-                        // UserProfileController userProfileControllerInstance = loader.getController();
-                        // if (userProfileControllerInstance != null) {
-                        //     userProfileControllerInstance.loadUserProfile(); // فرض بر وجود چنین متدی در UserProfileController
-                        // }
                     } else {
                         errorMessageLabel.setText("Error: My profile container (myProfileContainer) is null in FXML.");
                     }
                 });
             } catch (IOException e) {
-                // اگر بارگذاری در اینجا هم با شکست مواجه شود، خطای دقیق‌تری خواهیم داشت
                 Platform.runLater(() -> {
                     errorMessageLabel.setText("Critical Error loading User Profile View dynamically: " + e.getMessage());
                     e.printStackTrace();
@@ -730,85 +722,73 @@ public class BuyerDashboard {
     }
 @FXML
     private void handleViewMenu(ActionEvent event) {
-    errorMessageLabel.setText(""); // پاک کردن پیام قبلی
+    errorMessageLabel.setText("");
 
-    // 1. اعتبارسنجی: مطمئن شویم یک رستوران از جدول انتخاب شده است.
     Restaurant selectedRestaurant = restaurantsTable.getSelectionModel().getSelectedItem(); //
     if (selectedRestaurant == null) {
         errorMessageLabel.setText("Please select a restaurant to view its menu."); //
-        return; // اگر رستورانی انتخاب نشده باشد، از متد خارج می‌شویم.
+        return;
     }
 
     try {
-        // 2. بارگذاری فایل FXML نمای منو
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/foodapp/food4ufrontend/view/dashbord/RestaurantMenuView.fxml")); //
-        Parent restaurantMenuView = loader.load(); //
+        Parent restaurantMenuView = loader.load();
 
-        // 3. دسترسی به کنترلر نمای منو
-        RestaurantMenuController controller = loader.getController(); //
+        RestaurantMenuController controller = loader.getController();
 
-        // 4. انتقال داده‌ها (شیء رستوران) به کنترلر منو
-        controller.setRestaurant(selectedRestaurant); // متد جدید در RestaurantMenuController
+        controller.setRestaurant(selectedRestaurant);
 
-        // 5. ایجاد و نمایش پنجره Dialog (Modal Stage)
-        Stage stage = new Stage(); //
-        stage.initModality(Modality.APPLICATION_MODAL); // پنجره را به صورت Modal تنظیم می‌کنیم
-        stage.setTitle("Menu for " + selectedRestaurant.getName()); // عنوان پنجره
-        Scene scene = new Scene(restaurantMenuView); //
+        Stage stage = new Stage();
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.setTitle("Menu for " + selectedRestaurant.getName());
+        Scene scene = new Scene(restaurantMenuView);
         scene.getStylesheets().add(getClass().getResource("/com/foodapp/food4ufrontend/css/application.css").toExternalForm()); // اعمال استایل CSS
-        stage.setScene(scene); //
-        stage.showAndWait(); // نمایش پنجره و انتظار برای بسته شدن آن
+        stage.setScene(scene);
+        stage.setMaximized(true);
+        stage.showAndWait();
 
     } catch (IOException e) {
-        // 6. مدیریت خطا در صورت عدم بارگذاری FXML
         errorMessageLabel.setText("Error opening menu view: " + e.getMessage()); //
         e.printStackTrace(); //
     }
     }
     @FXML
     private void handleRateOrder(ActionEvent event) {
-        errorMessageLabel.setText(""); // پاک کردن پیام قبلی
+        errorMessageLabel.setText("");
 
-        // 1. اعتبارسنجی: مطمئن شویم یک سفارش از جدول 'orderHistoryTable' انتخاب شده است.
         Order selectedOrder = orderHistoryTable.getSelectionModel().getSelectedItem(); //
         if (selectedOrder == null) {
             errorMessageLabel.setText("Please select an order to rate."); //
-            return; // اگر سفارشی انتخاب نشده باشد، از متد خارج می‌شویم.
+            return;
         }
 
-        // Optional: Only allow rating completed orders
         if (!"completed".equalsIgnoreCase(selectedOrder.getStatus())) { //
             errorMessageLabel.setText("Only completed orders can be rated."); //
             return;
         }
 
         try {
-            // 2. بارگذاری فایل FXML فرم امتیازدهی
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/foodapp/food4ufrontend/view/dashbord/RatingFormView.fxml")); //
             Parent ratingFormView = loader.load(); //
 
-            // 3. دسترسی به کنترلر فرم امتیازدهی
             RatingFormController controller = loader.getController(); //
 
-            // 4. انتقال داده‌ها (شیء سفارش) به کنترلر فرم
-            controller.setOrder(selectedOrder); // متد جدید در RatingFormController
+            controller.setOrder(selectedOrder);
 
-            // 5. تنظیم Callback برای به‌روزرسانی تاریخچه سفارشات والد
             controller.setRefreshOrderHistoryCallback(aVoid -> viewOrderHistory()); //
 
-            // 6. ایجاد و نمایش پنجره Dialog (Modal Stage)
             Stage stage = new Stage(); //
-            stage.initModality(Modality.APPLICATION_MODAL); // پنجره را به صورت Modal تنظیم می‌کنیم
-            stage.setTitle("Rate Order #" + selectedOrder.getId()); // عنوان پنجره
-            Scene scene = new Scene(ratingFormView); //
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setTitle("Rate Order #" + selectedOrder.getId());
+            Scene scene = new Scene(ratingFormView);
             scene.getStylesheets().add(getClass().getResource("/com/foodapp/food4ufrontend/css/application.css").toExternalForm()); // اعمال استایل CSS
-            stage.setScene(scene); //
-            stage.showAndWait(); // نمایش پنجره و انتظار برای بسته شدن آن
+            stage.setScene(scene);
+            stage.setMaximized(true);
+            stage.showAndWait();
 
         } catch (IOException e) {
-            // 7. مدیریت خطا در صورت عدم بارگذاری FXML
             errorMessageLabel.setText("Error opening rating form: " + e.getMessage()); //
-            e.printStackTrace(); //
+            e.printStackTrace();
         }
     }
 

@@ -3,6 +3,8 @@ package com.foodapp.food4ufrontend.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.List;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class FoodItem {
 private Integer id;
@@ -14,7 +16,7 @@ private String description;
 private Integer price;
 private Integer supply;
 @JsonProperty("keywords")
-private String[] keywords;
+private List<String> keywords;
 
     public Integer getId() {
         return id;
@@ -60,10 +62,10 @@ private String[] keywords;
         this.supply = supply;
     }
 
-    public String[] getKeywords() {
+    public List<String> getKeywords() {
         return keywords;
     }
-    public void setKeywords(String[] keywords) {
+    public void setKeywords(List<String> keywords) {
         this.keywords = keywords;
     }
 }
