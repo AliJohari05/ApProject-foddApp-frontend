@@ -36,11 +36,13 @@
         <ComboBox fx:id="ratingComboBox" promptText="Select Rating (1-5)" GridPane.rowIndex="0" GridPane.columnIndex="1">
             <items>
                 <FXCollections fx:factory="observableArrayList">
-                    <String>1</String> <String>2</String>
-                    <String>3</String>
-                    <String>4</String>
-                    <String>5</String>
+                    <String fx:value="1"/>
+                    <String fx:value="2"/>
+                    <String fx:value="3"/>
+                    <String fx:value="4"/>
+                    <String fx:value="5"/>
                 </FXCollections>
+
             </items>
         </ComboBox>
 

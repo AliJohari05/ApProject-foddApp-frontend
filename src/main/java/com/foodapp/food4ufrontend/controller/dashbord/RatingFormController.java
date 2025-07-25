@@ -1,4 +1,3 @@
-// ApProject_foddApp_frontend/src/main/java/com/foodapp/food4ufrontend/controller/dashbord/RatingFormController.java
 
 package com.foodapp.food4ufrontend.controller.dashbord;
 
@@ -44,12 +43,12 @@ import java.util.List; // For imageBase64 array (if needed)
 public class RatingFormController {
 
     @FXML private Label orderInfoLabel;
-    @FXML private ComboBox<String> ratingComboBox; // برای انتخاب امتیاز
-    @FXML private TextArea commentField; // برای نظر
-    @FXML private ImageView ratingImageView; // برای آپلود تصویر
+    @FXML private ComboBox<String> ratingComboBox;
+    @FXML private TextArea commentField;
+    @FXML private ImageView ratingImageView;
     @FXML private Label formErrorMessageLabel;
 
-    private Order orderToRate; // سفارش فعلی که امتیاز داده می‌شود
+    private Order orderToRate;
     private Consumer<Void> refreshOrderHistoryCallback; // Callback برای رفرش تاریخچه سفارشات
     private String base64ImageString; // رشته Base64 تصویر آپلود شده
     private final ExecutorService executorService = Executors.newCachedThreadPool();
@@ -149,11 +148,12 @@ public class RatingFormController {
             if (comment != null && !comment.trim().isEmpty()) {
                 ratingData.put("comment", comment.trim());
             }
-            // اگر تصویر آپلود شده باشد، آن را به صورت یک آرایه (مطابق YAML) اضافه می‌کنیم.
-            // API شما imageBase64 را به صورت آرایه از رشته‌ها می‌خواهد، پس آن را در یک لیست قرار می‌دهیم.
             if (base64ImageString != null && !base64ImageString.isEmpty()) {
-                ratingData.put("imageBase64", List.of(base64ImageString)); //
+                ratingData.put("imageBase64", List.of(base64ImageString));
+            } else {
+                ratingData.put("imageBase64", List.of());
             }
+
 
             String jsonBody = objectMapper.writeValueAsString(ratingData);
 

@@ -748,7 +748,7 @@ public class BuyerDashboard {
         stage.showAndWait();
 
     } catch (IOException e) {
-        errorMessageLabel.setText("Error opening menu view: " + e.getMessage()); //
+        errorMessageLabel.setText("Error opening menu view: " + e.getMessage());
         e.printStackTrace(); //
     }
     }
@@ -756,38 +756,38 @@ public class BuyerDashboard {
     private void handleRateOrder(ActionEvent event) {
         errorMessageLabel.setText("");
 
-        Order selectedOrder = orderHistoryTable.getSelectionModel().getSelectedItem(); //
+        Order selectedOrder = orderHistoryTable.getSelectionModel().getSelectedItem();
         if (selectedOrder == null) {
-            errorMessageLabel.setText("Please select an order to rate."); //
+            errorMessageLabel.setText("Please select an order to rate.");
             return;
         }
 
-        if (!"completed".equalsIgnoreCase(selectedOrder.getStatus())) { //
-            errorMessageLabel.setText("Only completed orders can be rated."); //
+        if (!"DELIVERED_TO_CUSTOMER".equalsIgnoreCase(selectedOrder.getStatus())) {
+            errorMessageLabel.setText("Only completed orders can be rated.");
             return;
         }
 
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/foodapp/food4ufrontend/view/dashbord/RatingFormView.fxml")); //
-            Parent ratingFormView = loader.load(); //
+            Parent ratingFormView = loader.load();
 
-            RatingFormController controller = loader.getController(); //
+            RatingFormController controller = loader.getController();
 
             controller.setOrder(selectedOrder);
 
-            controller.setRefreshOrderHistoryCallback(aVoid -> viewOrderHistory()); //
+            controller.setRefreshOrderHistoryCallback(aVoid -> viewOrderHistory());
 
-            Stage stage = new Stage(); //
+            Stage stage = new Stage();
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setTitle("Rate Order #" + selectedOrder.getId());
             Scene scene = new Scene(ratingFormView);
-            scene.getStylesheets().add(getClass().getResource("/com/foodapp/food4ufrontend/css/application.css").toExternalForm()); // اعمال استایل CSS
+            scene.getStylesheets().add(getClass().getResource("/com/foodapp/food4ufrontend/css/application.css").toExternalForm());
             stage.setScene(scene);
             stage.setMaximized(true);
             stage.showAndWait();
 
         } catch (IOException e) {
-            errorMessageLabel.setText("Error opening rating form: " + e.getMessage()); //
+            errorMessageLabel.setText("Error opening rating form: " + e.getMessage());
             e.printStackTrace();
         }
     }
