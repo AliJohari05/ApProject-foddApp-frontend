@@ -31,7 +31,7 @@
     </left>
 
     <center>
-        <TabPane fx:id="mainTabPane" BorderPane.alignment="CENTER" tabClosingPolicy="UNAVAILABLE">
+        <TabPane fx:id="mainTabPane" BorderPane.alignment="CENTER" tabClosingPolicy="UNAVAILABLE"  styleClass="tab-pane">
             <tabs>
                 <Tab text="My Restaurants">
                     <content>
@@ -63,9 +63,9 @@
                             <Label text="Manage menu" styleClass="section-title"/>
                             <HBox spacing="10" alignment="CENTER_LEFT">
                                 <Label text="Select Restaurant:"/>
-                                <ComboBox fx:id="selectRestaurantForMenu" promptText="Choose Restaurant" />
+                                <ComboBox fx:id="selectRestaurantForMenu" promptText="Choose Restaurant" styleClass="combo-box" />
                                 <Label text="Select Menu:"/>
-                                <ComboBox fx:id="selectMenuComboBox" promptText="Choose Menu"/>
+                                <ComboBox fx:id="selectMenuComboBox" promptText="Choose Menu" styleClass="combo-box"/>
 
                                 <MFXButton text ="Add a new food item" onAction="#addFoodItem" styleClass="login-button"/>
                                 <MFXButton text="Edit a food item" onAction="#editFoodItem" styleClass="login-button"/>
@@ -99,9 +99,9 @@
                             <Label text="Restaurant Orders" styleClass="section-title"/>
                             <HBox spacing="10" alignment="CENTER_LEFT">
                                 <Label text="Select Restaurant:"/>
-                                <ComboBox fx:id="selectRestaurantForOrders" promptText="Choose Restaurant" />
+                                <ComboBox fx:id="selectRestaurantForOrders" promptText="Choose Restaurant" styleClass="combo-box"/>
                                 <Label text="Filter Status:"/>
-                                <ComboBox fx:id="filterOrderStatus" promptText="All Statuses" />
+                                <ComboBox fx:id="filterOrderStatus" promptText="All Statuses" styleClass="combo-box"/>
                                 <MFXButton text="Refresh Orders" onAction="#viewRestaurantOrders" styleClass="login-button"/>
                             </HBox>
                             <TableView fx:id="restaurantOrdersTable" VBox.vgrow="ALWAYS" prefHeight="300" prefWidth="600" styleClass="data-table">

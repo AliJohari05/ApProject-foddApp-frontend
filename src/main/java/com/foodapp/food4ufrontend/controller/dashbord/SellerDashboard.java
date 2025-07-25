@@ -28,7 +28,9 @@ import javafx.scene.layout.AnchorPane; // اضافه شده
 import javafx.scene.Node; // اضافه شده
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
@@ -749,9 +751,14 @@ public class SellerDashboard {
                         JsonNode rootNode = JsonUtil.getObjectMapper().readTree(response.body());
                         Platform.runLater(() -> {
                             if (response.statusCode() == 200) {
-                                errorMessageLabel.setText("Menu created successfully");
+                                Platform.runLater(() -> {
+                                    errorMessageLabel.setText("Menu created successfully");
+                                    viewManageMenu();
+                                });
                             } else {
-                                errorMessageLabel.setText("Error creating menu" + (rootNode.has("error") ? rootNode.get("error").asText() : "An unknown error occurred"));
+                                Platform.runLater(() -> {
+                                    errorMessageLabel.setText("Error creating menu: " + (rootNode.has("error") ? rootNode.get("error").asText() : "Unknown error"));
+                                });
                             }
                         });
 
@@ -799,7 +806,9 @@ public class SellerDashboard {
                         });
                         return;
                     }
-                    Optional<HttpResponse<String>> responseOptional = ApiClient.delete("/restaurants/"+ selectedRestaurantForMenuId+"/menu/"+ menuTitle, token);
+                    String encodedMenuTitle = URLEncoder.encode(menuTitle, StandardCharsets.UTF_8);
+                    Optional<HttpResponse<String>> responseOptional = ApiClient.delete("/restaurants/" + selectedRestaurantForMenuId + "/menu/" + encodedMenuTitle, token);
+
                     if (responseOptional.isPresent()){
                         HttpResponse<String> response=responseOptional.get();
                         JsonNode rootNode=JsonUtil.getObjectMapper().readTree(response.body());
@@ -860,7 +869,8 @@ public class SellerDashboard {
                     Map<String, Object> requestBody = new HashMap<>();
                     requestBody.put("item_id", selectedFoodItem.getId());
                     String jsonBody = JsonUtil.getObjectMapper().writeValueAsString(requestBody);
-                    Optional<HttpResponse<String>> responseOptional = ApiClient.put("/restaurants/" + selectedRestaurantForMenuId + "/menu/" + menuTitle, jsonBody, token);
+                    String encodedMenuTitle = URLEncoder.encode(menuTitle, StandardCharsets.UTF_8);
+                    Optional<HttpResponse<String>> responseOptional = ApiClient.put("/restaurants/" + selectedRestaurantForMenuId + "/menu/" + encodedMenuTitle, jsonBody, token);
                     if (responseOptional.isPresent()){
                         HttpResponse<String> response=responseOptional.get();
                         JsonNode rootNode=JsonUtil.getObjectMapper().readTree(response.body());
@@ -916,7 +926,8 @@ public class SellerDashboard {
                        Platform.runLater(()->{errorMessageLabel.setText("Authentication token is missing.Please login again");});
                        return;
                    }
-                    Optional<HttpResponse<String>> responseOptional=ApiClient.delete("/restaurants/"+selectedRestaurantForMenuId+"/menu/"+menuTitle+"/"+selectedFood.getId(),token);
+                    String encodedMenuTitle = URLEncoder.encode(menuTitle, StandardCharsets.UTF_8);
+                    Optional<HttpResponse<String>> responseOptional = ApiClient.delete("/restaurants/"+selectedRestaurantForMenuId+"/menu/"+encodedMenuTitle+"/"+selectedFood.getId(),token);
                     if (responseOptional.isPresent()){
                         HttpResponse<String> response=responseOptional.get();
                         JsonNode rootNode=JsonUtil.getObjectMapper().readTree(response.body());

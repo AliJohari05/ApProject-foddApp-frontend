@@ -34,7 +34,7 @@
     </left>
 
     <center>
-        <TabPane fx:id="mainTabPane" BorderPane.alignment="CENTER" tabClosingPolicy="UNAVAILABLE">
+        <TabPane fx:id="mainTabPane" BorderPane.alignment="CENTER" tabClosingPolicy="UNAVAILABLE" styleClass="tab-pane">
             <tabs>
                 <Tab text="Users Management">
                     <content>
@@ -42,7 +42,7 @@
                             <Label text="System Users" styleClass="section-title"/>
                             <HBox spacing="10" alignment="CENTER_LEFT">
                                 <Label text="Filter by Role:"/>
-                                <ComboBox fx:id="filterRoleComboBox" promptText="All Roles" />
+                                <ComboBox fx:id="filterRoleComboBox" promptText="All Roles" styleClass="combo-box"/>
                                 <MFXButton text="Refresh Users" onAction="#viewUsers" styleClass="login-button"/>
                                 <MFXButton text="Approve Selected" onAction="#approveSelectedUsers" styleClass="login-button"/>
                                 <MFXButton text="Reject Selected" onAction="#rejectSelectedUsers" styleClass="login-button"/>
@@ -70,10 +70,10 @@
                             <Label text="System Orders" styleClass="section-title"/>
                             <HBox spacing="10" alignment="CENTER_LEFT">
                                 <TextField fx:id="orderSearchField" promptText="Search orders..." />
-                                <ComboBox fx:id="orderVendorFilter" promptText="Filter by Vendor" />
-                                <ComboBox fx:id="orderCustomerFilter" promptText="Filter by Customer" />
-                                <ComboBox fx:id="orderCourierFilter" promptText="Filter by Courier" />
-                                <ComboBox fx:id="orderStatusFilter" promptText="Filter by Status" />
+                                <ComboBox fx:id="orderVendorFilter" promptText="Filter by Vendor" styleClass="combo-box"/>
+                                <ComboBox fx:id="orderCustomerFilter" promptText="Filter by Customer" styleClass="combo-box"/>
+                                <ComboBox fx:id="orderCourierFilter" promptText="Filter by Courier" styleClass="combo-box"/>
+                                <ComboBox fx:id="orderStatusFilter" promptText="Filter by Status" styleClass="combo-box"/>
                                 <MFXButton text="Refresh Orders" onAction="#viewOrders" styleClass="login-button"/>
                             </HBox>
                             <TableView fx:id="ordersTable" VBox.vgrow="ALWAYS" prefHeight="400" prefWidth="600" styleClass="data-table">
@@ -99,9 +99,9 @@
                             <Label text="System Transactions" styleClass="section-title"/>
                             <HBox spacing="10" alignment="CENTER_LEFT">
                                 <TextField fx:id="transactionSearchField" promptText="Search transactions..." />
-                                <ComboBox fx:id="transactionUserFilter" promptText="Filter by User" />
-                                <ComboBox fx:id="transactionMethodFilter" promptText="Filter by Method" />
-                                <ComboBox fx:id="transactionStatusFilter" promptText="Filter by Status" />
+                                <ComboBox fx:id="transactionUserFilter" promptText="Filter by User" styleClass="combo-box"/>
+                                <ComboBox fx:id="transactionMethodFilter" promptText="Filter by Method" styleClass="combo-box"/>
+                                <ComboBox fx:id="transactionStatusFilter" promptText="Filter by Status" styleClass="combo-box"/>
                                 <MFXButton text="Refresh Transactions" onAction="#viewTransactions" styleClass="login-button"/>
                             </HBox>
                             <TableView fx:id="transactionsTable" VBox.vgrow="ALWAYS" prefHeight="400" prefWidth="600" styleClass="data-table">

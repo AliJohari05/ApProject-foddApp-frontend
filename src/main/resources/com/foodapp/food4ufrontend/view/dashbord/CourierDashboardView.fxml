@@ -29,7 +29,7 @@
     </left>
 
     <center>
-        <TabPane fx:id="mainTabPane" BorderPane.alignment="CENTER" tabClosingPolicy="UNAVAILABLE">
+        <TabPane fx:id="mainTabPane" BorderPane.alignment="CENTER" tabClosingPolicy="UNAVAILABLE" styleClass="tab-pane">
             <tabs>
                 <Tab text="Available Deliveries">
                     <content>
