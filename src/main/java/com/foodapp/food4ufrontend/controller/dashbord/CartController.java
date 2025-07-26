@@ -375,8 +375,9 @@ public class CartController {
                                     LocalDate today = LocalDate.now();
 
                                     // بخش اصلاح شده: تبدیل String به LocalDate برای مقایسه تاریخ‌ها
-                                    LocalDate couponStartDate = foundCoupon.getStartDate(); // فرض می کنیم getStartDate() حالا LocalDate برمی گرداند (از تغییر قبلی)
-                                    LocalDate couponEndDate = foundCoupon.getEndDate();     // فرض می کنیم getEndDate() حالا LocalDate برمی گرداند (از تغییر قبلی)
+                                    LocalDate couponStartDate = foundCoupon.getStartDate() != null ? foundCoupon.getStartDate().toLocalDate() : null; // NEW: اضافه شد
+                                    LocalDate couponEndDate = foundCoupon.getEndDate() != null ? foundCoupon.getEndDate().toLocalDate() : null;     // NEW: اضافه شد
+                                    // فرض می کنیم getEndDate() حالا LocalDate برمی گرداند (از تغییر قبلی)
 
 
                                     if (foundCoupon.getMinPrice() != null && rawTotalPrice.compareTo(BigDecimal.valueOf(foundCoupon.getMinPrice())) < 0) {

@@ -61,11 +61,15 @@ public class CouponFormController {
 
             // Assuming start_date and end_date are String in Coupon model
             // and format is YYYY-MM-DD
-            if (coupon.getStartDate() != null && !coupon.getStartDate().isEmpty()) {
-                couponStartDatePicker.setValue(LocalDate.parse(coupon.getStartDate(), DateTimeFormatter.ISO_LOCAL_DATE));
+            if (coupon.getStartDate() != null) { // NEW: حذف .isEmpty() چون LocalDate/LocalDateTime آن را ندارد
+                couponStartDatePicker.setValue(coupon.getStartDate().toLocalDate()); // NEW: استفاده از toLocalDate()
+            } else {
+                couponStartDatePicker.setValue(null); // اگر مقدار null بود، پاک شود
             }
-            if (coupon.getEndDate() != null && !coupon.getEndDate().isEmpty()) {
-                couponEndDatePicker.setValue(LocalDate.parse(coupon.getEndDate(), DateTimeFormatter.ISO_LOCAL_DATE));
+            if (coupon.getEndDate() != null) { // NEW: حذف .isEmpty()
+                couponEndDatePicker.setValue(coupon.getEndDate().toLocalDate()); // NEW: استفاده از toLocalDate()
+            } else {
+                couponEndDatePicker.setValue(null); // اگر مقدار null بود، پاک شود
             }
         }
     }
@@ -83,7 +87,7 @@ public class CouponFormController {
         String valueStr = couponValueField.getText();
         String minPriceStr = couponMinPriceField.getText();
         String userCountStr = couponUserCountField.getText();
-        LocalDate startDate = couponStartDatePicker.getValue();
+        LocalDate startDate = couponStartDatePicker.getValue(); // اینها LocalDate هستند
         LocalDate endDate = couponEndDatePicker.getValue();
 
         if (couponCode.isEmpty() || type == null || valueStr.isEmpty() || minPriceStr.isEmpty() ||
@@ -103,7 +107,7 @@ public class CouponFormController {
             couponData.put("value", value);
             couponData.put("min_price", minPrice);
             couponData.put("user_count", userCount);
-            couponData.put("start_date", startDate.format(DateTimeFormatter.ISO_LOCAL_DATE));
+            couponData.put("start_date", startDate.format(DateTimeFormatter.ISO_LOCAL_DATE)); // FIX: استفاده از LocalDate و فرمت صحیح
             couponData.put("end_date", endDate.format(DateTimeFormatter.ISO_LOCAL_DATE));
 
             String jsonBody = JsonUtil.getObjectMapper().writeValueAsString(couponData);
