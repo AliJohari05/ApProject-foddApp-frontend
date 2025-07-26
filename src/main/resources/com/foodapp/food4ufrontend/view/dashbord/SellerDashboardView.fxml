@@ -70,7 +70,7 @@
                                 <MFXButton text ="Add a new food item" onAction="#addFoodItem" styleClass="login-button"/>
                                 <MFXButton text="Edit a food item" onAction="#editFoodItem" styleClass="login-button"/>
                                 <MFXButton text="Delete a food item" onAction="#deleteFoodItem" styleClass="login-button"/>
-
+                                <MFXButton text="View Ratings" onAction="#handleViewItemRatings" styleClass="login-button"/>
                             </HBox>
                             <HBox>
                                 <MFXButton text="Create a new menu" onAction="#createMenu" styleClass="login-button"/>

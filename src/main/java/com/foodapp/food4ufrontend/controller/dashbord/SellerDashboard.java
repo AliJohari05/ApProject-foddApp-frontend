@@ -105,6 +105,8 @@ public class SellerDashboard {
     @FXML
     public ComboBox<String> selectMenuComboBox;
 
+    @FXML
+    private MFXButton viewRatingsButton;
 
     private String selectedRestaurantForMenuId;
 
@@ -341,7 +343,43 @@ public class SellerDashboard {
         });
     }
 
+    @FXML
+    private void handleViewItemRatings(ActionEvent event) {
+        errorMessageLabel.setText(""); // پاک کردن پیام قبلی
 
+        // 1. اعتبارسنجی: مطمئن شویم یک آیتم غذایی از جدول 'foodItemTable' انتخاب شده است.
+        FoodItem selectedFoodItem = foodItemTable.getSelectionModel().getSelectedItem(); //
+        if (selectedFoodItem == null) {
+            errorMessageLabel.setText("Please select a food item to view its ratings."); //
+            return; // اگر آیتمی انتخاب نشده باشد، از متد خارج می‌شویم.
+        }
+
+        try {
+            // 2. بارگذاری فایل FXML نمای ریتینگ آیتم
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/foodapp/food4ufrontend/view/dashbord/ItemRatingsView.fxml")); //
+            Parent itemRatingsView = loader.load(); //
+
+            // 3. دسترسی به کنترلر نمای ریتینگ
+            ItemRatingsController controller = loader.getController(); //
+
+            // 4. انتقال داده‌ها (شیء FoodItem) به کنترلر ریتینگ
+            controller.setFoodItem(selectedFoodItem); // متد جدید در ItemRatingsController
+
+            // 5. ایجاد و نمایش پنجره Dialog (Modal Stage)
+            Stage stage = new Stage(); //
+            stage.initModality(Modality.APPLICATION_MODAL); // پنجره را به صورت Modal تنظیم می‌کنیم
+            stage.setTitle("Ratings for " + selectedFoodItem.getName()); // عنوان پنجره
+            Scene scene = new Scene(itemRatingsView); //
+            scene.getStylesheets().add(getClass().getResource("/com/foodapp/food4ufrontend/css/application.css").toExternalForm()); // اعمال استایل CSS
+            stage.setScene(scene); //
+            stage.showAndWait(); // نمایش پنجره و انتظار برای بسته شدن آن
+
+        } catch (IOException e) {
+            // 6. مدیریت خطا در صورت عدم بارگذاری FXML
+            errorMessageLabel.setText("Error opening ratings view: " + e.getMessage()); //
+            e.printStackTrace(); //
+        }
+    }
 
     @FXML
     private void viewRestaurantOrders() {

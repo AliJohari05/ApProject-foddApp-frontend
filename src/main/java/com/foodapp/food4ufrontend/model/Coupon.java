@@ -2,7 +2,7 @@ package com.foodapp.food4ufrontend.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
+import java.time.LocalDate;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Coupon {
     private Integer id;
@@ -15,9 +15,9 @@ public class Coupon {
     @JsonProperty("user_count")
     private Integer userCount;
     @JsonProperty("start_date") // Matches format: date in OpenAPI
-    private String startDate; // Consider using java.time.LocalDate
+    private LocalDate startDate; // Consider using java.time.LocalDate
     @JsonProperty("end_date") // Matches format: date in OpenAPI
-    private String endDate; // Consider using java.time.LocalDate
+    private LocalDate endDate; // Consider using java.time.LocalDate
 
     // Getters and Setters
     public Integer getId() { return id; }
@@ -32,8 +32,8 @@ public class Coupon {
     public void setMinPrice(Integer minPrice) { this.minPrice = minPrice; }
     public Integer getUserCount() { return userCount; }
     public void setUserCount(Integer userCount) { this.userCount = userCount; }
-    public String getStartDate() { return startDate; }
-    public void setStartDate(String startDate) { this.startDate = startDate; }
-    public String getEndDate() { return endDate; }
-    public void setEndDate(String endDate) { this.endDate = endDate; }
+    public LocalDate getStartDate() { return startDate; }
+    public void setStartDate(LocalDate startDate) { this.startDate = startDate; }
+    public LocalDate getEndDate() { return endDate; }
+    public void setEndDate(LocalDate endDate) { this.endDate = endDate; }
 }

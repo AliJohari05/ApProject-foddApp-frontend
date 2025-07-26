@@ -1,11 +1,13 @@
 package com.foodapp.food4ufrontend.controller.dashbord;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.foodapp.food4ufrontend.model.FoodItem; // مدل FoodItem
+import com.fasterxml.jackson.databind.type.CollectionType;
+import com.foodapp.food4ufrontend.model.*;
 import com.foodapp.food4ufrontend.util.ApiClient; // برای فراخوانی API
 import com.foodapp.food4ufrontend.util.AuthManager; // برای دریافت توکن
 import com.foodapp.food4ufrontend.util.JsonUtil; // برای پردازش JSON
 import io.github.palexdev.materialfx.controls.MFXButton;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -25,6 +27,7 @@ import javafx.util.Callback; // برای CellFactory سفارشی
 import java.io.IOException;
 import java.math.BigDecimal; // برای محاسبات دقیق قیمت
 import java.net.http.HttpResponse;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +37,6 @@ import java.util.concurrent.Executors;
 import java.util.function.Consumer; // برای Callback
 import com.fasterxml.jackson.databind.JsonNode;
 import com.foodapp.food4ufrontend.model.FoodItem; // مدل FoodItem
-import com.foodapp.food4ufrontend.model.Restaurant; // مدل Restaurant
 import com.foodapp.food4ufrontend.util.ApiClient; // برای فراخوانی API
 import com.foodapp.food4ufrontend.util.AuthManager; // برای دریافت توکن
 import com.foodapp.food4ufrontend.util.JsonUtil; // برای پردازش JSON
@@ -112,7 +114,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.foodapp.food4ufrontend.model.FoodItem;
 import com.foodapp.food4ufrontend.model.Restaurant;
-import com.foodapp.food4ufrontend.model.Order;
 import com.foodapp.food4ufrontend.util.ApiClient;
 import com.foodapp.food4ufrontend.util.AuthManager;
 import com.foodapp.food4ufrontend.util.JsonUtil;
@@ -153,10 +154,16 @@ public class CartController {
     @FXML private Label totalPriceLabel; // لیبل برای نمایش قیمت کل
     @FXML private Label cartErrorMessageLabel; // لیبل برای نمایش پیام‌های خطا/وضعیت
 
+    @FXML private MFXTextField couponCodeField; //
+    @FXML private MFXButton applyCouponButton; //
+    @FXML private Label couponMessageLabel; //
+
     private Map<FoodItem, Integer> cartData; // سبد خرید (از RestaurantMenuController منتقل می‌شود)
     private String currentRestaurantId; // ID رستوران (برای ارسال در درخواست سفارش)
     private Consumer<Void> clearCartCallback; // Callback برای پاک کردن سبد خرید در RestaurantMenuController
     private final ExecutorService executorService = Executors.newCachedThreadPool();
+    private Coupon appliedCoupon; // برای ذخیره جزئیات کوپن اعمال شده (بخش اضافه شده)
+    private BigDecimal currentCalculatedTotalPrice = BigDecimal.ZERO; // برای ذخیره قیمت کل پس از اعمال تخفیف‌ها (بخش اضافه شده)
 
     // کلاس کمکی برای نمایش آیتم‌ها در TableView.
     // TableView نمی‌تواند مستقیماً Map<FoodItem, Integer> را نمایش دهد.
@@ -219,7 +226,11 @@ public class CartController {
     // Setter برای دریافت سبد خرید از کنترلر والد (RestaurantMenuController)
     public void setCart(Map<FoodItem, Integer> cart) {
         this.cartData = cart;
-        populateCartTable(); // پر کردن جدول پس از دریافت سبد خرید
+        // بخش اصلاح شده: پاک کردن کوپن اعمال شده هنگام تنظیم سبد خرید جدید
+        this.appliedCoupon = null;
+        couponCodeField.setText("");
+        couponMessageLabel.setText("");
+        populateCartTable();
     }
 
     // Setter برای دریافت ID رستوران
@@ -235,20 +246,22 @@ public class CartController {
     private void populateCartTable() {
         // تبدیل Map<FoodItem, Integer> به ObservableList<CartItemDisplay>
         ObservableList<CartItemDisplay> displayItems = FXCollections.observableArrayList();
-        BigDecimal total = BigDecimal.ZERO; //
+        BigDecimal subtotalBeforeCoupon = BigDecimal.ZERO; //
 
         for (Map.Entry<FoodItem, Integer> entry : cartData.entrySet()) {
             CartItemDisplay displayItem = new CartItemDisplay(entry.getKey(), entry.getValue());
             displayItems.add(displayItem);
-            total = total.add(displayItem.getSubtotal()); // محاسبه جمع کل
+            subtotalBeforeCoupon = subtotalBeforeCoupon.add(displayItem.getSubtotal());
         }
 
         cartItemsTable.setItems(displayItems);
-        totalPriceLabel.setText(total.toPlainString()); // نمایش جمع کل
+        calculateAndDisplayTotalPrice(subtotalBeforeCoupon);
     }
 
     private void handleRemoveItem(FoodItem itemToRemove) {
         cartData.remove(itemToRemove); // حذف از Map اصلی
+        appliedCoupon = null; // کوپن اعمال شده را ریست کنید (بخش اصلاح شده)
+        couponMessageLabel.setText(""); // (بخش اصلاح شده)
         populateCartTable(); // رفرش جدول
         cartErrorMessageLabel.setText(itemToRemove.getName() + " removed from cart.");
     }
@@ -268,6 +281,8 @@ public class CartController {
                     return;
                 }
                 cartData.put(itemToEdit, newQuantity); // به‌روزرسانی در Map اصلی
+                appliedCoupon = null; // کوپن اعمال شده را ریست کنید (بخش اصلاح شده)
+                couponMessageLabel.setText(""); // (بخش اصلاح شده)
                 populateCartTable(); // رفرش جدول
                 cartErrorMessageLabel.setText(itemToEdit.getName() + " quantity updated to " + newQuantity + ".");
             } catch (NumberFormatException e) {
@@ -278,12 +293,148 @@ public class CartController {
         }
     }
 
+    private void calculateAndDisplayTotalPrice(BigDecimal basePrice) {
+        BigDecimal finalPrice = basePrice;
+        if (appliedCoupon != null) {
+            // اعمال منطق کوپن بر اساس نوع (fixed یا percent) - این منطق باید در بک‌اند نیز تایید شود
+            if ("percent".equalsIgnoreCase(appliedCoupon.getType())) {
+                BigDecimal discountAmount = basePrice.multiply(BigDecimal.valueOf(appliedCoupon.getValue()));
+                finalPrice = basePrice.subtract(discountAmount);
+            } else if ("fixed".equalsIgnoreCase(appliedCoupon.getType())) {
+                finalPrice = basePrice.subtract(BigDecimal.valueOf(appliedCoupon.getValue()));
+            }
+            if (finalPrice.compareTo(BigDecimal.ZERO) < 0) {
+                finalPrice = BigDecimal.ZERO;
+            }
+            couponMessageLabel.setText("کوپن اعمال شد: " + appliedCoupon.getCouponCode() + " (تخفیف: " + (basePrice.subtract(finalPrice).toPlainString()) + " مبلغ)");
+        } else {
+            couponMessageLabel.setText(""); // پیام کوپن را پاک کنید
+        }
+
+        this.currentCalculatedTotalPrice = finalPrice;
+        totalPriceLabel.setText(finalPrice.toPlainString());
+    }
 
     @FXML
     private void handleClearCart(ActionEvent event) {
         cartData.clear(); // پاک کردن Map اصلی
+        appliedCoupon = null; // کوپن اعمال شده را پاک کنید (بخش اصلاح شده)
+        couponMessageLabel.setText(""); // پیام کوپن را پاک کنید (بخش اصلاح شده)
+
         populateCartTable(); // رفرش جدول
         cartErrorMessageLabel.setText("Cart cleared.");
+    }
+    // متد برای اعمال کوپن (اعتبارسنجی سمت کلاینت برای UX) (بخش اضافه شده)
+    @FXML
+    private void handleApplyCoupon(ActionEvent event) {
+        String couponCode = couponCodeField.getText().trim();
+        if (couponCode.isEmpty()) {
+            couponMessageLabel.setText("لطفاً کد کوپن را وارد کنید.");
+            return;
+        }
+
+        if (cartData.isEmpty()) {
+            couponMessageLabel.setText("سبد خرید شما خالی است. نمی‌توانید کوپن اعمال کنید.");
+            return;
+        }
+
+        couponMessageLabel.setText("در حال اعتبارسنجی کوپن...");
+        executorService.submit(() -> {
+            try {
+                String token = AuthManager.getJwtToken();
+                if (token == null || token.isEmpty()) {
+                    Platform.runLater(() -> couponMessageLabel.setText("توکن احراز هویت موجود نیست. لطفاً دوباره وارد شوید."));
+                    return;
+                }
+
+                // فراخوانی GET /coupons برای دریافت تمام کوپن‌ها از بک‌اند
+                Optional<HttpResponse<String>> responseOpt = ApiClient.get("/coupons", token);
+
+                if (responseOpt.isPresent()) {
+                    HttpResponse<String> response = responseOpt.get();
+                    JsonNode rootNode = JsonUtil.getObjectMapper().readTree(response.body());
+
+                    Platform.runLater(() -> {
+                        if (response.statusCode() == 200) {
+                            try {
+                                // دسیریالایز کردن لیست کوپن‌ها
+                                CollectionType listType = JsonUtil.getObjectMapper().getTypeFactory().constructCollectionType(List.class, Coupon.class);
+                                List<Coupon> allCoupons = JsonUtil.getObjectMapper().readValue(rootNode.toString(), listType);
+
+                                Coupon foundCoupon = null;
+                                for (Coupon c : allCoupons) {
+                                    if (c.getCouponCode().equalsIgnoreCase(couponCode)) {
+                                        foundCoupon = c;
+                                        break;
+                                    }
+                                }
+
+                                if (foundCoupon != null) {
+                                    // **اعتبارسنجی سمت کلاینت (فقط برای UX - اعتبارسنجی نهایی در بک‌اند انجام می‌شود)**
+                                    BigDecimal rawTotalPrice = calculateRawTotalPrice();
+                                    LocalDate today = LocalDate.now();
+
+                                    // بخش اصلاح شده: تبدیل String به LocalDate برای مقایسه تاریخ‌ها
+                                    LocalDate couponStartDate = foundCoupon.getStartDate(); // فرض می کنیم getStartDate() حالا LocalDate برمی گرداند (از تغییر قبلی)
+                                    LocalDate couponEndDate = foundCoupon.getEndDate();     // فرض می کنیم getEndDate() حالا LocalDate برمی گرداند (از تغییر قبلی)
+
+
+                                    if (foundCoupon.getMinPrice() != null && rawTotalPrice.compareTo(BigDecimal.valueOf(foundCoupon.getMinPrice())) < 0) {
+                                        couponMessageLabel.setText("این کوپن نیاز به حداقل خرید " + foundCoupon.getMinPrice() + " دارد.");
+                                        appliedCoupon = null;
+                                    } else if (couponStartDate != null && today.isBefore(couponStartDate)) { // استفاده از متغیر تبدیل شده
+                                        couponMessageLabel.setText("این کوپن هنوز فعال نیست.");
+                                        appliedCoupon = null;
+                                    } else if (couponEndDate != null && today.isAfter(couponEndDate)) { // استفاده از متغیر تبدیل شده
+                                        couponMessageLabel.setText("این کوپن منقضی شده است.");
+                                        appliedCoupon = null;
+                                    }
+                                    // توجه: اعتبارسنجی userCount به صورت کامل و دقیق نیاز به مدیریت در بک‌اند دارد
+                                    else if (foundCoupon.getUserCount() != null && foundCoupon.getUserCount() <= 0) {
+                                        couponMessageLabel.setText("این کوپن دیگر قابل استفاده نیست.");
+                                        appliedCoupon = null;
+                                    }
+                                    else {
+                                        appliedCoupon = foundCoupon; // کوپن معتبر در سمت کلاینت ذخیره می‌شود
+                                        calculateAndDisplayTotalPrice(rawTotalPrice); // به‌روزرسانی نمایش قیمت با تخفیف
+                                        cartErrorMessageLabel.setText(""); // پاک کردن هر خطای قبلی سبد خرید
+                                    }
+                                } else {
+                                    couponMessageLabel.setText("کد کوپن نامعتبر است.");
+                                    appliedCoupon = null;
+                                }
+                                // در هر صورت، نمایش قیمت کل را به‌روز کنید
+                                calculateAndDisplayTotalPrice(calculateRawTotalPrice());
+                            } catch (JsonProcessingException e) {
+                                couponMessageLabel.setText("خطا در تجزیه و تحلیل لیست کوپن: " + e.getMessage());
+                                appliedCoupon = null;
+                            }
+                        } else {
+                            String errorMessage = rootNode.has("error") ? rootNode.get("error").asText() : "دریافت کوپن‌ها با شکست مواجه شد.";
+                            couponMessageLabel.setText(errorMessage);
+                            appliedCoupon = null;
+                        }
+                    });
+                } else {
+                    Platform.runLater(() -> couponMessageLabel.setText("عدم اتصال به سرور برای دریافت کوپن‌ها."));
+                    appliedCoupon = null;
+                }
+            } catch (IOException | InterruptedException e) {
+                Platform.runLater(() -> {
+                    couponMessageLabel.setText("خطای غیرمنتظره در هنگام اعمال کوپن: " + e.getMessage());
+                    e.printStackTrace();
+                    appliedCoupon = null;
+                });
+            }
+        });
+    }
+
+    private BigDecimal calculateRawTotalPrice() {
+        BigDecimal rawTotal = BigDecimal.ZERO;
+        for (Map.Entry<FoodItem, Integer> entry : cartData.entrySet()) {
+            rawTotal = rawTotal.add(BigDecimal.valueOf(entry.getKey().getPrice()).multiply(BigDecimal.valueOf(entry.getValue())));
+        }
+        return rawTotal;
     }
 
     @FXML
@@ -318,7 +469,9 @@ public class CartController {
                 orderData.put("vendor_id", Integer.parseInt(currentRestaurantId)); // Restaurant ID is vendor_id in Order
                 orderData.put("items", itemsForOrder);
                 // Optional: orderData.put("coupon_id", someCouponId);
-
+                if (appliedCoupon != null && appliedCoupon.getId() != null) {
+                    orderData.put("coupon_id", appliedCoupon.getId());
+                }
                 String jsonBody = JsonUtil.getObjectMapper().writeValueAsString(orderData); //
 
                 Optional<HttpResponse<String>> responseOpt = ApiClient.post("/orders", jsonBody, token); //
@@ -333,10 +486,17 @@ public class CartController {
                             if (clearCartCallback != null) {
                                 clearCartCallback.accept(null); // Notify parent to clear cart
                             }
+                            appliedCoupon = null;
+                            couponMessageLabel.setText("");
                             handleClose(event); // Close cart view
                         } else {
                             String errorMessage = rootNode.has("error") ? rootNode.get("error").asText() : "An unknown error occurred.";
                             cartErrorMessageLabel.setText("Error placing order: " + errorMessage);
+                            if (rootNode.has("error") && rootNode.get("error").asText().contains("Coupon")) {
+                                couponMessageLabel.setText("کوپن اعمال شده در بک‌اند نامعتبر است: " + errorMessage);
+                                appliedCoupon = null; // کوپن را پاک کنید تا کاربر بتواند دوباره امتحان کند
+                                calculateAndDisplayTotalPrice(calculateRawTotalPrice()); // قیمت را بدون کوپن نمایش دهید
+                            }
                         }
                     });
                 } else {
