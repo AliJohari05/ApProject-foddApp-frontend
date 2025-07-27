@@ -329,41 +329,41 @@ public class CartController {
     private void handleApplyCoupon(ActionEvent event) {
         String couponCode = couponCodeField.getText().trim();
         if (couponCode.isEmpty()) {
-            couponMessageLabel.setText("لطفاً کد کوپن را وارد کنید.");
+            couponMessageLabel.setText("Please enter coupon code.");
             return;
         }
 
         if (cartData.isEmpty()) {
-            couponMessageLabel.setText("سبد خرید شما خالی است. نمی‌توانید کوپن اعمال کنید.");
+            couponMessageLabel.setText("Your cart is empty. Cannot apply coupon.");
             return;
         }
 
-        couponMessageLabel.setText("در حال اعتبارسنجی کوپن...");
+        couponMessageLabel.setText("Validating coupon...");
         executorService.submit(() -> {
             try {
-                String token = AuthManager.getJwtToken();
+                String token = AuthManager.getJwtToken(); //
                 if (token == null || token.isEmpty()) {
-                    Platform.runLater(() -> couponMessageLabel.setText("توکن احراز هویت موجود نیست. لطفاً دوباره وارد شوید."));
+                    Platform.runLater(() -> couponMessageLabel.setText("Authentication token missing. Please log in again."));
                     return;
                 }
 
                 // فراخوانی GET /coupons برای دریافت تمام کوپن‌ها از بک‌اند
-                Optional<HttpResponse<String>> responseOpt = ApiClient.get("/coupons", token);
+                Optional<HttpResponse<String>> responseOpt = ApiClient.get("/coupons", token); //
 
                 if (responseOpt.isPresent()) {
                     HttpResponse<String> response = responseOpt.get();
-                    JsonNode rootNode = JsonUtil.getObjectMapper().readTree(response.body());
+                    JsonNode rootNode = JsonUtil.getObjectMapper().readTree(response.body()); //
 
                     Platform.runLater(() -> {
                         if (response.statusCode() == 200) {
                             try {
                                 // دسیریالایز کردن لیست کوپن‌ها
-                                CollectionType listType = JsonUtil.getObjectMapper().getTypeFactory().constructCollectionType(List.class, Coupon.class);
-                                List<Coupon> allCoupons = JsonUtil.getObjectMapper().readValue(rootNode.toString(), listType);
+                                CollectionType listType = JsonUtil.getObjectMapper().getTypeFactory().constructCollectionType(List.class, Coupon.class); //
+                                List<Coupon> allCoupons = JsonUtil.getObjectMapper().readValue(rootNode.toString(), listType); //
 
                                 Coupon foundCoupon = null;
                                 for (Coupon c : allCoupons) {
-                                    if (c.getCouponCode().equalsIgnoreCase(couponCode)) {
+                                    if (c.getCouponCode().equalsIgnoreCase(couponCode)) { //
                                         foundCoupon = c;
                                         break;
                                     }
@@ -371,58 +371,56 @@ public class CartController {
 
                                 if (foundCoupon != null) {
                                     // **اعتبارسنجی سمت کلاینت (فقط برای UX - اعتبارسنجی نهایی در بک‌اند انجام می‌شود)**
-                                    BigDecimal rawTotalPrice = calculateRawTotalPrice();
-                                    LocalDate today = LocalDate.now();
-
-                                    // بخش اصلاح شده: تبدیل String به LocalDate برای مقایسه تاریخ‌ها
-                                    LocalDate couponStartDate = foundCoupon.getStartDate() != null ? foundCoupon.getStartDate().toLocalDate() : null; // NEW: اضافه شد
-                                    LocalDate couponEndDate = foundCoupon.getEndDate() != null ? foundCoupon.getEndDate().toLocalDate() : null;     // NEW: اضافه شد
-                                    // فرض می کنیم getEndDate() حالا LocalDate برمی گرداند (از تغییر قبلی)
+                                    BigDecimal rawTotalPrice = calculateRawTotalPrice(); //
+                                    LocalDate today = LocalDate.now(); //
 
 
-                                    if (foundCoupon.getMinPrice() != null && rawTotalPrice.compareTo(BigDecimal.valueOf(foundCoupon.getMinPrice())) < 0) {
-                                        couponMessageLabel.setText("این کوپن نیاز به حداقل خرید " + foundCoupon.getMinPrice() + " دارد.");
+                                    LocalDate couponStartDate = foundCoupon.getStartDate();
+                                    LocalDate couponEndDate = foundCoupon.getEndDate();
+
+                                    if (foundCoupon.getMinPrice() != null && rawTotalPrice.compareTo(BigDecimal.valueOf(foundCoupon.getMinPrice())) < 0) { //
+                                        couponMessageLabel.setText("This coupon requires a minimum purchase of " + String.valueOf(foundCoupon.getMinPrice()) + "."); // MODIFIED: پیام انگلیسی و تبدیل Integer به String
                                         appliedCoupon = null;
-                                    } else if (couponStartDate != null && today.isBefore(couponStartDate)) { // استفاده از متغیر تبدیل شده
-                                        couponMessageLabel.setText("این کوپن هنوز فعال نیست.");
+                                    } else if (couponStartDate != null && today.isBefore(couponStartDate)) {
+                                        couponMessageLabel.setText("This coupon is not yet active. Start Date: " + couponStartDate.format(java.time.format.DateTimeFormatter.ISO_LOCAL_DATE)); // MODIFIED: پیام انگلیسی
                                         appliedCoupon = null;
-                                    } else if (couponEndDate != null && today.isAfter(couponEndDate)) { // استفاده از متغیر تبدیل شده
-                                        couponMessageLabel.setText("این کوپن منقضی شده است.");
+                                    } else if (couponEndDate != null && today.isAfter(couponEndDate)) {
+                                        couponMessageLabel.setText("This coupon has expired. Expiry Date: " + couponEndDate.format(java.time.format.DateTimeFormatter.ISO_LOCAL_DATE)); // MODIFIED: پیام انگلیسی
                                         appliedCoupon = null;
                                     }
-                                    // توجه: اعتبارسنجی userCount به صورت کامل و دقیق نیاز به مدیریت در بک‌اند دارد
-                                    else if (foundCoupon.getUserCount() != null && foundCoupon.getUserCount() <= 0) {
-                                        couponMessageLabel.setText("این کوپن دیگر قابل استفاده نیست.");
+
+                                    else if (foundCoupon.getUserCount() != null && foundCoupon.getUserCount() <= 0) { //
+                                        couponMessageLabel.setText("This coupon is no longer usable.");
                                         appliedCoupon = null;
                                     }
                                     else {
                                         appliedCoupon = foundCoupon; // کوپن معتبر در سمت کلاینت ذخیره می‌شود
-                                        calculateAndDisplayTotalPrice(rawTotalPrice); // به‌روزرسانی نمایش قیمت با تخفیف
+                                        calculateAndDisplayTotalPrice(rawTotalPrice); //
                                         cartErrorMessageLabel.setText(""); // پاک کردن هر خطای قبلی سبد خرید
                                     }
                                 } else {
-                                    couponMessageLabel.setText("کد کوپن نامعتبر است.");
+                                    couponMessageLabel.setText("Invalid coupon code.");
                                     appliedCoupon = null;
                                 }
                                 // در هر صورت، نمایش قیمت کل را به‌روز کنید
                                 calculateAndDisplayTotalPrice(calculateRawTotalPrice());
                             } catch (JsonProcessingException e) {
-                                couponMessageLabel.setText("خطا در تجزیه و تحلیل لیست کوپن: " + e.getMessage());
+                                couponMessageLabel.setText("Error parsing coupon list: " + e.getMessage());
                                 appliedCoupon = null;
                             }
                         } else {
-                            String errorMessage = rootNode.has("error") ? rootNode.get("error").asText() : "دریافت کوپن‌ها با شکست مواجه شد.";
+                            String errorMessage = rootNode.has("error") ? rootNode.get("error").asText() : "Failed to retrieve coupons.";
                             couponMessageLabel.setText(errorMessage);
                             appliedCoupon = null;
                         }
                     });
                 } else {
-                    Platform.runLater(() -> couponMessageLabel.setText("عدم اتصال به سرور برای دریافت کوپن‌ها."));
+                    Platform.runLater(() -> couponMessageLabel.setText("Failed to connect to server to retrieve coupons."));
                     appliedCoupon = null;
                 }
-            } catch (IOException | InterruptedException e) {
+            } catch (IOException | InterruptedException e) { //
                 Platform.runLater(() -> {
-                    couponMessageLabel.setText("خطای غیرمنتظره در هنگام اعمال کوپن: " + e.getMessage());
+                    couponMessageLabel.setText("An unexpected error occurred while applying coupon: " + e.getMessage());
                     e.printStackTrace();
                     appliedCoupon = null;
                 });

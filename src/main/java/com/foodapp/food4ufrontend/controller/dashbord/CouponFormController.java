@@ -61,16 +61,8 @@ public class CouponFormController {
 
             // Assuming start_date and end_date are String in Coupon model
             // and format is YYYY-MM-DD
-            if (coupon.getStartDate() != null) { // NEW: حذف .isEmpty() چون LocalDate/LocalDateTime آن را ندارد
-                couponStartDatePicker.setValue(coupon.getStartDate().toLocalDate()); // NEW: استفاده از toLocalDate()
-            } else {
-                couponStartDatePicker.setValue(null); // اگر مقدار null بود، پاک شود
-            }
-            if (coupon.getEndDate() != null) { // NEW: حذف .isEmpty()
-                couponEndDatePicker.setValue(coupon.getEndDate().toLocalDate()); // NEW: استفاده از toLocalDate()
-            } else {
-                couponEndDatePicker.setValue(null); // اگر مقدار null بود، پاک شود
-            }
+            couponStartDatePicker.setValue(coupon.getStartDate()); // NEW: مستقیماً مقداردهی کنید
+            couponEndDatePicker.setValue(coupon.getEndDate());
         }
     }
 

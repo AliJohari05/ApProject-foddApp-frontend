@@ -15,10 +15,10 @@ public class Coupon {
     private Integer minPrice;
     @JsonProperty("user_count")
     private Integer userCount;
-    @JsonProperty("start_date") // Matches backend model and OpenAPI format
-    private LocalDateTime startDate; // MODIFIED: از String به LocalDateTime تغییر یافت
-    @JsonProperty("end_date") // Matches backend model and OpenAPI format
-    private LocalDateTime endDate; // MODIFIED: از String به LocalDateTime تغییر یافت
+    @JsonProperty("start_date")
+    private LocalDate startDate; // MODIFIED: از LocalDateTime به LocalDate تغییر یافت
+    @JsonProperty("end_date")
+    private LocalDate endDate; // MODIFIED: از String به LocalDateTime تغییر یافت
 
 
     // Getters and Setters
@@ -34,8 +34,8 @@ public class Coupon {
     public void setMinPrice(Integer minPrice) { this.minPrice = minPrice; }
     public Integer getUserCount() { return userCount; }
     public void setUserCount(Integer userCount) { this.userCount = userCount; }
-    public LocalDateTime getStartDate() { return startDate; }
-    public void setStartDate(LocalDateTime startDate) { this.startDate = startDate; }
-    public LocalDateTime getEndDate() { return endDate; }
-    public void setEndDate(LocalDateTime endDate) { this.endDate = endDate; }
+    public LocalDate getStartDate() { return startDate; }
+    public void setStartDate(LocalDate startDate) { this.startDate = startDate; }
+    public LocalDate getEndDate() { return endDate; }
+    public void setEndDate(LocalDate endDate) { this.endDate = endDate; }
 }
