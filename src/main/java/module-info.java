@@ -26,6 +26,7 @@ module com.foodapp.food4ufrontend {
     // Exports for controllers (needed for instantiation)
     exports com.foodapp.food4ufrontend.controller.dashbord to javafx.fxml;
 
+    exports com.foodapp.food4ufrontend.dto to com.fasterxml.jackson.databind;
     // Opens statements for FXML controllers and models for Jackson
     // This allows JavaFX's FXMLLoader to access FXML files within these packages
     opens com.foodapp.food4ufrontend.controller.login to javafx.fxml;

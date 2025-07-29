@@ -107,7 +107,8 @@ public class SellerDashboard {
 
     @FXML
     private MFXButton viewRatingsButton;
-
+    @FXML
+    private MFXButton viewOrderRatingButton;
     private String selectedRestaurantForMenuId;
 
     private String selectedMenuTitle;
@@ -378,6 +379,48 @@ public class SellerDashboard {
             // 6. مدیریت خطا در صورت عدم بارگذاری FXML
             errorMessageLabel.setText("Error opening ratings view: " + e.getMessage()); //
             e.printStackTrace(); //
+        }
+    }
+
+    @FXML
+    private void handleViewOrderRating(ActionEvent event) {
+        errorMessageLabel.setText(""); // پاک کردن پیام قبلی
+
+        // 1. اعتبارسنجی: مطمئن شویم یک سفارش از جدول 'restaurantOrdersTable' انتخاب شده است.
+        Order selectedOrder = restaurantOrdersTable.getSelectionModel().getSelectedItem(); //
+        if (selectedOrder == null) {
+            errorMessageLabel.setText("Please select an order to view its rating."); //
+            return;
+        }
+        // Optional: Only allow viewing rating for completed or served orders (if relevant)
+        /*if (!"completed".equalsIgnoreCase(selectedOrder.getStatus()) && !"served".equalsIgnoreCase(selectedOrder.getStatus())) { //
+            errorMessageLabel.setText("Ratings are only available for completed or served orders."); //
+            return;
+        }*/
+
+        try {
+            // 2. بارگذاری فایل FXML نمای ریتینگ سفارش
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/foodapp/food4ufrontend/view/dashbord/OrderRatingsView.fxml")); // NEW: فایل FXML جدید
+            Parent orderRatingsView = loader.load();
+
+            // 3. دسترسی به کنترلر نمای ریتینگ سفارش
+            OrderRatingsController controller = loader.getController(); // NEW: کنترلر جدید
+
+            // 4. انتقال داده‌ها (شیء Order) به کنترلر ریتینگ سفارش
+            controller.setOrder(selectedOrder); // متد جدید در OrderRatingsController
+
+            // 5. ایجاد و نمایش پنجره Dialog (Modal Stage)
+            Stage stage = new Stage();
+            stage.initModality(Modality.APPLICATION_MODAL); //
+            stage.setTitle("Rating for Order #" + selectedOrder.getId()); //
+            Scene scene = new Scene(orderRatingsView);
+            scene.getStylesheets().add(getClass().getResource("/com/foodapp/food4ufrontend/css/application.css").toExternalForm()); //
+            stage.setScene(scene);
+            stage.showAndWait(); //
+
+        } catch (IOException e) {
+            errorMessageLabel.setText("Error opening order ratings view: " + e.getMessage()); //
+            e.printStackTrace();
         }
     }
 

@@ -103,6 +103,7 @@
                                 <Label text="Filter Status:"/>
                                 <ComboBox fx:id="filterOrderStatus" promptText="All Statuses" styleClass="combo-box"/>
                                 <MFXButton text="Refresh Orders" onAction="#viewRestaurantOrders" styleClass="login-button"/>
+                                <MFXButton text="View Order Rating" onAction="#handleViewOrderRating" styleClass="login-button"/>
                             </HBox>
                             <TableView fx:id="restaurantOrdersTable" VBox.vgrow="ALWAYS" prefHeight="300" prefWidth="600" styleClass="data-table">
                                 <columns>
