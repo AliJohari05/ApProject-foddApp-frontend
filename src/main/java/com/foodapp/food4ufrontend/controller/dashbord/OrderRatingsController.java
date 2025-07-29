@@ -83,7 +83,7 @@ public class OrderRatingsController { // NEW: نام کلاس
             orderInfoLabel.setText("Order ID: #" + currentOrder.getId() + " - Status: " + currentOrder.getStatus()); //
 
             //loadRestaurantAndCustomerNames();
-
+            restaurantInfoLabel.setText("Restaurant: N/A - Customer: N/A");
             // فراخوانی متد برای بارگذاری ریتینگ سفارش
             loadOrderRating();
         }
