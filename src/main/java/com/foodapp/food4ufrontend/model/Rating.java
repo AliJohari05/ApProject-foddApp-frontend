@@ -1,6 +1,5 @@
-// ApProject_foddApp_frontend/src/main/java/com/foodapp/food4ufrontend/model/Rating.java
 
-package com.foodapp.food4ufrontend.model; // NEW: پکیج فرانت‌اند
+package com.foodapp.food4ufrontend.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -10,7 +9,7 @@ import java.time.LocalDateTime; // اگر زمان را به عنوان LocalDat
 public class Rating {
     private Integer id;
     @JsonProperty("user_id")
-    private Integer userId; // از بک‌اند Integer می‌گیریم
+    private Integer userId;
     @JsonProperty("order_id")
     private Integer orderId;
     @JsonProperty("menu_item_id")
@@ -18,11 +17,11 @@ public class Rating {
     private Integer rating; // 1-5
     private String comment;
     @JsonProperty("image_url")
-    private String imageUrl; // URL تصویر در بک‌اند ذخیره می‌شود، در فرانت‌اند Base64 می‌گیریم
+    private String imageUrl;
     @JsonProperty("created_at")
-    private String createdAt; // به عنوان String در فرانت‌اند برای سادگی (می‌تواند LocalDateTime باشد)
+    private String createdAt;
     @JsonProperty("updated_at")
-    private String updatedAt; // به عنوان String در فرانت‌اند
+    private String updatedAt;
 
     // --- Getters and Setters ---
     public Integer getId() { return id; }
@@ -44,7 +43,6 @@ public class Rating {
     public String getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(String updatedAt) { this.updatedAt = updatedAt; }
 
-    // مهم: متدهای equals و hashCode را بر اساس ID اضافه کنید
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

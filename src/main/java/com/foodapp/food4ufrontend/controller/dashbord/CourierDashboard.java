@@ -50,10 +50,9 @@ public class CourierDashboard {
     @FXML private TableColumn<Order, String> historyStatusColumn;
     @FXML private TableColumn<Order, String> historyUpdatedAtColumn;
 
-    // FXML for included UserProfileView (این فیلد ممکن است دیگر ضروری نباشد اگر به صورت دستی کنترلر را فراخوانی می‌کنید)
     @FXML private UserProfileController userProfileViewController;
 
-    @FXML private AnchorPane myProfileContainer; // اضافه شده: کانتینر برای بارگذاری پروفایل کاربر
+    @FXML private AnchorPane myProfileContainer;
 
     private final ExecutorService executorService = Executors.newCachedThreadPool();
 
@@ -103,7 +102,7 @@ public class CourierDashboard {
                 break;
             case "My Profile":
                 if (mainTabPane != null) mainTabPane.getSelectionModel().select(2);
-                loadUserProfileView(); // فراخوانی متد جدید
+                loadUserProfileView();
                 break;
             case "Logout":
                 logout();
@@ -113,32 +112,24 @@ public class CourierDashboard {
         }
     }
 
-    // متد جدید برای بارگذاری پویا UserProfileView.fxml
     private void loadUserProfileView() {
         errorMessageLabel.setText("Loading profile view...");
         executorService.submit(() -> {
             try {
-                // این بارگذاری به صورت مستقیم از classpath است
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/foodapp/food4ufrontend/view/dashbord/UserProfileView.fxml"));
-                Parent userProfileView = loader.load(); // تلاش برای بارگذاری FXML
+                Parent userProfileView = loader.load();
 
                 Platform.runLater(() -> {
                     if (myProfileContainer != null) {
-                        myProfileContainer.getChildren().setAll(userProfileView); // تزریق محتوای بارگذاری شده به کانتینر
+                        myProfileContainer.getChildren().setAll(userProfileView);
                         errorMessageLabel.setText("Profile view loaded successfully.");
 
-                        // اگر UserProfileController نیاز به مقداردهی اولیه یا بارگذاری داده دارد،
-                        // می‌توانید کنترلر را دریافت کرده و متدهای آن را فراخوانی کنید.
-                        // UserProfileController userProfileControllerInstance = loader.getController();
-                        // if (userProfileControllerInstance != null) {
-                        //     userProfileControllerInstance.loadUserProfile(); // فرض بر وجود چنین متدی در UserProfileController
-                        // }
+
                     } else {
                         errorMessageLabel.setText("Error: My profile container (myProfileContainer) is null in FXML.");
                     }
                 });
             } catch (IOException e) {
-                // اگر بارگذاری در اینجا هم با شکست مواجه شود، خطای دقیق‌تری خواهیم داشت
                 Platform.runLater(() -> {
                     errorMessageLabel.setText("Critical Error loading User Profile View dynamically: " + e.getMessage());
                     e.printStackTrace();

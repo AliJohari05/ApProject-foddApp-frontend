@@ -54,9 +54,7 @@
     -fx-border-width: 0 0 2 0;
 }
 
-/* ========================
-   Buttons
-   ======================== */
+
 .login-button, .mfx-button.login-button {
     -fx-background-color: linear-gradient(to right, #8e24aa, #6a1b9a);
     -fx-text-fill: white;
@@ -73,9 +71,7 @@
     -fx-background-color: linear-gradient(to right, #9c27b0, #7b1fa2);
 }
 
-/* ========================
-   ComboBox
-   ======================== */
+
 .combo-box {
     -fx-background-radius: 10;
     -fx-border-color: #ccc;
@@ -91,9 +87,7 @@
     -fx-border-radius: 50%;
 }
 
-/* ========================
-   Modern TableView Styling
-   ======================== */
+
 .table-view {
     -fx-background-color: #ffffff;
     -fx-border-color: #e0e0e0;
@@ -118,9 +112,7 @@
     -fx-background-radius: 10 10 0 0;
 }
 
-/* ========================
-   Modern TabPane Styling
-   ======================== */
+
 .tab-pane {
     -fx-background-color: #ffffff;
     -fx-tab-min-width: 120px;

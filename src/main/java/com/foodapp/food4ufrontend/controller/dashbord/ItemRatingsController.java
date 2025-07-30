@@ -1,5 +1,3 @@
-// ApProject_foddApp_frontend/src/main/java/com/foodapp/food4ufrontend/controller/dashbord/ItemRatingsController.java
-
 package com.foodapp.food4ufrontend.controller.dashbord;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -45,52 +43,47 @@ public class ItemRatingsController {
     @FXML private Label itemDescriptionLabel;
     @FXML private Label itemPriceLabel;
     @FXML private Label averageRatingLabel;
-    // FIX: نوع TableView و TableColumn ها را به RatingResponseDto از پکیج فرانت‌اند تغییر دهید
     @FXML private TableView<RatingResponseDto> commentsTable;
     @FXML private TableColumn<RatingResponseDto, String> commentUserColumn;
     @FXML private TableColumn<RatingResponseDto, Integer> commentRatingColumn;
     @FXML private TableColumn<RatingResponseDto, String> commentTextColumn;
     @FXML private TableColumn<RatingResponseDto, String> commentImageColumn;
     @FXML private TableColumn<RatingResponseDto, String> commentDateColumn;
-    @FXML private Label viewRatingsErrorMessageLabel; // این لیبل خطای این کنترلر است
+    @FXML private Label viewRatingsErrorMessageLabel;
 
-    private FoodItem currentFoodItem; // آیتم غذایی فعلی که ریتینگ آن را مشاهده می‌کنیم
+    private FoodItem currentFoodItem;
     private final ExecutorService executorService = Executors.newCachedThreadPool();
     private ObjectMapper objectMapper = JsonUtil.getObjectMapper();
 
     @FXML
     public void initialize() {
-        // پیکربندی ستون‌های جدول commentsTable
         commentUserColumn.setCellValueFactory(new PropertyValueFactory<>("userId")); // فرض می‌کنیم userId نام کاربر است (یا نیاز به فیلد username در RatingResponseDto داریم)
         commentRatingColumn.setCellValueFactory(new PropertyValueFactory<>("rating"));
         commentTextColumn.setCellValueFactory(new PropertyValueFactory<>("comment"));
-        commentImageColumn.setCellValueFactory(new PropertyValueFactory<>("imageUrl")); // فرض می‌کنیم imageUrl فیلد تصویر است
+        commentImageColumn.setCellValueFactory(new PropertyValueFactory<>("imageUrl"));
         commentDateColumn.setCellValueFactory(new PropertyValueFactory<>("createdAt"));
     }
 
-    // Setter برای دریافت شیء FoodItem از SellerDashboard
     public void setFoodItem(FoodItem foodItem) {
         this.currentFoodItem = foodItem;
         if (currentFoodItem != null) {
             itemNameLabel.setText(currentFoodItem.getName());
             itemDescriptionLabel.setText(currentFoodItem.getDescription());
-            itemPriceLabel.setText("Price: $" + String.valueOf(currentFoodItem.getPrice())); // FIX: اصلاح شد
+            itemPriceLabel.setText("Price: $" + String.valueOf(currentFoodItem.getPrice()));
 
-            // بارگذاری تصویر آیتم (Base64)
             if (currentFoodItem.getImageBase64() != null && !currentFoodItem.getImageBase64().isEmpty()) {
                 try {
                     byte[] decodedImg = Base64.getDecoder().decode(currentFoodItem.getImageBase64());
                     Image itemImage = new Image(new ByteArrayInputStream(decodedImg));
-                    itemImageView.setImage(itemImage); // FIX: اینجا باید itemImageView باشد نه restaurantLogoImageView
+                    itemImageView.setImage(itemImage);
                 } catch (IllegalArgumentException e) {
                     System.err.println("Error decoding Base64 item image: " + e.getMessage());
-                    loadDefaultItemImage(); // بارگذاری تصویر پیش فرض در صورت خطا
+                    loadDefaultItemImage();
                 }
             } else {
-                loadDefaultItemImage(); // بارگذاری تصویر پیش فرض
+                loadDefaultItemImage();
             }
 
-            // فراخوانی متد برای بارگذاری ریتینگ‌ها پس از تنظیم آیتم
             loadItemRatings();
         }
     }
@@ -144,7 +137,6 @@ public class ItemRatingsController {
                                 // Extract comments (list of RatingResponseDto)
                                 JsonNode commentsNode = rootNode.get("comments");
                                 if (commentsNode != null && commentsNode.isArray()) {
-                                    // FIX: از RatingResponseDto از پکیج فرانت‌اند استفاده کنید
                                     CollectionType listType = objectMapper.getTypeFactory().constructCollectionType(List.class, RatingResponseDto.class);
                                     List<RatingResponseDto> comments = objectMapper.readValue(commentsNode.toString(), listType);
                                     ObservableList<RatingResponseDto> commentObservableList = FXCollections.observableArrayList(comments);

@@ -121,20 +121,18 @@ public class RestaurantMenuController {
     @FXML
     private Label restaurantPhoneLabel;
     @FXML
-    private TabPane menuTabPane; // برای تب‌های منو (Breakfast, Lunch)
+    private TabPane menuTabPane;
     @FXML
     private Label menuErrorMessageLabel;
 
-    private Restaurant currentRestaurant; // رستوران فعلی که منوی آن را مشاهده می‌کنیم
-    private Map<FoodItem, Integer> cart = new HashMap<>(); // سبد خرید: FoodItem -> Quantity
+    private Restaurant currentRestaurant;
+    private Map<FoodItem, Integer> cart = new HashMap<>();
     private final ExecutorService executorService = Executors.newCachedThreadPool();
 
     @FXML
     public void initialize() {
-        // تنظیمات اولیه (در حال حاضر نیازی به کد اضافی نیست زیرا setup در setRestaurant انجام می‌شود)
     }
 
-    // متد Setter برای دریافت شیء Restaurant از BuyerDashboard
     public void setRestaurant(Restaurant restaurant) {
         this.currentRestaurant = restaurant;
         if (currentRestaurant != null) {
@@ -142,23 +140,19 @@ public class RestaurantMenuController {
             restaurantAddressLabel.setText(currentRestaurant.getAddress());
             restaurantPhoneLabel.setText(currentRestaurant.getPhone());
 
-            // بارگذاری تصویر لوگو (اگر URL در مدل Restaurant باشد)
             if (currentRestaurant.getLogoBase64() != null && !currentRestaurant.getLogoBase64().isEmpty()) {
-                // اگر لوگو به صورت Base64 در مدل Restaurant باشد
                 try {
                     byte[] decodedImg = Base64.getDecoder().decode(currentRestaurant.getLogoBase64());
                     Image logoImage = new Image(new ByteArrayInputStream(decodedImg));
                     restaurantLogoImageView.setImage(logoImage);
                 } catch (IllegalArgumentException e) {
                     System.err.println("Error decoding Base64 logo: " + e.getMessage());
-                    loadDefaultLogo(); // بارگذاری لوگوی پیش فرض در صورت خطا
+                    loadDefaultLogo();
                 }
             } else {
-                // بارگذاری لوگوی پیش فرض
                 loadDefaultLogo();
             }
 
-            // فراخوانی متد برای بارگذاری منو پس از تنظیم رستوران
             loadRestaurantMenu();
         }
     }

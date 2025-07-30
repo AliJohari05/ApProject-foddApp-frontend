@@ -49,18 +49,16 @@ public class RatingFormController {
     @FXML private Label formErrorMessageLabel;
 
     private Order orderToRate;
-    private Consumer<Void> refreshOrderHistoryCallback; // Callback برای رفرش تاریخچه سفارشات
-    private String base64ImageString; // رشته Base64 تصویر آپلود شده
+    private Consumer<Void> refreshOrderHistoryCallback;
+    private String base64ImageString;
     private final ExecutorService executorService = Executors.newCachedThreadPool();
-    private ObjectMapper objectMapper = JsonUtil.getObjectMapper(); // استفاده از ObjectMapper موجود
+    private ObjectMapper objectMapper = JsonUtil.getObjectMapper();
 
     @FXML
     public void initialize() {
-        // پر کردن ComboBox امتیازات
         ObservableList<String> ratings = FXCollections.observableArrayList("1", "2", "3", "4", "5"); //
         ratingComboBox.setItems(ratings);
 
-        // بارگذاری تصویر پیش‌فرض (مشابه فرم FoodItem/Restaurant)
         loadDefaultRatingImage();
     }
 
@@ -82,7 +80,6 @@ public class RatingFormController {
         }
     }
 
-    // Setter برای دریافت سفارش از BuyerDashboard
     public void setOrder(Order order) {
         this.orderToRate = order;
         if (orderToRate != null) {
@@ -90,7 +87,6 @@ public class RatingFormController {
         }
     }
 
-    // Setter برای Callback رفرش تاریخچه سفارشات
     public void setRefreshOrderHistoryCallback(Consumer<Void> callback) {
         this.refreshOrderHistoryCallback = callback;
     }
@@ -122,8 +118,8 @@ public class RatingFormController {
 
     @FXML
     private void handleSubmitRating(ActionEvent event) {
-        String ratingStr = ratingComboBox.getValue(); // دریافت امتیاز انتخاب شده
-        String comment = commentField.getText(); // دریافت نظر
+        String ratingStr = ratingComboBox.getValue();
+        String comment = commentField.getText();
 
         if (ratingStr == null || ratingStr.isEmpty()) {
             formErrorMessageLabel.setText("Please select a rating (1-5).");
@@ -141,9 +137,8 @@ public class RatingFormController {
                 return;
             }
 
-            // ساخت بدنه درخواست برای API POST /ratings
             Map<String, Object> ratingData = new HashMap<>();
-            ratingData.put("order_id", orderToRate.getId()); // NEW: ارسال order_id
+            ratingData.put("order_id", orderToRate.getId());
             ratingData.put("rating", rating);
             if (comment != null && !comment.trim().isEmpty()) {
                 ratingData.put("comment", comment.trim());
@@ -175,9 +170,9 @@ public class RatingFormController {
                             if (response.statusCode() == 200 || response.statusCode() == 201) {
                                 formErrorMessageLabel.setText(rootNode.has("message") ? rootNode.get("message").asText() : "Rating submitted successfully!");
                                 if (refreshOrderHistoryCallback != null) {
-                                    refreshOrderHistoryCallback.accept(null); // رفرش تاریخچه سفارشات
+                                    refreshOrderHistoryCallback.accept(null);
                                 }
-                                closeForm(); // بستن فرم
+                                closeForm();
                             } else {
                                 String errorMessage = rootNode.has("error") ? rootNode.get("error").asText() : "An unknown error occurred.";
                                 formErrorMessageLabel.setText("Error submitting rating: " + errorMessage);
@@ -209,10 +204,8 @@ public class RatingFormController {
 
 
     private void closeForm() {
-        // NEW: Stage را از یکی از فیلدهای @FXML خود فرم (مثلاً restaurantNameLabel) می‌گیریم
-        // این کار تضمین می‌کند که Stage همیشه از یک Node معتبر در Scene graph گرفته شود.
-        Stage stage = (Stage) orderInfoLabel.getScene().getWindow(); //
-        stage.close(); // بستن پنجره (Stage)
-        executorService.shutdown(); // خاموش کردن ExecutorService
+        Stage stage = (Stage) orderInfoLabel.getScene().getWindow();
+        stage.close();
+        executorService.shutdown();
     }
 }

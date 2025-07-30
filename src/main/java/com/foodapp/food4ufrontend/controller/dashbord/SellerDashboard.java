@@ -346,37 +346,31 @@ public class SellerDashboard {
 
     @FXML
     private void handleViewItemRatings(ActionEvent event) {
-        errorMessageLabel.setText(""); // پاک کردن پیام قبلی
+        errorMessageLabel.setText("");
 
-        // 1. اعتبارسنجی: مطمئن شویم یک آیتم غذایی از جدول 'foodItemTable' انتخاب شده است.
         FoodItem selectedFoodItem = foodItemTable.getSelectionModel().getSelectedItem(); //
         if (selectedFoodItem == null) {
             errorMessageLabel.setText("Please select a food item to view its ratings."); //
-            return; // اگر آیتمی انتخاب نشده باشد، از متد خارج می‌شویم.
+            return;
         }
 
         try {
-            // 2. بارگذاری فایل FXML نمای ریتینگ آیتم
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/foodapp/food4ufrontend/view/dashbord/ItemRatingsView.fxml")); //
             Parent itemRatingsView = loader.load(); //
 
-            // 3. دسترسی به کنترلر نمای ریتینگ
             ItemRatingsController controller = loader.getController(); //
 
-            // 4. انتقال داده‌ها (شیء FoodItem) به کنترلر ریتینگ
             controller.setFoodItem(selectedFoodItem); // متد جدید در ItemRatingsController
 
-            // 5. ایجاد و نمایش پنجره Dialog (Modal Stage)
             Stage stage = new Stage(); //
-            stage.initModality(Modality.APPLICATION_MODAL); // پنجره را به صورت Modal تنظیم می‌کنیم
+            stage.initModality(Modality.APPLICATION_MODAL);
             stage.setTitle("Ratings for " + selectedFoodItem.getName()); // عنوان پنجره
             Scene scene = new Scene(itemRatingsView); //
             scene.getStylesheets().add(getClass().getResource("/com/foodapp/food4ufrontend/css/application.css").toExternalForm()); // اعمال استایل CSS
-            stage.setScene(scene); //
-            stage.showAndWait(); // نمایش پنجره و انتظار برای بسته شدن آن
+            stage.setScene(scene);
+            stage.showAndWait();
 
         } catch (IOException e) {
-            // 6. مدیریت خطا در صورت عدم بارگذاری FXML
             errorMessageLabel.setText("Error opening ratings view: " + e.getMessage()); //
             e.printStackTrace(); //
         }
@@ -384,32 +378,23 @@ public class SellerDashboard {
 
     @FXML
     private void handleViewOrderRating(ActionEvent event) {
-        errorMessageLabel.setText(""); // پاک کردن پیام قبلی
+        errorMessageLabel.setText("");
 
-        // 1. اعتبارسنجی: مطمئن شویم یک سفارش از جدول 'restaurantOrdersTable' انتخاب شده است.
         Order selectedOrder = restaurantOrdersTable.getSelectionModel().getSelectedItem(); //
         if (selectedOrder == null) {
             errorMessageLabel.setText("Please select an order to view its rating."); //
             return;
         }
-        // Optional: Only allow viewing rating for completed or served orders (if relevant)
-        /*if (!"completed".equalsIgnoreCase(selectedOrder.getStatus()) && !"served".equalsIgnoreCase(selectedOrder.getStatus())) { //
-            errorMessageLabel.setText("Ratings are only available for completed or served orders."); //
-            return;
-        }*/
+
 
         try {
-            // 2. بارگذاری فایل FXML نمای ریتینگ سفارش
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/foodapp/food4ufrontend/view/dashbord/OrderRatingsView.fxml")); // NEW: فایل FXML جدید
             Parent orderRatingsView = loader.load();
 
-            // 3. دسترسی به کنترلر نمای ریتینگ سفارش
             OrderRatingsController controller = loader.getController(); // NEW: کنترلر جدید
 
-            // 4. انتقال داده‌ها (شیء Order) به کنترلر ریتینگ سفارش
             controller.setOrder(selectedOrder); // متد جدید در OrderRatingsController
 
-            // 5. ایجاد و نمایش پنجره Dialog (Modal Stage)
             Stage stage = new Stage();
             stage.initModality(Modality.APPLICATION_MODAL); //
             stage.setTitle("Rating for Order #" + selectedOrder.getId()); //

@@ -1,5 +1,3 @@
-// ApProject_foddApp_frontend/src/main/java/com/foodapp/food4ufrontend/controller/dashbord/OrderRatingsController.java
-
 package com.foodapp.food4ufrontend.controller.dashbord;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -36,25 +34,23 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.List;
 
-public class OrderRatingsController { // NEW: نام کلاس
+public class OrderRatingsController {
 
     @FXML private Label orderInfoLabel;
     @FXML private Label restaurantInfoLabel;
     @FXML private Label ratingScoreLabel;
     @FXML private TextArea commentDisplayArea;
     @FXML private ImageView ratingImageView;
-    @FXML private Label viewRatingErrorMessageLabel; // لیبل خطا برای این کنترلر
+    @FXML private Label viewRatingErrorMessageLabel;
 
-    private Order currentOrder; // سفارش فعلی که ریتینگ آن را مشاهده می‌کنیم
+    private Order currentOrder;
     private final ExecutorService executorService = Executors.newCachedThreadPool();
     private ObjectMapper objectMapper = JsonUtil.getObjectMapper();
 
     @FXML
     public void initialize() {
-        // تنظیمات اولیه
-        commentDisplayArea.setEditable(false); // نظر فقط برای نمایش است
-        commentDisplayArea.setWrapText(true); // متن طولانی را بشکند
-        // بارگذاری تصویر پیش‌فرض (مشابه سایر کنترلرها)
+        commentDisplayArea.setEditable(false);
+        commentDisplayArea.setWrapText(true);
         loadDefaultRatingImage();
     }
 
@@ -76,7 +72,6 @@ public class OrderRatingsController { // NEW: نام کلاس
         }
     }
 
-    // Setter برای دریافت شیء Order از SellerDashboard
     public void setOrder(Order order) {
         this.currentOrder = order;
         if (currentOrder != null) {
@@ -84,7 +79,6 @@ public class OrderRatingsController { // NEW: نام کلاس
 
             //loadRestaurantAndCustomerNames();
             restaurantInfoLabel.setText("Restaurant: N/A - Customer: N/A");
-            // فراخوانی متد برای بارگذاری ریتینگ سفارش
             loadOrderRating();
         }
     }
@@ -94,33 +88,29 @@ public class OrderRatingsController { // NEW: نام کلاس
             String customerName = "N/A";
 
             try {
-                String token = AuthManager.getJwtToken(); //
+                String token = AuthManager.getJwtToken();
                 if (token == null || token.isEmpty()) {
                     Platform.runLater(() -> viewRatingErrorMessageLabel.setText("Authentication token missing."));
                     return;
                 }
 
-                // 1. دریافت نام رستوران با استفاده از vendorId
                 if (currentOrder.getVendorId() != null) { //
                     Optional<HttpResponse<String>> restaurantResponseOpt = ApiClient.get("/restaurants/" + currentOrder.getVendorId(), token); // API call
                     if (restaurantResponseOpt.isPresent() && restaurantResponseOpt.get().statusCode() == 200) {
                         JsonNode restaurantRootNode = objectMapper.readTree(restaurantResponseOpt.get().body());
                         Restaurant restaurant = objectMapper.treeToValue(restaurantRootNode, Restaurant.class); //
-                        restaurantName = restaurant.getName(); //
+                        restaurantName = restaurant.getName();
                     } else {
                         System.err.println("Failed to fetch restaurant details for ID: " + currentOrder.getVendorId());
                     }
                 }
 
-                // 2. دریافت نام مشتری با استفاده از customerId
-                if (currentOrder.getCustomerId() != null) { //
-                    // API برای گرفتن User با ID (احتمالاً /admin/users/{id} یا /auth/profile)
-                    // فرض می‌کنیم /admin/users/{id} برای همه کاربران قابل دسترسی است یا یک API عمومی‌تر وجود دارد
+                if (currentOrder.getCustomerId() != null) {
                     Optional<HttpResponse<String>> userResponseOpt = ApiClient.get("/admin/users/" + currentOrder.getCustomerId(), token); //
                     if (userResponseOpt.isPresent() && userResponseOpt.get().statusCode() == 200) {
                         JsonNode userRootNode = objectMapper.readTree(userResponseOpt.get().body());
                         User customer = objectMapper.treeToValue(userRootNode, User.class); //
-                        customerName = customer.getFullName(); //
+                        customerName = customer.getFullName();
                     } else {
                         System.err.println("Failed to fetch customer details for ID: " + currentOrder.getCustomerId());
                     }
@@ -147,7 +137,7 @@ public class OrderRatingsController { // NEW: نام کلاس
                 }
 
                 // API call to get rating for a specific order
-                // GET /ratings/orders/{order_id} (این اندپوینت جدید در بک‌اند پیاده‌سازی شده است)
+                // GET /ratings/orders/{order_id}
                 Optional<HttpResponse<String>> responseOpt = ApiClient.get("/ratings/" + currentOrder.getId(), token); //
 
                 if (responseOpt.isPresent()) {
@@ -157,13 +147,11 @@ public class OrderRatingsController { // NEW: نام کلاس
                     Platform.runLater(() -> {
                         if (response.statusCode() == 200) {
                             try {
-                                // دسیریالایز کردن پاسخ به RatingResponseDto
                                 RatingResponseDto ratingDetails = objectMapper.readValue(rootNode.toString(), RatingResponseDto.class); //
 
                                 ratingScoreLabel.setText(String.valueOf(ratingDetails.getRating())); // نمایش امتیاز
                                 commentDisplayArea.setText(ratingDetails.getComment() != null && !ratingDetails.getComment().isEmpty() ? ratingDetails.getComment() : "No comment provided."); // نمایش نظر
 
-                                // بارگذاری تصویر ریتینگ (اگر موجود باشد)
                                 if (ratingDetails.getImageBase64() != null && !ratingDetails.getImageBase64().isEmpty()) { //
                                     try {
                                         byte[] decodedImg = Base64.getDecoder().decode(ratingDetails.getImageBase64().get(0)); // فرض می‌کنیم فقط یک تصویر است
@@ -174,7 +162,7 @@ public class OrderRatingsController { // NEW: نام کلاس
                                         ratingImageView.setImage(null); // Clear image on error
                                     }
                                 } else {
-                                    ratingImageView.setImage(null); // اگر تصویری نبود، ImageView را خالی کنید.
+                                    ratingImageView.setImage(null);
                                 }
 
                                 viewRatingErrorMessageLabel.setText("Order rating loaded successfully.");
@@ -183,7 +171,6 @@ public class OrderRatingsController { // NEW: نام کلاس
                                 e.printStackTrace();
                             }
                         } else {
-                            // اگر سفارش امتیازی نداشته باشد (API 404 برگرداند)، یا خطای دیگری باشد
                             if (response.statusCode() == 404) {
                                 ratingScoreLabel.setText("N/A");
                                 commentDisplayArea.setText("No rating submitted for this order yet.");
@@ -208,7 +195,6 @@ public class OrderRatingsController { // NEW: نام کلاس
 
     @FXML
     private void handleClose(ActionEvent event) {
-        // Stage را از یکی از فیلدهای @FXML خود فرم (مثلاً orderInfoLabel) می‌گیریم
         Stage stage = (Stage) orderInfoLabel.getScene().getWindow();
         stage.close();
         executorService.shutdown();

@@ -1,6 +1,4 @@
-// ApProject_foddApp_frontend/src/main/java/com/foodapp/food4ufrontend/dto/RatingResponseDto.java
-
-package com.foodapp.food4ufrontend.dto; // NEW: پکیج فرانت‌اند
+package com.foodapp.food4ufrontend.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.foodapp.food4ufrontend.model.Rating; // NEW: از مدل Rating فرانت‌اند استفاده کنید
@@ -16,8 +14,8 @@ public class RatingResponseDto {
     private Integer itemId;
     private Integer rating;
     private String comment;
-    @JsonProperty("imageBase64") // مطابق با YAML
-    private List<String> imageBase64; // اگر imageBase64 را از بک‌اند برمی‌گردانید
+    @JsonProperty("imageBase64")
+    private List<String> imageBase64;
     @JsonProperty("user_id")
     private Integer userId;
     @JsonProperty("created_at")
@@ -31,12 +29,11 @@ public class RatingResponseDto {
         this.itemId = rating.getMenuItemId();
         this.rating = rating.getRating();
         this.comment = rating.getComment();
-        // اگر imageUrl در مدل Rating فرانت‌اند دارید
         this.imageBase64 = (rating.getImageUrl() != null && !rating.getImageUrl().isEmpty()) ?
                 List.of(rating.getImageUrl()) : Collections.emptyList();
         this.userId = rating.getUserId();
         // DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME; // اگر createdAt از نوع LocalDateTime باشد
-        this.createdAt = rating.getCreatedAt(); // اگر createdAt از نوع String باشد
+        this.createdAt = rating.getCreatedAt();
     }
 
     // --- Getters and Setters ---

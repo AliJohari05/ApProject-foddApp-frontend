@@ -147,25 +147,25 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 public class CartController {
 
-    @FXML private TableView<CartItemDisplay> cartItemsTable; // TableView برای نمایش آیتم‌های سبد خرید
+    @FXML private TableView<CartItemDisplay> cartItemsTable;
     @FXML private TableColumn<CartItemDisplay, String> cartItemNameColumn;
     @FXML private TableColumn<CartItemDisplay, Integer> cartItemQuantityColumn;
-    @FXML private TableColumn<CartItemDisplay, BigDecimal> cartItemPriceColumn; // استفاده از BigDecimal برای دقت قیمت
+    @FXML private TableColumn<CartItemDisplay, BigDecimal> cartItemPriceColumn;
     @FXML private TableColumn<CartItemDisplay, BigDecimal> cartItemSubtotalColumn;
-    @FXML private TableColumn<CartItemDisplay, Void> cartItemActionsColumn; // برای دکمه‌های حذف/ویرایش تعداد
-    @FXML private Label totalPriceLabel; // لیبل برای نمایش قیمت کل
-    @FXML private Label cartErrorMessageLabel; // لیبل برای نمایش پیام‌های خطا/وضعیت
+    @FXML private TableColumn<CartItemDisplay, Void> cartItemActionsColumn;
+    @FXML private Label totalPriceLabel;
+    @FXML private Label cartErrorMessageLabel;
 
-    @FXML private MFXTextField couponCodeField; //
-    @FXML private MFXButton applyCouponButton; //
-    @FXML private Label couponMessageLabel; //
+    @FXML private MFXTextField couponCodeField;
+    @FXML private MFXButton applyCouponButton;
+    @FXML private Label couponMessageLabel;
 
-    private Map<FoodItem, Integer> cartData; // سبد خرید (از RestaurantMenuController منتقل می‌شود)
-    private String currentRestaurantId; // ID رستوران (برای ارسال در درخواست سفارش)
-    private Consumer<Void> clearCartCallback; // Callback برای پاک کردن سبد خرید در RestaurantMenuController
+    private Map<FoodItem, Integer> cartData;
+    private String currentRestaurantId;
+    private Consumer<Void> clearCartCallback;
     private final ExecutorService executorService = Executors.newCachedThreadPool();
-    private Coupon appliedCoupon; // برای ذخیره جزئیات کوپن اعمال شده (بخش اضافه شده)
-    private BigDecimal currentCalculatedTotalPrice = BigDecimal.ZERO; // برای ذخیره قیمت کل پس از اعمال تخفیف‌ها (بخش اضافه شده)
+    private Coupon appliedCoupon;
+    private BigDecimal currentCalculatedTotalPrice = BigDecimal.ZERO;
 
     public static class CartItemDisplay {
         private FoodItem foodItem;
@@ -179,10 +179,10 @@ public class CartController {
         }
 
         public FoodItem getFoodItem() { return foodItem; }
-        public String getItemName() { return foodItem.getName(); } // برای ستون Name
-        public int getQuantity() { return quantity; } // برای ستون Quantity
-        public BigDecimal getPrice() { return BigDecimal.valueOf(foodItem.getPrice()); } // برای ستون Price
-        public BigDecimal getSubtotal() { return subtotal; } // برای ستون Subtotal
+        public String getItemName() { return foodItem.getName(); }
+        public int getQuantity() { return quantity; }
+        public BigDecimal getPrice() { return BigDecimal.valueOf(foodItem.getPrice()); }
+        public BigDecimal getSubtotal() { return subtotal; }
         public void setQuantity(int quantity) {
             this.quantity = quantity;
             this.subtotal = BigDecimal.valueOf(foodItem.getPrice()).multiply(BigDecimal.valueOf(quantity));
@@ -196,7 +196,6 @@ public class CartController {
         cartItemPriceColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
         cartItemSubtotalColumn.setCellValueFactory(new PropertyValueFactory<>("subtotal"));
 
-        // پیکربندی ستون Actions با دکمه‌ها
         cartItemActionsColumn.setCellFactory(param -> new TableCell<CartItemDisplay, Void>() {
             private final Button deleteButton = new Button("Delete");
             private final Button editButton = new Button("Edit");
@@ -205,11 +204,11 @@ public class CartController {
             {
                 deleteButton.setOnAction(event -> {
                     CartItemDisplay item = getTableView().getItems().get(getIndex());
-                    handleRemoveItem(item.getFoodItem()); // فراخوانی متد حذف
+                    handleRemoveItem(item.getFoodItem());
                 });
                 editButton.setOnAction(event -> {
                     CartItemDisplay item = getTableView().getItems().get(getIndex());
-                    handleEditQuantity(item.getFoodItem()); // فراخوانی متد ویرایش تعداد
+                    handleEditQuantity(item.getFoodItem());
                 });
             }
 
@@ -221,30 +220,25 @@ public class CartController {
         });
     }
 
-    // Setter برای دریافت سبد خرید از کنترلر والد (RestaurantMenuController)
     public void setCart(Map<FoodItem, Integer> cart) {
         this.cartData = cart;
-        // بخش اصلاح شده: پاک کردن کوپن اعمال شده هنگام تنظیم سبد خرید جدید
         this.appliedCoupon = null;
         couponCodeField.setText("");
         couponMessageLabel.setText("");
         populateCartTable();
     }
 
-    // Setter برای دریافت ID رستوران
     public void setCurrentRestaurantId(String restaurantId) {
         this.currentRestaurantId = restaurantId;
     }
 
-    // Setter برای Callback جهت پاک کردن سبد خرید در کنترلر والد
     public void setClearCartCallback(Consumer<Void> callback) {
         this.clearCartCallback = callback;
     }
 
     private void populateCartTable() {
-        // تبدیل Map<FoodItem, Integer> به ObservableList<CartItemDisplay>
         ObservableList<CartItemDisplay> displayItems = FXCollections.observableArrayList();
-        BigDecimal subtotalBeforeCoupon = BigDecimal.ZERO; //
+        BigDecimal subtotalBeforeCoupon = BigDecimal.ZERO;
 
         for (Map.Entry<FoodItem, Integer> entry : cartData.entrySet()) {
             CartItemDisplay displayItem = new CartItemDisplay(entry.getKey(), entry.getValue());
@@ -257,10 +251,10 @@ public class CartController {
     }
 
     private void handleRemoveItem(FoodItem itemToRemove) {
-        cartData.remove(itemToRemove); // حذف از Map اصلی
-        appliedCoupon = null; // کوپن اعمال شده را ریست کنید (بخش اصلاح شده)
-        couponMessageLabel.setText(""); // (بخش اصلاح شده)
-        populateCartTable(); // رفرش جدول
+        cartData.remove(itemToRemove);
+        appliedCoupon = null;
+        couponMessageLabel.setText("");
+        populateCartTable();
         cartErrorMessageLabel.setText(itemToRemove.getName() + " removed from cart.");
     }
 
@@ -278,10 +272,10 @@ public class CartController {
                     cartErrorMessageLabel.setText("Quantity must be a positive number. Item not updated.");
                     return;
                 }
-                cartData.put(itemToEdit, newQuantity); // به‌روزرسانی در Map اصلی
-                appliedCoupon = null; // کوپن اعمال شده را ریست کنید (بخش اصلاح شده)
-                couponMessageLabel.setText(""); // (بخش اصلاح شده)
-                populateCartTable(); // رفرش جدول
+                cartData.put(itemToEdit, newQuantity);
+                appliedCoupon = null;
+                couponMessageLabel.setText("");
+                populateCartTable();
                 cartErrorMessageLabel.setText(itemToEdit.getName() + " quantity updated to " + newQuantity + ".");
             } catch (NumberFormatException e) {
                 cartErrorMessageLabel.setText("Invalid quantity. Please enter a valid number.");
@@ -316,11 +310,11 @@ public class CartController {
 
     @FXML
     private void handleClearCart(ActionEvent event) {
-        cartData.clear(); // پاک کردن Map اصلی
-        appliedCoupon = null; // کوپن اعمال شده را پاک کنید (بخش اصلاح شده)
-        couponMessageLabel.setText(""); // پیام کوپن را پاک کنید (بخش اصلاح شده)
+        cartData.clear();
+        appliedCoupon = null;
+        couponMessageLabel.setText("");
 
-        populateCartTable(); // رفرش جدول
+        populateCartTable();
         cartErrorMessageLabel.setText("Cart cleared.");
     }
 
@@ -428,7 +422,7 @@ public class CartController {
             return;
         }
 
-        cartErrorMessageLabel.setText("Placing order..."); // برای نمایش در RestaurantMenuController
+        cartErrorMessageLabel.setText("Placing order...");
 
         executorService.submit(() -> {
             try {
@@ -442,7 +436,7 @@ public class CartController {
                 List<Map<String, Integer>> itemsForOrder = new ArrayList<>();
                 for (Map.Entry<FoodItem, Integer> entry : cartData.entrySet()) {
                     Map<String, Integer> item = new HashMap<>();
-                    item.put("item_id", entry.getKey().getId()); //
+                    item.put("item_id", entry.getKey().getId());
                     item.put("quantity", entry.getValue());
                     itemsForOrder.add(item);
                 }
@@ -497,16 +491,12 @@ public class CartController {
 
     @FXML
     private void handleClose(ActionEvent event) {
-        // بررسی کنید که آیا event و source آن null نیستند
         if (event != null && event.getSource() != null) {
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow(); //
-            stage.close(); // بستن پنجره
+            stage.close();
         } else {
-            // اگر event یا source آن null باشد، یک پیام خطا نمایش دهید.
-            // در شرایط واقعی، ممکن است نیاز به نگهداری یک مرجع به Stage در خود کنترلر داشته باشید
-            // تا بتوانید در هر شرایطی پنجره را ببندید.
             System.err.println("Cannot close stage: ActionEvent or its source is null.");
         }
-        executorService.shutdown(); // خاموش کردن ExecutorService
+        executorService.shutdown();
     }
 }
