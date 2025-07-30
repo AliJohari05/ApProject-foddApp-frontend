@@ -133,3 +133,8 @@ Supervised by:
 
 ## 📸 Preview
 ![Login Screenshot](./src/main/resources/com/foodapp/food4ufrontend/images/LoginScreen.png)
+
+
+
+![Sing Up Screenshot](./src/main/resources/com/foodapp/food4ufrontend/images/signUpScreen.png)
+
