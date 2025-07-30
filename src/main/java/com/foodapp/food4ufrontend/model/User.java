@@ -14,15 +14,14 @@ public class User {
     private String email;
     private String role;
     private String address;
-    @JsonProperty("profileImageBase64")
+    @JsonProperty("profileImageUrl")
     private String profileImageBase64; // Used for sending image data on signup
     @JsonProperty("bank_info")
     private BankInfo bankInfo;
     @JsonProperty("wallet_balance")
     private BigDecimal walletBalance;
     private String status;
-    @JsonProperty("profile_image_url") // ADDED: Field for displaying profile image URL from backend
-    private String profileImageUrl;
+
 
 
     @JsonIgnoreProperties(ignoreUnknown = true)
@@ -61,7 +60,4 @@ public class User {
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
 
-    // NEW: Getter and Setter for profileImageUrl
-    public String getProfileImageUrl() { return profileImageUrl; }
-    public void setProfileImageUrl(String profileImageUrl) { this.profileImageUrl = profileImageUrl; }
 }

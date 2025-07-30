@@ -118,18 +118,23 @@ public class UserProfileController {
             walletBalanceField.setText(user.getWalletBalance() != null ? user.getWalletBalance().toPlainString() : "0.00");
 
             // Load profile image
-            if (user.getProfileImageUrl() != null && !user.getProfileImageUrl().isEmpty()) {
-                String imageUrl = ApiClient.BASE_URL + user.getProfileImageUrl();
+            if (user.getProfileImageBase64() != null && !user.getProfileImageBase64().isEmpty()) {
+                String imageUrl = user.getProfileImageBase64();
+                if (!imageUrl.startsWith("http")) {
+                    imageUrl = ApiClient.BASE_URL + imageUrl;
+                }
                 try {
-                    Image profileImage = new Image(imageUrl, true); // true for background loading
+                    Image profileImage = new Image(imageUrl, true);
                     profileImageView.setImage(profileImage);
                 } catch (Exception e) {
-                    System.err.println("Error loading profile image from URL: " + imageUrl + " - " + e.getMessage());
-                    loadDefaultProfileImage(); // Fallback to default if URL loading fails
+                    loadDefaultProfileImage();
                 }
             } else {
-                loadDefaultProfileImage(); // Load default if no image URL is set
+                loadDefaultProfileImage();
             }
+
+
+
         }
     }
 
@@ -246,11 +251,11 @@ public class UserProfileController {
         editProfileButton.setVisible(true);
         populateProfileFields(currentUser);
         base64ImageString = null;
-        if (currentUser.getProfileImageUrl() == null || currentUser.getProfileImageUrl().isEmpty()) {
+        if (currentUser.getProfileImageBase64() == null || currentUser.getProfileImageBase64().isEmpty()) {
             loadDefaultProfileImage();
         } else {
             try {
-                Image profileImage = new Image(ApiClient.BASE_URL + currentUser.getProfileImageUrl(), true);
+                Image profileImage = new Image(ApiClient.BASE_URL + currentUser.getProfileImageBase64(), true);
                 profileImageView.setImage(profileImage);
             } catch (Exception e) {
                 System.err.println("Error reloading original image after cancel: " + e.getMessage());
