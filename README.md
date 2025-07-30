@@ -131,3 +131,5 @@ Supervised by:
 - Compatible with any RESTful backend based on the provided API
 - Designed to be modular, scalable, and user-friendly
 
+## 📸 Preview
+![Login Screenshot](./src/main/resources/com/foodapp/food4ufrontend/images/LoginScreen.png)
