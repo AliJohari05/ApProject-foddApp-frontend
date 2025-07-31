@@ -211,10 +211,20 @@ Supervised by:
 ![Buyer Screenshot](./src/main/resources/com/foodapp/food4ufrontend/images/BuyerDWallet.png)
 
 
-![Buyer Screenshot](./src/main/resources/com/foodapp/food4ufrontend/images/sellerEditR.png)
+![Buyer Screenshot](./src/main/resources/com/foodapp/food4ufrontend/images/BuyerDFavorite.png)
 
 
 
 
 ## 🚚 Courier Dashboard
+
+
+
+![Courier Screenshot](./src/main/resources/com/foodapp/food4ufrontend/images/CourierDA.png)
+
+
+
+
+![Courier Screenshot](./src/main/resources/com/foodapp/food4ufrontend/images/CourierDH.png)
+
 
