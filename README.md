@@ -138,3 +138,42 @@ Supervised by:
 
 ![Sing Up Screenshot](./src/main/resources/com/foodapp/food4ufrontend/images/signUpScreen.png)
 
+
+## 🔧 Admin Dashboard
+
+![AdminDAllUser Screenshot](./src/main/resources/com/foodapp/food4ufrontend/images/allUserAdminD.png)
+
+
+
+![AdminDAllOrder Screenshot](./src/main/resources/com/foodapp/food4ufrontend/images/orderAdminD.png)
+
+
+
+![AdminDAllTransaction Screenshot](./src/main/resources/com/foodapp/food4ufrontend/images/transactionAdminD.png)
+
+
+
+
+![AdminDAllCoupon Screenshot](./src/main/resources/com/foodapp/food4ufrontend/images/copounAdminD.png)
+
+
+## 🏪 Seller Dashboard
+
+
+
+
+
+
+
+
+## 🛒 Customer Dashboard
+
+
+
+
+
+
+
+
+## 🚚 Courier Dashboard
+
