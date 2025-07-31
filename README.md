@@ -192,8 +192,26 @@ Supervised by:
 ## 🛒 Customer Dashboard
 
 
+![Buyer Screenshot](./src/main/resources/com/foodapp/food4ufrontend/images/BuyerDR.png)
 
 
+
+![Buyer Screenshot](./src/main/resources/com/foodapp/food4ufrontend/images/BuyerDOrder.png)
+
+
+
+![Buyer Screenshot](./src/main/resources/com/foodapp/food4ufrontend/images/BuyerDShoppingCart.png)
+
+
+
+![Buyer Screenshot](./src/main/resources/com/foodapp/food4ufrontend/images/BuyerVmenu.png)
+
+
+
+![Buyer Screenshot](./src/main/resources/com/foodapp/food4ufrontend/images/BuyerDWallet.png)
+
+
+![Buyer Screenshot](./src/main/resources/com/foodapp/food4ufrontend/images/sellerEditR.png)
 
 
 
