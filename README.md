@@ -159,8 +159,31 @@ Supervised by:
 
 ## 🏪 Seller Dashboard
 
+![SellerDMR Screenshot](./src/main/resources/com/foodapp/food4ufrontend/images/sellerDMyR.png)
 
 
+
+
+
+![SellerDMM Screenshot](./src/main/resources/com/foodapp/food4ufrontend/images/SellerDMM.png)
+
+
+
+
+
+![SellerDMO Screenshot](./src/main/resources/com/foodapp/food4ufrontend/images/sellerDOR.png)
+
+
+
+
+
+![SellerDMOP Screenshot](./src/main/resources/com/foodapp/food4ufrontend/images/profileSeller.png)
+
+
+
+
+
+![profileSelerD Screenshot](./src/main/resources/com/foodapp/food4ufrontend/images/sellerEditR.png)
 
 
 
