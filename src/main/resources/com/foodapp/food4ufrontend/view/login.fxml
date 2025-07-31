@@ -5,15 +5,15 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane style="-fx-background-color: linear-gradient(to bottom right, #ffffff, #f5f5f5);" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.foodapp.food4ufrontend.controller.login.Login">
+<AnchorPane prefHeight="654.0" prefWidth="877.0" style="-fx-background-color: linear-gradient(to bottom right, #ffffff, #f5f5f5);" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.foodapp.food4ufrontend.controller.login.Login">
    <stylesheets>
       <URL value="@../css/application.css" />
    </stylesheets>
 
    <children>
-      <VBox fx:id="loginContainer" alignment="CENTER" maxWidth="400" spacing="20.0" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
+      <VBox fx:id="loginContainer" alignment="CENTER" layoutY="-157.0" maxWidth="424.0" prefHeight="690.0" prefWidth="424.0" spacing="20.0" AnchorPane.bottomAnchor="-157.0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="-157.0">
          <children>
-            <Label style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #8319ad;" text="Welcome to Food4U" />
+            <Label style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #8319ad;" text="Welcome to FoodApp" />
 
             <MFXTextField fx:id="phoneField" floatingText="Phone Number" prefHeight="59.0" prefWidth="170.0" promptText="Phone Number" styleClass="login-field" />
             <MFXPasswordField fx:id="passwordField" floatingText="Password" prefHeight="59.0" prefWidth="173.0" promptText="Password" styleClass="login-field" />

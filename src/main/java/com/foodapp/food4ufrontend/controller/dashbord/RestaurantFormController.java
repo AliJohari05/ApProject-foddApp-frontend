@@ -17,6 +17,7 @@ import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -86,8 +87,25 @@ public class RestaurantFormController {
             phoneField.setText(restaurantEdited.getPhone());
             taxField.setText(String.valueOf(restaurantEdited.getTaxFee()));
             additionalField.setText(String.valueOf(restaurantEdited.getAdditionalFee()));
+
+            if (restaurant.getLogoBase64() != null && !restaurant.getLogoBase64().isEmpty()) {
+                if (restaurant.getLogoBase64().startsWith("/uploads/") || restaurant.getLogoBase64().startsWith("http")) {
+                    // مسیر فایل
+                    String logoPath = restaurant.getLogoBase64();
+                    if (!logoPath.startsWith("http")) {
+                        logoPath = ApiClient.BASE_URL + logoPath;
+                    }
+                    restaurantImageView.setImage(new Image(logoPath, true));
+                } else {
+                    // Base64 قدیمی
+                    byte[] decodedBytes = Base64.getDecoder().decode(restaurant.getLogoBase64());
+                    restaurantImageView.setImage(new Image(new ByteArrayInputStream(decodedBytes)));
+                }
+            }
+
         }
     }
+
 
     public void setRefreshRestaurantCallback(Consumer<Void> refreshRestaurantCallback) {
         this.refreshRestaurantCallback = refreshRestaurantCallback;

@@ -2,6 +2,7 @@
 
 <?import io.github.palexdev.materialfx.controls.*?>
 <?import java.net.*?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
@@ -15,23 +16,26 @@
         <ScrollPane fitToWidth="true" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
             <content>
                 <StackPane alignment="CENTER">
-                <VBox fx:id="signupContainer" alignment="CENTER" maxWidth="500" spacing="12.0" style="-fx-padding: 40;">
+                <VBox fx:id="signupContainer" alignment="CENTER" maxWidth="965.0" prefHeight="829.0" prefWidth="965.0" spacing="12.0" style="-fx-padding: 40;">
                     <children>
-                        <Label style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #8319ad;" text="Register to Food4U" />
+                        <Label prefHeight="36.0" prefWidth="228.0" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #8319ad;" text="Register to FoodApp" textAlignment="CENTER" />
 
-                        <MFXTextField fx:id="nameField" floatingText="Full Name" prefHeight="59.0" prefWidth="163.0" promptText="Full Name" styleClass="login-field" />
-                        <MFXTextField fx:id="phoneField" floatingText="Phone Number" prefHeight="59.0" prefWidth="159.0" promptText="Phone Number" styleClass="login-field" />
-                        <MFXTextField fx:id="emailField" floatingText="Email" prefHeight="59.0" prefWidth="156.0" promptText="Email (Optional)" styleClass="login-field" />
-                        <MFXPasswordField fx:id="passwordField" floatingText="Password" prefHeight="59.0" prefWidth="155.0" promptText="Password" styleClass="login-field" />
+                        <MFXTextField fx:id="nameField" floatingText="Full Name" prefHeight="59.0" prefWidth="250.0" promptText="Full Name" styleClass="login-field" />
+                        <MFXTextField fx:id="phoneField" floatingText="Phone Number" prefHeight="59.0" prefWidth="258.0" promptText="Phone Number" styleClass="login-field" />
+                        <MFXTextField fx:id="emailField" floatingText="Email" prefHeight="59.0" prefWidth="261.0" promptText="Email (Optional)" styleClass="login-field" />
+                        <MFXPasswordField fx:id="passwordField" floatingText="Password" prefHeight="59.0" prefWidth="267.0" promptText="Password" styleClass="login-field" />
                         <MFXTextField fx:id="addressField" floatingText="Address" prefHeight="59.0" prefWidth="266.0" promptText="Address" styleClass="login-field" />
                         <MFXTextField fx:id="bankNameField" floatingText="Bank Name" prefHeight="59.0" prefWidth="268.0" promptText="Bank Name (for Seller/Courier)" styleClass="login-field" />
                         <MFXTextField fx:id="accountField" floatingText="Account Number" prefHeight="59.0" prefWidth="275.0" promptText="Account Number (for Seller/Courier)" styleClass="login-field" />
 
                         <ComboBox fx:id="roleComboBox" prefHeight="33.0" prefWidth="139.0" promptText="Select Role" />
 
-                        <HBox alignment="CENTER" prefHeight="50.0" prefWidth="439.0" spacing="10">
-                            <Label prefHeight="18.0" prefWidth="99.0" text="Profile Picture:" />
-                            <MFXButton onAction="#handleImageUpload" prefHeight="40.0" prefWidth="176.0" styleClass="login-button" text="Upload Image" />
+                        <HBox alignment="CENTER" prefHeight="51.0" prefWidth="441.0" spacing="10">
+                            <Label prefHeight="18.0" prefWidth="108.0" text="Profile Picture:" />
+                            <MFXButton onAction="#handleImageUpload" prefHeight="40.0" prefWidth="191.0" styleClass="login-button" text="Upload Image">
+                           <HBox.margin>
+                              <Insets left="25.0" right="75.0" />
+                           </HBox.margin></MFXButton>
                             <ImageView fx:id="profileImageView" fitHeight="50.0" fitWidth="50.0" preserveRatio="true" />
                         </HBox>
 
